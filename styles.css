@@ -1422,6 +1422,32 @@ input:focus, select:focus {
     text-transform: uppercase;
 }
 
+/* Receipt Mode Specifics */
+.receipt-mode {
+    border: 2px solid #059669;
+    position: relative;
+}
+
+.receipt-mode .report-header h1 {
+    color: #166534;
+}
+
+.receipt-mode .report-header h2 {
+    color: #059669;
+}
+
+.receipt-mode .stamp-box {
+    border: 3px double #059669 !important;
+    color: #059669 !important;
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    width: 70px !important;
+    height: 70px !important;
+    opacity: 0.8 !important;
+    border-radius: 50% !important;
+    transform: rotate(-25deg) !important;
+}
+
 .report-grid {
     display: flex;
     flex-direction: column;

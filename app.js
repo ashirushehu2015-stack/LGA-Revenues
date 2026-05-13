@@ -448,6 +448,92 @@ function renderTable() {
 }
 
 // Report Generation Template (Profile View)
+// Official Receipt Template
+function generateReceiptHTML(payer, taxId) {
+    const tax = payer.taxes.find(tx => tx.id === taxId);
+    if (!tax) return '<p>Error: Tax item not found.</p>';
+
+    const dateStr = new Date(tax.paymentDate || new Date()).toLocaleDateString('en-GB', { 
+        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    
+    const refStr = tax.paymentReference || 'N/A';
+    const lgaHeader = `${(payer.lga || 'ZAMFARA').toUpperCase()} LGA`;
+
+    return `
+        <div class="printable-report receipt-mode">
+            <div class="report-header">
+                <img src="logo.png" alt="Logo" class="report-logo">
+                <div class="report-title-group">
+                    <h1>ZAMFARA STATE GOVT</h1>
+                    <h2>OFFICIAL REVENUE RECEIPT</h2>
+                    <p>${lgaHeader}</p>
+                </div>
+                <div class="invoice-badge" style="background-color: #059669;">PAYMENT CONFIRMED</div>
+            </div>
+            
+            <div class="report-meta">
+                <div class="report-meta-item">
+                    <span class="label">Receipt No:</span>
+                    <span class="value" style="color: #059669;">${refStr}</span>
+                </div>
+                <div class="report-meta-item">
+                    <span class="label">Payment Date:</span>
+                    <span class="value">${dateStr}</span>
+                </div>
+            </div>
+
+            <div class="report-section">
+                <h3>TAXPAYER DETAILS</h3>
+                <div class="report-grid">
+                    <div class="grid-item">
+                        <span class="label">Payer</span>
+                        <span class="value">${payer.contactPerson}</span>
+                    </div>
+                    <div class="grid-item">
+                        <span class="label">Business</span>
+                        <span class="value">${payer.businessName}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="report-section">
+                <h3>PAYMENT BREAKDOWN</h3>
+                <div style="background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">Description</span>
+                        <span style="font-size: 11px; font-weight: 600; color: #64748b;">Amount</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px dashed #cbd5e1;">
+                        <span style="font-size: 12px; font-weight: 700; color: #1e293b;">${tax.name}</span>
+                        <span style="font-size: 13px; font-weight: 800; color: #059669;">₦${(tax.amountPaid || tax.amount).toLocaleString()}</span>
+                    </div>
+                    <div style="font-size: 9px; color: #94a3b8; margin-top: 4px;">Collection Cycle: ${tax.duration}</div>
+                </div>
+            </div>
+
+            <div class="report-section total-box" style="margin-top: 15px; padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; text-align: center;">
+                <p style="font-size: 10px; font-weight: 700; color: #166534; margin: 0;">TOTAL PAID</p>
+                <h2 style="font-size: 22px; font-weight: 900; color: #166534; margin: 5px 0;">₦${(tax.amountPaid || tax.amount).toLocaleString()}</h2>
+            </div>
+
+            <div class="report-footer">
+                <div class="footer-note" style="background: #fff; border: 1px solid #eee; padding: 8px; border-radius: 4px;">
+                    <p>This is a digitally generated official receipt. <br> <strong>Security Code: ${Math.random().toString(36).substring(2, 10).toUpperCase()}</strong></p>
+                </div>
+                <div class="signature-area">
+                    <div class="signature-box">
+                        <div class="sig-line"></div>
+                        <p>Revenue Authority</p>
+                    </div>
+                    <div class="stamp-box" style="color: #059669; border-color: #059669; opacity: 0.6;">PAID</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Invoice Template
 function generateInvoiceHTML(t) {
     const dateStr = new Date().toLocaleDateString('en-GB', { 
         day: 'numeric', month: 'short', year: 'numeric' 
@@ -468,9 +554,9 @@ function generateInvoiceHTML(t) {
                     <p style="font-size: 9px; color: #666; margin: 0;">Cycle: ${tax.duration}</p>
                     <p style="font-size: 10px; font-weight: 700; color: var(--primary); margin: 2px 0 0 0;">Amount: ${amountDisplay}</p>
                 </div>
-                <div style="text-align: right; min-width: 80px;">
+                <div style="text-align: right; min-width: 100px;">
                     ${isPaid ? 
-                        `<span class="status-badge status-paid" style="font-size: 8px; padding: 2px 6px;">PAID</span>` : 
+                        `<button class="btn-outline-sm no-print" onclick="viewTaxReceipt('${t.id}', '${tax.id}')" style="font-size: 8px; padding: 2px 6px; border-color: #059669; color: #059669;">VIEW RECEIPT</button>` : 
                         (tax.amount > 0 ? `<button class="btn-outline-sm no-print" onclick="paySingleTax('${t.id}', '${tax.id}')" style="font-size: 8px; padding: 2px 6px; border-color: var(--primary); color: var(--primary);">PAY NOW</button>` : `<span style="font-size: 8px; color: #f59e0b; font-weight: bold;">ASSESSMENT PENDING</span>`)
                     }
                 </div>
@@ -548,6 +634,7 @@ window.openInvoice = function(id) {
     const t = transactions.find(item => item.id === id);
     if (!t) return;
     
+    printReportBtn.innerHTML = '<i data-feather="printer"></i> Print Invoice';
     reportContentContainer.innerHTML = generateInvoiceHTML(t);
     reportModal.classList.add('active');
     
@@ -609,6 +696,17 @@ window.editRevenue = function(id) {
 
     modal.classList.add('active');
     updateLiveCalculator();
+};
+
+window.viewTaxReceipt = function(payerId, taxId) {
+    const payer = transactions.find(p => p.id === payerId);
+    if (!payer) return;
+    
+    reportContentContainer.innerHTML = generateReceiptHTML(payer, taxId);
+    reportModal.classList.add('active');
+    printReportBtn.innerHTML = '<i data-feather="printer"></i> Print Receipt';
+    payOnlineBtn.style.display = 'none';
+    feather.replace();
 };
 
 window.deleteRevenue = async function(id) {
@@ -711,10 +809,17 @@ async function verifyPaymentOnServer(reference, payerId, taxId) {
             showToast('Payment Successful!', 'success');
             // Refresh data
             await fetchRevenues();
-            // Update modal content if it's open
+            
+            // Show the Official Receipt immediately
             const updatedPayer = transactions.find(p => p.id === payerId);
             if (updatedPayer) {
-                reportContentContainer.innerHTML = generateInvoiceHTML(updatedPayer);
+                reportContentContainer.innerHTML = generateReceiptHTML(updatedPayer, taxId);
+                reportModal.classList.add('active');
+                
+                // Switch top button to "Print Receipt" if it was "Print Invoice"
+                printReportBtn.innerHTML = '<i data-feather="printer"></i> Print Receipt';
+                payOnlineBtn.style.display = 'none';
+                feather.replace();
             }
         } else {
             showToast('Payment verification failed.', 'error');
