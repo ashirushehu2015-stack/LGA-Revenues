@@ -121,39 +121,54 @@
                 <!-- Stats Overview Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #ecfdf5; color: #10b981;">
+                        <div class="stat-icon" style="color: #6366f1;">
                             <i data-feather="trending-up"></i>
                         </div>
                         <div class="stat-info">
                             <h3>Total Generation</h3>
                             <p id="totalRevenue">₦0</p>
+                            <span class="stat-trend up">
+                                <i data-feather="arrow-up-right" style="width: 12px; height: 12px;"></i>
+                                <span>+12.5%</span>
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #eef2ff; color: #6366f1;">
+                        <div class="stat-icon" style="color: #10b981;">
                             <i data-feather="check-circle"></i>
                         </div>
                         <div class="stat-info">
                             <h3>Collected Revenue</h3>
                             <p id="totalCollected">₦0</p>
+                            <span class="stat-trend up">
+                                <i data-feather="arrow-up-right" style="width: 12px; height: 12px;"></i>
+                                <span>+8.2%</span>
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #eff6ff; color: #3b82f6;">
+                        <div class="stat-icon" style="color: #3b82f6;">
                             <i data-feather="file-text"></i>
                         </div>
                         <div class="stat-info">
                             <h3>Transactions</h3>
                             <p id="totalTransactions">0</p>
+                            <span class="stat-trend up">
+                                <i data-feather="arrow-up-right" style="width: 12px; height: 12px;"></i>
+                                <span>+5.4%</span>
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon" style="background-color: #fff7ed; color: #f59e0b;">
+                        <div class="stat-icon" style="color: #f59e0b;">
                             <i data-feather="map"></i>
                         </div>
                         <div class="stat-info">
                             <h3 id="lgaStatsLabel">LGAs Covered</h3>
                             <p id="totalLgas">0</p>
+                            <span class="stat-trend" style="color: var(--slate-400)">
+                                <span>System-wide</span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -161,22 +176,23 @@
                 <!-- Recent Transactions Table -->
                 <div class="table-container">
                     <div class="table-header">
-                        <h2>Registered Tax Payers</h2>
+                        <div>
+                            <h2>Registered Tax Payers</h2>
+                            <p style="font-size: 0.8125rem; color: var(--slate-500); margin-top: 2px;">Manage and monitor all tax profiles in the system.</p>
+                        </div>
                         <div class="data-toolbar-right">
                             <button class="btn-outline-sm" id="refreshDataBtn" title="Refresh Portal Data">
                                 <i data-feather="refresh-cw"></i>
+                                <span>Sync Data</span>
                             </button>
                             <button class="btn-outline-sm" id="exportExcelBtn">
                                 <i data-feather="download"></i>
-                                Export Excel
+                                <span>Export Excel</span>
                             </button>
                             <button class="btn-outline-sm" id="bulkReportBtn">
                                 <i data-feather="printer"></i>
-                                Bulk Invoices
+                                <span>Bulk Invoices</span>
                             </button>
-                        </div>
-                                    Bulk Invoices
-                                </button>
                         </div>
                     </div>
                     <div class="table-responsive">
