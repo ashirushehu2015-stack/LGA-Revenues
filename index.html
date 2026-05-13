@@ -34,9 +34,13 @@
                 </div>
             </div>
             <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item">
+                <a href="index.html" class="nav-item active">
                     <i data-feather="grid"></i>
                     <span>Overview</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Analytics</span>
                 </a>
                 <a href="notifications.html" class="nav-item">
                     <i data-feather="bell"></i>
@@ -46,14 +50,19 @@
                     <i data-feather="users"></i>
                     <span>LGA Admins</span>
                 </a>
-                <a href="analytics.html" class="nav-item">
-                    <i data-feather="bar-chart-2"></i>
-                    <span>Analytics</span>
+                <div class="nav-divider"></div>
+                <div class="nav-label">EXTERNALS</div>
+                <a href="portal.html" class="nav-item" target="_blank">
+                    <i data-feather="external-link"></i>
+                    <span>Public Portal</span>
+                </a>
+                <a href="landing.html" class="nav-item">
+                    <i data-feather="home"></i>
+                    <span>Landing Page</span>
                 </a>
                 <div class="nav-divider"></div>
                 <div class="nav-label">LGA DASHBOARDS</div>
                 <div class="lga-list" id="sidebarLgaList">
-                    <!-- Populated via JS for Super Admin -->
                     <div class="analytics-empty" style="font-size: 10px; padding: 0.5rem;">System-wide view</div>
                 </div>
                 <div class="nav-divider"></div>
