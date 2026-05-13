@@ -340,7 +340,17 @@
 
         openLoginBtn.addEventListener('click', () => {
             loginModal.classList.add('active');
-            checkServerStatus();
+        });
+
+        closeLoginBtn.addEventListener('click', () => {
+            loginModal.classList.remove('active');
+        });
+
+        // Close modal when clicking outside of it
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                loginModal.classList.remove('active');
+            }
         });
 
         // Connection Monitoring
