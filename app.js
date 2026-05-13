@@ -383,7 +383,7 @@ function updateDashboard() {
 function renderTable() {
     transactionsTableBody.innerHTML = '';
     
-    if (transactions.length === 0) {
+    if (filteredTransactions.length === 0) {
         emptyState.style.display = 'flex';
         transactionsTableBody.parentElement.style.display = 'none';
         return;
@@ -392,9 +392,8 @@ function renderTable() {
     emptyState.style.display = 'none';
     transactionsTableBody.parentElement.style.display = 'table';
 
-    // Sort by date newest first
     // Sort logically - latest first
-    const sortedTransactions = [...transactions].reverse();
+    const sortedTransactions = [...filteredTransactions].reverse();
 
     sortedTransactions.forEach((t, index) => {
         // Detailed tax breakdown for table
@@ -816,14 +815,18 @@ if (tableSearch) {
                 const bName = (t.businessName || '').toLowerCase();
                 const pName = (t.contactPerson || '').toLowerCase();
                 const lga = (t.lga || t.city || '').toLowerCase();
-                const tax = (t.assignedTax || '').toLowerCase();
                 const job = (t.lineOfBusiness || '').toLowerCase();
+                const phone = (t.phoneNumber || '').toLowerCase();
+                
+                // Deep search in assigned taxes
+                const taxMatch = (t.taxes || []).some(tx => tx.name.toLowerCase().includes(query));
                 
                 return bName.includes(query) || 
                        pName.includes(query) || 
                        lga.includes(query) || 
-                       tax.includes(query) ||
-                       job.includes(query);
+                       job.includes(query) ||
+                       phone.includes(query) ||
+                       taxMatch;
             });
         }
         
