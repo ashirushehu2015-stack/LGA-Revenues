@@ -834,7 +834,6 @@ if (tableSearch) {
     };
 
     tableSearch.addEventListener('input', performSearch);
-    tableSearch.addEventListener('keyup', performSearch);
 }
 
 // Dashboard Status Indicator logic
