@@ -652,7 +652,7 @@ h1, h2, h3 {
 /* Footer */
 .footer {
     background: var(--slate-900);
-    color: var(--slate-300);
+    color: var(--slate-200);
     padding: 4rem 0 2rem;
 }
 
@@ -685,7 +685,7 @@ h1, h2, h3 {
 
 .link-group a {
     display: block;
-    color: var(--slate-300);
+    color: var(--slate-200);
     text-decoration: none;
     margin-bottom: 0.75rem;
     transition: var(--transition);
@@ -700,6 +700,7 @@ h1, h2, h3 {
     padding-top: 2rem;
     border-top: 1px solid rgba(255,255,255,0.1);
     font-size: 0.875rem;
+    color: var(--slate-600);
 }
 
 /* Modal System (Shared with Dashboard) */
