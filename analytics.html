@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - LGA RevMax</title>
+    <meta name="description" content="LGA RevMax Analytics - Revenue trends, LGA performance, and payment status insights.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="analytics.css">
+    <script>
+        (function() {
+            const user = localStorage.getItem('lga_user');
+            if (!user) window.location.href = 'landing.html';
+        })();
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Zamfara Logo" style="width: 45px; height: 45px; object-fit: contain;">
+                    <span class="logo-text">LGA RevMax</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i data-feather="grid"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="notifications.html" class="nav-item">
+                    <i data-feather="bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <i data-feather="users"></i>
+                    <span>LGA Admins</span>
+                </a>
+                <a href="analytics.html" class="nav-item active">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Analytics</span>
+                </a>
+                <div class="nav-divider"></div>
+                <div class="nav-label">LGA DASHBOARDS</div>
+                <div class="lga-list" id="sidebarLgaList">
+                    <!-- Populated via JS -->
+                </div>
+                <div class="nav-divider"></div>
+                <a href="settings.html" class="nav-item">
+                    <i data-feather="settings"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" id="logoutBtn" style="margin-top: auto; color: #ef4444;">
+                    <i data-feather="log-out"></i>
+                    <span>Log Out</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">SA</div>
+                    <div class="user-info">
+                        <span class="user-name">Super Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-search">
+                    <i data-feather="bar-chart-2"></i>
+                    <span style="font-weight: 600; color: var(--slate-700); font-size: 0.9rem;">Revenue Analytics</span>
+                </div>
+                <div class="topbar-actions">
+                    <button class="btn-outline-sm" id="refreshBtn">
+                        <i data-feather="refresh-cw"></i>
+                        Refresh
+                    </button>
+                    <div class="analytics-date-badge">
+                        <i data-feather="calendar"></i>
+                        <span id="currentDateLabel"></span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="content-header">
+                    <div class="header-title">
+                        <h1>Revenue Analytics</h1>
+                        <p>Insights and trends across all Local Government Areas.</p>
+                    </div>
+                </div>
+
+                <!-- KPI Summary Row -->
+                <div class="analytics-kpi-grid" id="kpiGrid">
+                    <div class="kpi-card kpi-indigo">
+                        <div class="kpi-icon"><i data-feather="users"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Total Taxpayers</span>
+                            <span class="kpi-value" id="kpiTaxpayers">0</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-emerald">
+                        <div class="kpi-icon"><i data-feather="trending-up"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Revenue Collected</span>
+                            <span class="kpi-value" id="kpiCollected">₦0</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-amber">
+                        <div class="kpi-icon"><i data-feather="clock"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Pending Revenue</span>
+                            <span class="kpi-value" id="kpiPending">₦0</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-rose">
+                        <div class="kpi-icon"><i data-feather="map-pin"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Active LGAs</span>
+                            <span class="kpi-value" id="kpiLgas">0</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card kpi-purple">
+                        <div class="kpi-icon"><i data-feather="check-circle"></i></div>
+                        <div class="kpi-info">
+                            <span class="kpi-label">Collection Rate</span>
+                            <span class="kpi-value" id="kpiRate">0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Timeline Row -->
+                <div class="charts-row">
+                    <div class="chart-card chart-full-width" style="flex: 1; width: 100%;">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Revenue Collection Timeline</h3>
+                                <p>Daily tracking of assessed vs. collected revenue</p>
+                            </div>
+                            <div style="display: flex; gap: 1rem;">
+                                <div class="chart-legend-item" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="chart-legend-dot" style="background: var(--primary-gradient);"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 600;">Total Assessed</span>
+                                </div>
+                                <div class="chart-legend-item" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="chart-legend-dot" style="background: var(--emerald-gradient);"></div>
+                                    <span style="font-size: 0.75rem; font-weight: 600;">Actually Collected</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrap" style="min-height: 300px; max-height: 350px;">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 1 -->
+                <div class="charts-row">
+                    <!-- Revenue by LGA -->
+                    <div class="chart-card chart-large">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Revenue by LGA</h3>
+                                <p>Total assessed value per local government area</p>
+                            </div>
+                            <div class="chart-legend-dot" style="background: var(--primary-gradient);"></div>
+                        </div>
+                        <div class="chart-canvas-wrap">
+                            <canvas id="lgaBarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Payment Status Doughnut -->
+                    <div class="chart-card chart-small">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Payment Status</h3>
+                                <p>Breakdown of tax item statuses</p>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrap" style="max-height: 220px;">
+                            <canvas id="statusDonut"></canvas>
+                        </div>
+                        <div class="donut-legend" id="donutLegend"></div>
+                    </div>
+                </div>
+
+                <!-- Charts Row 2 -->
+                <div class="charts-row">
+                    <!-- Top Tax Categories -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Top Tax Categories</h3>
+                                <p>Revenue contribution by category</p>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrap">
+                            <canvas id="categoryBar"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Taxpayers Table -->
+                    <div class="chart-card chart-medium">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Top Taxpayers</h3>
+                                <p>Highest assessed taxpayers by total value</p>
+                            </div>
+                        </div>
+                        <div class="top-taxpayers-list" id="topTaxpayersList">
+                            <div class="analytics-empty">No data available</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Area Classification Chart -->
+                <div class="charts-row">
+                    <div class="chart-card" style="flex:1;">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Registration Source</h3>
+                                <p>Portal (Self-Service) vs Admin Entry vs Revenue Officer</p>
+                            </div>
+                            <div class="chart-legend-dot" style="background: var(--primary-gradient);"></div>
+                        </div>
+                        <div class="chart-canvas-wrap" style="max-height: 180px;">
+                            <canvas id="sourceChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="flex:1;">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Taxpayers by Area Classification</h3>
+                                <p>Urban vs Semi-Urban vs Rural distribution</p>
+                            </div>
+                        </div>
+                        <div class="chart-canvas-wrap" style="max-height: 180px;">
+                            <canvas id="areaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="analytics.js"></script>
+</body>
+</html>

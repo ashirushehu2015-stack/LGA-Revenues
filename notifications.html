@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications Log - LGA RevMax</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="connection.js"></script>
+    <style>
+        .notif-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--slate-100);
+            display: flex;
+            gap: 1.25rem;
+            transition: all 0.2s;
+        }
+        .notif-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-sm);
+        }
+        .notif-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .icon-reg { background: #eef2ff; color: #4f46e5; }
+        .icon-pay { background: #ecfdf5; color: #10b981; }
+        .notif-body { flex: 1; }
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .notif-type {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .notif-time { font-size: 0.75rem; color: var(--slate-400); }
+        .notif-msg { font-size: 0.9375rem; color: var(--slate-700); line-height: 1.5; }
+        .notif-to {
+            margin-top: 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--slate-500);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Zamfara Logo" style="width: 45px; height: 45px; object-fit: contain;">
+                    <span class="logo-text">LGA RevMax</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i data-feather="grid"></i>
+                    <span>Overview</span>
+                </a>
+                <a href="notifications.html" class="nav-item active">
+                    <i data-feather="bell"></i>
+                    <span>Notifications</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <i data-feather="users"></i>
+                    <span>LGA Admins</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Analytics</span>
+                </a>
+                <div class="nav-divider"></div>
+                <div class="nav-label">LGA DASHBOARDS</div>
+                <div class="lga-list" id="sidebarLgaList">
+                    <!-- Populated via JS -->
+                </div>
+                <div class="nav-divider"></div>
+                <a href="settings.html" class="nav-item">
+                    <i data-feather="settings"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" id="logoutBtn" style="margin-top: auto; color: #ef4444;">
+                    <i data-feather="log-out"></i>
+                    <span>Log Out</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-search">
+                    <i data-feather="bell"></i>
+                    <span style="font-weight: 600;">Notification Logs</span>
+                </div>
+                <div class="topbar-actions">
+                    <div id="serverStatusPill" class="connection-pill unknown" style="margin-right: 1rem;">
+                        <div class="status-dot"></div>
+                        <span>Checking...</span>
+                    </div>
+                    <button class="btn btn-outline" id="refreshLogs">
+                        <i data-feather="refresh-cw"></i> Refresh
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="content-header">
+                    <div class="header-title">
+                        <h1>Automated SMS Logs</h1>
+                        <p>History of automated notifications sent to taxpayers.</p>
+                    </div>
+                </div>
+
+                <div id="logsContainer">
+                    <div class="analytics-empty">Loading notifications...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        feather.replace();
+
+        const currentUser = JSON.parse(localStorage.getItem('lga_user') || '{}');
+        const LGAS = [
+            "Anka", "Bakura", "Birnin Magaji/Kiyaw", "Bukkuyum", "Bungudu", "Gummi", 
+            "Gusau", "Kaura Namoda", "Maradun", "Maru", "Shinkafi", "Talata Mafara", 
+            "Tsafe", "Zurmi"
+        ];
+
+        function initLgaSidebar() {
+            const list = document.getElementById('sidebarLgaList');
+            if (!list) return;
+            if (currentUser.role !== 'Super Admin') {
+                list.innerHTML = `<div class="lga-item active">${currentUser.lga || 'Assigned LGA'}</div>`;
+                
+                // Hide administrative navigation
+                const restricted = document.querySelectorAll('a[href="users.html"], a[href="settings.html"]');
+                restricted.forEach(el => el.style.display = 'none');
+                return;
+            }
+            let html = `<div class="lga-item" onclick="switchLga('System-wide')">System-wide</div>`;
+            LGAS.forEach(lga => {
+                html += `<div class="lga-item" onclick="switchLga('${lga}')">${lga}</div>`;
+            });
+            list.innerHTML = html;
+        }
+
+        window.switchLga = function(lga) {
+            window.location.href = `index.html?lga=${encodeURIComponent(lga)}`;
+        };
+
+        initLgaSidebar();
+
+        async function loadLogs() {
+            const container = document.getElementById('logsContainer');
+            try {
+                const res = await LgaConnection.apiFetch('/api/notifications');
+                const logs = await res.json();
+
+                if (logs.length === 0) {
+                    container.innerHTML = '<div class="analytics-empty">No notifications sent yet.</div>';
+                    return;
+                }
+
+                container.innerHTML = logs.map(log => {
+                    const iconClass = log.type === 'Registration' ? 'icon-reg' : 'icon-pay';
+                    const iconName = log.type === 'Registration' ? 'user-plus' : 'credit-card';
+                    const time = new Date(log.timestamp).toLocaleString();
+
+                    return `
+                        <div class="notif-card">
+                            <div class="notif-icon ${iconClass}">
+                                <i data-feather="${iconName}"></i>
+                            </div>
+                            <div class="notif-body">
+                                <div class="notif-header">
+                                    <span class="notif-type" style="color: ${log.type === 'Registration' ? '#4f46e5' : '#10b981'}">${log.type}</span>
+                                    <span class="notif-time">${time}</span>
+                                </div>
+                                <div class="notif-msg">${log.message}</div>
+                                <div class="notif-to">Recipient: ${log.to}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                feather.replace();
+            } catch (err) {
+                container.innerHTML = '<div class="error-text">Failed to load logs.</div>';
+            }
+        }
+
+        document.getElementById('refreshLogs').addEventListener('click', loadLogs);
+        
+        // Status Indicator
+        const statusPill = document.getElementById('serverStatusPill');
+        if (statusPill) {
+            const statusText = statusPill.querySelector('span');
+            LgaConnection.onStatusChange((status) => {
+                statusPill.className = `connection-pill ${status}`;
+                statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            });
+        }
+
+        loadLogs();
+    </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1778677383714,
+    "to": "09012345678",
+    "message": "LGA RevMax: Welcome Nafisa Pharmacy ! Your Invoice Ref is LGA/REV/2026/TVP8. Total taxes assigned: 2. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-13T13:03:03.714Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778671961960,
+    "to": "08012345678",
+    "message": "LGA RevMax: Welcome Dummy Corp! Your Invoice Ref is LGA/REV/2026/RIJK. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-13T11:32:41.960Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778670853972,
+    "to": "0908765433221",
+    "message": "LGA RevMax: Welcome Nafisa Plaza! Your Invoice Ref is LGA/REV/2026/9JX0. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-13T11:14:13.972Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778670050417,
+    "to": "08011112222",
+    "message": "LGA RevMax: Welcome Test Business! Your Invoice Ref is LGA/REV/2026/GT07. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-13T11:00:50.417Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778509646750,
+    "to": "08012345678",
+    "message": "LGA RevMax: Welcome LGA Tech Hub! Your Invoice Ref is LGA/REV/2026/RX3Y. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-11T14:27:26.750Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778509529292,
+    "to": "08012345678",
+    "message": "LGA RevMax: Welcome LGA Tech Hub! Your Invoice Ref is LGA/REV/2026/NP8E. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-11T14:25:29.292Z",
+    "status": "Delivered"
+  },
+  {
+    "id": 1778503598701,
+    "to": "08012345678",
+    "message": "LGA RevMax: Welcome LGA Tech Hub! Your Invoice Ref is LGA/REV/2026/GRBV. Total taxes assigned: 1. Access portal at: http://localhost:3000/portal.html",
+    "type": "Registration",
+    "timestamp": "2026-05-11T12:46:38.701Z",
+    "status": "Delivered"
+  }
+]

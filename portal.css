@@ -1,0 +1,588 @@
+/* Payer Portal Styles */
+
+:root {
+    --portal-bg: #f1f5f9;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    background-color: var(--portal-bg);
+}
+
+.portal-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Navigation */
+.portal-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.portal-nav .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+}
+
+.portal-nav .logo img {
+    width: 40px;
+    height: 40px;
+}
+
+/* Auth Section */
+.auth-section {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 3rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    background: #f8fafc;
+    padding: 0.5rem;
+    border-radius: 1rem;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border: none;
+    background: transparent;
+    font-weight: 600;
+    color: var(--slate-600);
+    cursor: pointer;
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.view-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.view-header h1 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.view-header p {
+    color: var(--slate-600);
+}
+
+.tab-view {
+    display: none;
+}
+
+.tab-view.active {
+    display: block;
+}
+
+/* Registration Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group.full-width {
+    grid-column: span 2;
+}
+
+/* Tax Selector */
+.tax-search-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.tax-search-container .search-input {
+    width: 100%;
+    padding: 1rem 1rem 1rem 3.5rem;
+    border: 1px solid var(--slate-200);
+    border-radius: 1rem;
+    font-size: 1rem;
+}
+
+.tax-search-container .search-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--slate-400);
+    width: 20px;
+    height: 20px;
+}
+
+.tax-selector-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 1rem;
+    border: 1px solid var(--slate-100);
+}
+
+.selected-taxes-summary {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: var(--primary-light);
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.tax-item-check {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid var(--slate-200);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tax-item-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.tax-item-name {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: var(--slate-900);
+}
+
+.tax-item-cat {
+    font-size: 0.75rem;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tax-item-check:hover {
+    border-color: var(--primary);
+}
+
+.tax-item-check.selected {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+/* Dashboard Styles */
+.dashboard-header {
+    margin-bottom: 3rem;
+}
+
+.payer-info-card {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 3rem;
+    border-radius: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+
+.payer-info-card h1 {
+    color: white;
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.payer-welcome {
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.8);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.owner-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255,255,255,0.9);
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+.owner-info i {
+    width: 16px;
+    height: 16px;
+}
+
+.payer-meta {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.ref-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 2.5rem;
+}
+
+.summary-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+}
+
+.summary-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.summary-icon.unpaid { background: #fef2f2; color: #ef4444; }
+.summary-icon.paid { background: #ecfdf5; color: #10b981; }
+
+.summary-details label {
+    font-size: 0.875rem;
+    color: var(--slate-600);
+    font-weight: 500;
+}
+
+.summary-details h3 {
+    font-size: 1.5rem;
+    margin: 0;
+}
+
+/* Main Content Cards */
+.card-section {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2.5rem;
+}
+
+.section-header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--slate-100);
+    padding-bottom: 1rem;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+}
+
+/* Tax List in Portal */
+.tax-portal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border: 1px solid var(--slate-100);
+    border-radius: 1.25rem;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.tax-portal-item:hover {
+    border-color: var(--primary);
+    background: #f8fafc;
+}
+
+.tax-info-group h4 {
+    margin-bottom: 0.25rem;
+}
+
+.tax-info-group p {
+    color: var(--slate-600);
+    font-size: 0.875rem;
+}
+
+.tax-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.tax-amount {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+}
+
+.assessment-hint {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+
+/* Receipt Styling */
+.receipt-container {
+    padding: 40px;
+    background: white;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.receipt-header {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.header-main {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+}
+
+.receipt-logo {
+    width: 70px;
+    height: 70px;
+}
+
+.government-info h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin: 0;
+    color: #0f172a;
+}
+
+.government-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 4px 0;
+    color: var(--primary);
+}
+
+.government-info p {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin: 0;
+}
+
+.receipt-badge {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+}
+
+.success-banner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #ecfdf5;
+    border: 1px solid #d1fae5;
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+}
+
+.check-icon {
+    width: 24px;
+    height: 24px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+
+.payment-confirmed h4 {
+    margin: 0;
+    color: #065f46;
+    font-size: 0.875rem;
+}
+
+.payment-confirmed p {
+    margin: 0;
+    color: #047857;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.info-item label {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+
+.info-item p {
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.payment-details {
+    margin-bottom: 30px;
+}
+
+.payment-details table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.payment-details th {
+    text-align: left;
+    font-size: 0.75rem;
+    color: #64748b;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.payment-details td {
+    padding: 20px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.text-right { text-align: right !important; }
+
+.tax-name {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.tax-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.amount {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.total {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.payment-details tfoot td {
+    padding-top: 30px;
+    font-weight: 700;
+}
+
+.payment-meta {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    margin-bottom: 40px;
+}
+
+.receipt-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 30px;
+}
+
+.footer-notice p {
+    margin: 4px 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.qr-placeholder {
+    text-align: center;
+}
+
+.qr-code {
+    width: 60px;
+    height: 60px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 8px;
+    position: relative;
+    margin: 0 auto 8px auto;
+}
+
+.qr-code::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 40px; height: 40px;
+    border: 2px dashed #cbd5e1;
+    transform: translate(-50%, -50%);
+}
+
+.qr-placeholder span {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #cbd5e1;
+    letter-spacing: 1px;
+}

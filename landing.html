@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGA RevMax - Local Government Revenue Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="landing.css">
+    <script src="connection.js"></script>
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <img src="logo.png" alt="Zamfara Logo" class="logo-img">
+                <span class="logo-text">LGA RevMax</span>
+            </div>
+            <nav class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <button class="btn btn-outline" id="openLoginBtn">Log In</button>
+                <a href="index.html" class="btn btn-primary">Go to Dashboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-decoration">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+        </div>
+        <div class="container hero-container">
+            <div class="hero-layout">
+                <div class="hero-content">
+                    <span class="badge animate-in">Zamfara State Local Government Revenue Services</span>
+                    <h1 class="hero-title animate-in">Automating <span>Tax Collection</span> for a Better State</h1>
+                    <p class="hero-subtitle animate-in">Experience the most efficient, transparent, and secure revenue management system for Local Government Areas.</p>
+                    <div class="hero-actions animate-in">
+                        <a href="#public-services" class="btn btn-primary btn-lg">Explore Services</a>
+                        <a href="index.html" class="btn btn-white btn-lg">
+                            <i data-feather="grid"></i> Admin Dashboard
+                        </a>
+                    </div>
+                    <div class="hero-stats animate-in">
+                        <div class="hero-stat-item">
+                            <h3>14</h3>
+                            <p>LGAs Integrated</p>
+                        </div>
+                        <div class="hero-stat-item">
+                            <h3>₦2.5B+</h3>
+                            <p>Revenue Managed</p>
+                        </div>
+                        <div class="hero-stat-item">
+                            <h3>100%</h3>
+                            <p>Transparent</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payer Portal Quick Access Card -->
+                <div class="hero-card-wrap animate-in-right">
+                    <div class="hero-glass-card portal-card">
+                        <div class="card-glow"></div>
+                        <div class="card-inner">
+                            <div class="card-header">
+                                <div class="card-icon">
+                                    <i data-feather="user-plus"></i>
+                                </div>
+                                <div>
+                                    <h4>Payer Portal</h4>
+                                    <p>Self-service registration & payment</p>
+                                </div>
+                            </div>
+                            
+                            <form class="portal-quick-form" id="heroPortalForm">
+                                <div class="form-group">
+                                    <label>Phone Number or Invoice Ref</label>
+                                    <div class="input-wrap">
+                                        <i data-feather="search"></i>
+                                        <input type="text" placeholder="Check status or Register" required id="heroPayerId">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    Access Portal
+                                    <i data-feather="arrow-right"></i>
+                                </button>
+                            </form>
+
+                            <div class="card-footer-links">
+                                <a href="portal.html">New Business Registration</a>
+                                <a href="portal.html">Pay Taxes Online</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge">Platform Capabilities</div>
+                <h2>Everything you need to <span>Manage Revenue</span></h2>
+                <p>A comprehensive suite of tools designed for the modern Local Government Authority.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon bg-indigo">
+                        <i data-feather="database"></i>
+                    </div>
+                    <h3>Centralized Database</h3>
+                    <p>Maintain a single source of truth for all taxpayers, businesses, and properties within your jurisdiction.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-emerald">
+                        <i data-feather="bar-chart"></i>
+                    </div>
+                    <h3>Advanced Analytics</h3>
+                    <p>Real-time dashboards providing deep insights into collection trends, targets, and officer performance.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-amber">
+                        <i data-feather="credit-card"></i>
+                    </div>
+                    <h3>Secure Payments</h3>
+                    <p>Integrated with Paystack for seamless, transparent online payments with instant digital receipts.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-indigo">
+                        <i data-feather="bell"></i>
+                    </div>
+                    <h3>Auto-Notifications</h3>
+                    <p>Automated SMS and email reminders for tax deadlines, ensuring higher compliance and better communication.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-emerald">
+                        <i data-feather="file-text"></i>
+                    </div>
+                    <h3>Dynamic Reporting</h3>
+                    <p>Generate comprehensive revenue reports, audit trails, and financial statements at the click of a button.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon bg-amber">
+                        <i data-feather="shield"></i>
+                    </div>
+                    <h3>Multi-level Security</h3>
+                    <p>Role-based access control ensuring sensitive financial data is only accessible to authorized personnel.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Citizen & Business Modules Section -->
+    <section id="public-services" class="public-services">
+        <div class="container">
+            <div class="section-header">
+                <div class="badge">For the Community</div>
+                <h2>Citizen & Business-Facing Modules</h2>
+                <p>Empowering the public with transparent and accessible digital tools.</p>
+            </div>
+            
+            <div class="modules-grid">
+                <div class="module-card">
+                    <div class="module-image">
+                        <img src="market_portal.png" alt="Payer Portal">
+                        <div class="module-icon">
+                            <i data-feather="user-check"></i>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <h3>Payer Registration & Portal</h3>
+                        <p>A unified digital gateway for citizens and businesses. Register your profile once and manage your entire government financial relationship from one place.</p>
+                        <ul class="module-features">
+                            <li><i data-feather="check-circle"></i> Self-service registration</li>
+                            <li><i data-feather="check-circle"></i> Real-time payment history</li>
+                            <li><i data-feather="check-circle"></i> Digital bill management</li>
+                            <li><i data-feather="check-circle"></i> Instant receipt downloads</li>
+                        </ul>
+                        <a href="portal.html" class="btn btn-primary btn-block">Access Payer Portal</a>
+                    </div>
+                </div>
+                
+                <!-- Placeholder for future modules -->
+                <div class="module-card placeholder">
+                    <div class="module-body" style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:300px;">
+                        <i data-feather="plus-circle" style="width:48px; height:48px; color:var(--slate-200); margin-bottom:1rem;"></i>
+                        <h4 style="color:var(--slate-400);">Coming Soon</h4>
+                        <p style="color:var(--slate-400); font-size:0.875rem;">More modules are being developed for you.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container cta-container">
+            <h2>Ready to transform your revenue management?</h2>
+            <p>Join the digital revolution and start managing your LGA finances more effectively today.</p>
+            <a href="index.html" class="btn btn-white btn-lg">Enter the Dashboard</a>
+        </div>
+    </section>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal login-modal">
+            <div class="modal-header-custom">
+                <div class="modal-title-wrap">
+                    <div class="icon-wrap">
+                        <i data-feather="shield"></i>
+                    </div>
+                    <div class="title-text">
+                        <h2>Admin Access</h2>
+                        <p>Sign in to LGA RevMax dashboard</p>
+                    </div>
+                </div>
+                <button class="icon-btn close-btn" id="closeLoginBtn">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-status-bar">
+                <div id="serverStatusPill" class="connection-pill unknown">
+                    <div class="status-dot"></div>
+                    <span>Checking System Status...</span>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginLga">Local Government Area</label>
+                        <select id="loginLga" required>
+                            <option value="">— Select your LGA —</option>
+                            <option value="Anka">Anka</option>
+                            <option value="Bakura">Bakura</option>
+                            <option value="Birnin Magaji/Kiyaw">Birnin Magaji/Kiyaw</option>
+                            <option value="Bukkuyum">Bukkuyum</option>
+                            <option value="Bungudu">Bungudu</option>
+                            <option value="Gummi">Gummi</option>
+                            <option value="Gusau">Gusau</option>
+                            <option value="Kaura Namoda">Kaura Namoda</option>
+                            <option value="Maradun">Maradun</option>
+                            <option value="Maru">Maru</option>
+                            <option value="Shinkafi">Shinkafi</option>
+                            <option value="Talata Mafara">Talata Mafara</option>
+                            <option value="Tsafe">Tsafe</option>
+                            <option value="Zurmi">Zurmi</option>
+                            <option value="System-wide">System-wide (Admin)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <div style="position:relative;">
+                            <i data-feather="user" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94a3b8;"></i>
+                            <input type="text" id="username" required placeholder="Enter username" style="padding-left: 2.25rem;">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div style="position:relative;">
+                            <i data-feather="lock" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); width:16px; height:16px; color:#94a3b8;"></i>
+                            <input type="password" id="password" required placeholder="••••••••" style="padding-left: 2.25rem;">
+                        </div>
+                    </div>
+                    <div class="login-actions">
+                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                    </div>
+                </form>
+                <div id="loginError" class="error-text" style="display: none;"></div>
+                <div id="connectionTroubleshoot" class="troubleshoot-hint" style="display: none;">
+                    <h4><i data-feather="alert-circle"></i> Server Connection Issue</h4>
+                    <p>The backend server is unreachable. Please try the following:</p>
+                    <ul>
+                        <li>Open your terminal in the project directory.</li>
+                        <li>Run the command: <code>npm start</code></li>
+                        <li>Wait for the status indicator to turn <strong>Online</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <div class="logo">
+                    <img src="logo.png" alt="Zamfara Logo" class="logo-img">
+                    <span class="logo-text">LGA RevMax</span>
+                </div>
+                <p>Empowering Local Governments with modern digital solutions.</p>
+            </div>
+            <div class="footer-links">
+                <div class="link-group">
+                    <h4>Platform</h4>
+                    <a href="index.html">Dashboard</a>
+                    <a href="#">Transactions</a>
+                    <a href="#">Reports</a>
+                </div>
+                <div class="link-group">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 LGA RevMax. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        feather.replace();
+        
+        // Sticky navbar effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Login Modal Logic
+        const loginModal = document.getElementById('loginModal');
+        const openLoginBtn = document.getElementById('openLoginBtn');
+        const closeLoginBtn = document.getElementById('closeLoginBtn');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+
+        openLoginBtn.addEventListener('click', () => {
+            loginModal.classList.add('active');
+            checkServerStatus();
+        });
+
+        // Connection Monitoring
+        const statusPill = document.getElementById('serverStatusPill');
+        const statusPillText = statusPill.querySelector('span');
+        const troubleshoot = document.getElementById('connectionTroubleshoot');
+
+        LgaConnection.onStatusChange((status) => {
+            statusPill.className = `connection-pill ${status}`;
+            statusPillText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            if (status === 'online') {
+                troubleshoot.style.display = 'none';
+                loginError.style.display = 'none';
+            } else if (status === 'offline') {
+                troubleshoot.style.display = 'block';
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const lga      = document.getElementById('loginLga').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (!lga) {
+                loginError.textContent = 'Please select your Local Government Area.';
+                loginError.style.display = 'block';
+                return;
+            }
+            
+            loginError.style.display = 'none';
+            troubleshoot.style.display = 'none';
+
+            try {
+                const response = await LgaConnection.apiFetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const sessionUser = { ...data.user };
+                    
+                    // RBAC Check: Ensure LGA Admin is logging into their assigned LGA
+                    if (sessionUser.role !== 'Super Admin') {
+                        if (sessionUser.lga && sessionUser.lga !== 'System-wide' && sessionUser.lga !== lga) {
+                            loginError.innerHTML = `<i data-feather="alert-octagon"></i> Access Denied: This account is restricted to <strong>${sessionUser.lga} LGA</strong>.`;
+                            loginError.style.display = 'flex';
+                            loginError.style.alignItems = 'center';
+                            loginError.style.gap = '0.5rem';
+                            feather.replace();
+                            return;
+                        }
+                    }
+
+                    sessionUser.loginLga = lga;
+                    localStorage.setItem('lga_user', JSON.stringify(sessionUser));
+                    window.location.href = 'index.html';
+                } else {
+                    loginError.textContent = data.message || 'Invalid username or password.';
+                    loginError.style.display = 'block';
+                }
+            } catch (error) {
+                loginError.textContent = 'Connection error. Is the server running?';
+                loginError.style.display = 'block';
+                troubleshoot.style.display = 'block';
+            }
+        });
+        
+        // Hero Portal Form Handler
+        const heroPortalForm = document.getElementById('heroPortalForm');
+        if (heroPortalForm) {
+            heroPortalForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const payerId = document.getElementById('heroPayerId').value;
+                if (payerId) {
+                    // Redirect to portal with the ID pre-filled (using localStorage)
+                    localStorage.setItem('quick_access_payer_id', payerId);
+                    window.location.href = 'portal.html';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

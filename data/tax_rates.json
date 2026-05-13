@@ -1,0 +1,169 @@
+[
+    {
+        "categoryName": "Tenement Rates",
+        "taxes": [
+            { "name": "Tenement Rates - Private", "urban": "0.02% of value", "semiUrban": "0.02% of value", "subUrban": "0.02% of value", "duration": "Yearly" },
+            { "name": "Tenement Rates - Commercial", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Communication Mast", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Fibre Optics", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Commercial/Micro Finance Banks", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Hotels/lodges/guest house", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Filling Stations/kerosen tanks", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Hospitals/Pharmacies/Clinics", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" },
+            { "name": "Educational establishment", "urban": "0.12% of value", "semiUrban": "0.12% of value", "subUrban": "0.12% of value", "duration": "Yearly" },
+            { "name": "Other commercial establishments", "urban": "0.16% of value", "semiUrban": "0.16% of value", "subUrban": "0.16% of value", "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "ECONOMIC",
+        "taxes": [
+            { "name": "Chemist (Patient Medicine Store)", "urban": 5000, "semiUrban": 3000, "subUrban": 3000, "duration": "Yearly" },
+            { "name": "General Contractor Registration Fees", "urban": 20000, "semiUrban": 20000, "subUrban": 20000, "duration": "Yearly" },
+            { "name": "Contract Processing Fees", "urban": "Per Item", "semiUrban": "Per Item", "subUrban": "Per Item", "duration": "Per Contract" },
+            { "name": "Tender Fees", "urban": "5%", "semiUrban": "5%", "subUrban": "5%", "duration": "Per Contract" },
+            { "name": "River Sand/Sand Dredging Fees", "urban": "Per Trip", "semiUrban": "Per Trip", "subUrban": "Per Trip", "duration": "Per Trip" },
+            { "name": "Tippers (Single) per trip", "urban": 500, "semiUrban": 500, "subUrban": 500, "duration": "Per trip" },
+            { "name": "Double Tipper per trip", "urban": 200, "semiUrban": 200, "subUrban": 200, "duration": "Per trip" },
+            { "name": "Petty Trade Fees", "urban": 200, "semiUrban": 100, "subUrban": 100, "duration": "Per Market day" },
+            { "name": "Rice Mill/Cassava Grinding Fees", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Ingredient Mill Licenses Fees", "urban": 500, "semiUrban": 5000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Corn Grinding Mill Fees", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Workshops Fees", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Sales of Unserviceable Store Items", "urban": "Per Item", "semiUrban": "Per Item", "subUrban": "Per Item", "duration": "Per Item" },
+            { "name": "Tractor Hire Charge Services", "urban": "Negotiable", "semiUrban": "Negotiable", "subUrban": "Negotiable", "duration": "Per day" },
+            { "name": "Radio/Television Workshops Fees", "urban": 1000, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Wood Making shop Fees", "urban": 3000, "semiUrban": 2000, "subUrban": 1500, "duration": "Yearly" },
+            { "name": "Battery Charges shop Fees", "urban": 500, "semiUrban": 300, "subUrban": 300, "duration": "Yearly" },
+            { "name": "Panel Beaters work shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Vulcanizes workshop Fees", "urban": 500, "semiUrban": 300, "subUrban": 200, "duration": "Yearly" },
+            { "name": "Vehicle Spare Parts workshop Fees", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Clock/Watch Repairs workshop Fees", "urban": 500, "semiUrban": 300, "subUrban": 200, "duration": "Yearly" },
+            { "name": "Auto Mechanic workshop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Car Washing Bay Fees", "urban": 1500, "semiUrban": 1000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Building Materials shop Fees", "urban": 7000, "semiUrban": 5000, "subUrban": 4000, "duration": "Yearly" },
+            { "name": "Block Makers workshop fees", "urban": 10000, "semiUrban": 5000, "subUrban": 4000, "duration": "Yearly" },
+            { "name": "Welder", "urban": 15000, "semiUrban": 10000, "subUrban": 8000, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "ADVERTISEMENT AND SIGN BOARDS",
+        "taxes": [
+            { "name": "Mobile Sales Promotion Fees", "urban": 3000, "semiUrban": 2000, "subUrban": 1500, "duration": "Yearly" },
+            { "name": "Directional Sign Board Fees", "urban": 3000, "semiUrban": 2000, "subUrban": 1500, "duration": "Yearly" },
+            { "name": "Electric Design Advert Per Face Fees", "urban": 10000, "semiUrban": 7000, "subUrban": 5000, "duration": "Yearly" },
+            { "name": "Wall Print Advertisement Per Side Fees", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Bill Board, Unipoles and Eye Catchers", "urban": 100000, "semiUrban": 70000, "subUrban": 50000, "duration": "Yearly" },
+            { "name": "Market Road Show Permit", "urban": "Per Event", "semiUrban": "Per Event", "subUrban": "Per Event", "duration": "Per Event" },
+            { "name": "Digitalized Boards", "urban": 50000, "semiUrban": 30000, "subUrban": 10000, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "MARKET RATES AND LEVIES",
+        "taxes": [
+            { "name": "Market Stalls Seaters", "urban": 100, "semiUrban": 50, "subUrban": 50, "duration": "Yearly" },
+            { "name": "Seasonal Markets", "urban": 100, "semiUrban": 50, "subUrban": 50, "duration": "Yearly" },
+            { "name": "Market Hawkers (Daily)", "urban": 100, "semiUrban": 50, "subUrban": 50, "duration": "Daily" },
+            { "name": "Market Hawkers (Weekly)", "urban": 100, "semiUrban": 50, "subUrban": 50, "duration": "Weekly" }
+        ]
+    },
+    {
+        "categoryName": "MOTOR PARKS",
+        "taxes": [
+            { "name": "Entrance Fees (Gate) Trucks/Lorries", "urban": 200, "semiUrban": 200, "subUrban": 200, "duration": "Per entry" },
+            { "name": "Entrance Fees (Gate) Buses/Taxies", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "Per entry" },
+            { "name": "Loading and Uploading Fees - Trailors", "urban": 2000, "semiUrban": 2000, "subUrban": 2000, "duration": "Per load" },
+            { "name": "Loading and Uploading Fees - Lorries", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Per load" },
+            { "name": "Wrong Parking Charges - Trucks", "urban": 2000, "semiUrban": 2000, "subUrban": 2000, "duration": "Per Instance" },
+            { "name": "Wrong Parking Charges - Buses", "urban": 500, "semiUrban": 300, "subUrban": 300, "duration": "Per Instance" }
+        ]
+    },
+    {
+        "categoryName": "CATTLE/ANIMAL MARKETS",
+        "taxes": [
+            { "name": "Cow/Camel", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "per head" },
+            { "name": "Goat/Sheep", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "per head" },
+            { "name": "Horse/Donkeys", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "per head" },
+            { "name": "Dog License Fees", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Annual" }
+        ]
+    },
+    {
+        "categoryName": "SHOPS AND SHOPPING CENTRES",
+        "taxes": [
+            { "name": "Application for Allocation fee", "urban": 2000, "semiUrban": 2000, "subUrban": 1000, "duration": "None Refundable" },
+            { "name": "Allocation Fee (Per Shop)", "urban": 20000, "semiUrban": 15000, "subUrban": 10000, "duration": "Per Shop" },
+            { "name": "Yearly Renewal Fees (Per Shop)", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Monthly or Revenue Fees (Per Shop)", "urban": 500, "semiUrban": 300, "subUrban": 200, "duration": "Monthly" },
+            { "name": "Large Shop", "urban": 50000, "semiUrban": 30000, "subUrban": 20000, "duration": "Yearly" },
+            { "name": "Extra Large Shop", "urban": 120000, "semiUrban": 80000, "subUrban": 60000, "duration": "Yearly" },
+            { "name": "Medium Shop", "urban": 10000, "semiUrban": 7000, "subUrban": 5000, "duration": "Yearly" },
+            { "name": "Small Shop", "urban": 3000, "semiUrban": 2000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Kiosk Permit Fees", "urban": 1000, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Container/Temporary Shops (Large)", "urban": 5000, "semiUrban": 2500, "subUrban": 1500, "duration": "Yearly" },
+            { "name": "Container/Temporary Shops (Small)", "urban": 1000, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Photos Studio shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Laundry/Dry Cleaners shop Fees", "urban": 1000, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Cloth Dyes shop Fees", "urban": 500, "semiUrban": 300, "subUrban": 300, "duration": "Yearly" },
+            { "name": "Photostat and Typing Institute/shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Computer Institute shop fees", "urban": 10000, "semiUrban": 5000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Hair Dressing shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Barbing shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Local Hair Barbing & Plating shop Fees", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "Yearly" },
+            { "name": "Printing Press shop Fees", "urban": 2000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Blacksmith Workshop shop Fees", "urban": 500, "semiUrban": 300, "subUrban": 200, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "LOCAL LICENCE FEES AND FINES",
+        "taxes": [
+            { "name": "Right of Occupancy (CRO) Fees", "urban": 5000, "semiUrban": 4000, "subUrban": 4000, "duration": "Per Issuance" },
+            { "name": "Vehicle towing fees", "urban": 6000, "semiUrban": 4000, "subUrban": 3000, "duration": "Per Instance" },
+            { "name": "Bicycle License", "urban": 200, "semiUrban": 200, "subUrban": 200, "duration": "Yearly" },
+            { "name": "Canoe License/Fees", "urban": 200, "semiUrban": 200, "subUrban": 200, "duration": "Yearly" },
+            { "name": "Cart/Track License", "urban": 500, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Wheel Barrow", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "Yearly" },
+            { "name": "Hawking Permit License/Fees", "urban": 50, "semiUrban": 50, "subUrban": 50, "duration": "Yearly" },
+            { "name": "Cigarettes Sales/Hawking Permit L/Fees", "urban": 1500, "semiUrban": 1000, "subUrban": 700, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "FOOD CONTROL",
+        "taxes": [
+            { "name": "Abattoir Licenses", "urban": 3000, "semiUrban": 2000, "subUrban": 1500, "duration": "Yearly" },
+            { "name": "Slaughter House (Cow/Camel) Per Head", "urban": 100, "semiUrban": 100, "subUrban": 100, "duration": "Per Head" },
+            { "name": "Slaughter Slab (Goat/Sheep) Per Head", "urban": 50, "semiUrban": 50, "subUrban": 50, "duration": "Per Head" },
+            { "name": "Restaurant", "urban": 40000, "semiUrban": 20000, "subUrban": 15000, "duration": "Yearly" },
+            { "name": "Other Eating Houses", "urban": 7000, "semiUrban": 5000, "subUrban": 4000, "duration": "Yearly" },
+            { "name": "Bakery House License", "urban": 30000, "semiUrban": 10000, "subUrban": 5000, "duration": "Yearly" },
+            { "name": "Cattle Dealers Licenses", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Fish Dealers Licenses", "urban": 3000, "semiUrban": 2000, "subUrban": 1500, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "SECURITY, SOCIAL & HEALTH",
+        "taxes": [
+            { "name": "Dane Gun Fees", "urban": 1000, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Hunting License Fees", "urban": 2000, "semiUrban": 2000, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Control of Noise Permit Fees", "urban": 3000, "semiUrban": 2500, "subUrban": 2000, "duration": "Yearly" },
+            { "name": "Marriage Registration Fees", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Per Instance" },
+            { "name": "Indigene Certificate Fees", "urban": 2000, "semiUrban": 1500, "subUrban": 1000, "duration": "Per Instance" },
+            { "name": "Entertainment/Drumming", "urban": 1000, "semiUrban": 1500, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Cinema/Viewing Centers", "urban": 10000, "semiUrban": 5000, "subUrban": 3000, "duration": "Yearly" },
+            { "name": "Naming of Street Registration Fees", "urban": 20000, "semiUrban": 10000, "subUrban": 7000, "duration": "Per Street" },
+            { "name": "Radio/Television License Fees", "urban": 500, "semiUrban": 500, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Vehicle Radio/Television Fees", "urban": 1000, "semiUrban": 1000, "subUrban": 1000, "duration": "Yearly" },
+            { "name": "Beggars Ministerial Fees (Praise Singers)", "urban": 1000, "semiUrban": 750, "subUrban": 500, "duration": "Yearly" },
+            { "name": "Achaba (Commercial Motorcyclist) Riders Fees", "urban": 100, "semiUrban": 50, "subUrban": 50, "duration": "Yearly" },
+            { "name": "Dislodgement of Septic Tanks", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Per Instance" },
+            { "name": "Environmental Sanitation Services", "urban": 5000, "semiUrban": 3000, "subUrban": 2000, "duration": "Yearly" }
+        ]
+    },
+    {
+        "categoryName": "RENT ON LOCAL GOVERNMENT PROPERTY",
+        "taxes": [
+            { "name": "Senior Staff Quarters", "urban": 24000, "semiUrban": 12000, "subUrban": 12000, "duration": "Yearly" },
+            { "name": "Junior Staff Quarters", "urban": 12000, "semiUrban": 6000, "subUrban": 6000, "duration": "Yearly" },
+            { "name": "Hiring/Rent of Local Government Thearter", "urban": 10000, "semiUrban": 5000, "subUrban": 3000, "duration": "Per Event" },
+            { "name": "Hiring/Rent of L.G Public Conveniences", "urban": 30000, "semiUrban": 20000, "subUrban": 15000, "duration": "Annual Leasing" }
+        ]
+    }
+]

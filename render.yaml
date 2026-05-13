@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: lga-revmax
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: PAYSTACK_SECRET_KEY
+        sync: false # Set this in the Render dashboard
+      - key: NODE_ENV
+        value: production

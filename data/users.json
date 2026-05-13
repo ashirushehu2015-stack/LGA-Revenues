@@ -1,0 +1,68 @@
+[
+  {
+    "id": "1",
+    "name": "Super Admin",
+    "username": "admin",
+    "email": "admin@zamfara.gov.ng",
+    "password": "password123",
+    "role": "Super Admin",
+    "lga": "System-wide",
+    "status": "Active"
+  },
+  {
+    "id": "test-user-node",
+    "name": "Node Test User",
+    "username": "testuser",
+    "email": "node@test.com",
+    "password": "password123",
+    "role": "LGA Admin",
+    "lga": "Gusau",
+    "status": "Active"
+  },
+  {
+    "id": "1778167439169",
+    "name": "John Doe",
+    "username": "jdoe",
+    "email": "admin@yahoo.com",
+    "password": "password123",
+    "role": "Revenue Officer",
+    "lga": "Bukkuyum",
+    "status": "Active"
+  },
+  {
+    "id": "test-user-node",
+    "name": "Node Test User",
+    "email": "node@test.com",
+    "role": "LGA Admin",
+    "lga": "Gusau",
+    "status": "Active"
+  },
+  {
+    "id": "test-user-node",
+    "name": "Node Test User",
+    "email": "node@test.com",
+    "role": "LGA Admin",
+    "lga": "Gusau",
+    "status": "Active"
+  },
+  {
+    "id": "1778514929899",
+    "name": "Lawal Yusuf",
+    "username": "admin",
+    "email": "lawalyusuf@gmail.com",
+    "password": "lawal@123",
+    "role": "LGA Admin",
+    "lga": "Anka",
+    "status": "Active"
+  },
+  {
+    "id": "1778678691614",
+    "name": "Abubakar Ladan ",
+    "username": "Chairman",
+    "email": "abu@gmail.com",
+    "password": "abubakar123",
+    "role": "Super Admin",
+    "lga": "System-wide",
+    "status": "Active"
+  }
+]

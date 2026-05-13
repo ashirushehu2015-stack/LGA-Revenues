@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - LGA RevMax</title>
+    <meta name="description" content="LGA RevMax system settings — configure Paystack, branding, and LGA preferences.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="settings.css">
+    <script src="connection.js"></script>
+    <script>
+        (function() {
+            const userStr = localStorage.getItem('lga_user');
+            if (!userStr) {
+                window.location.href = 'landing.html';
+                return;
+            }
+            const user = JSON.parse(userStr);
+            if (user.role !== 'Super Admin') {
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Zamfara Logo" style="width: 45px; height: 45px; object-fit: contain;">
+                    <span class="logo-text">LGA RevMax</span>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i data-feather="grid"></i><span>Overview</span>
+                </a>
+                <a href="notifications.html" class="nav-item">
+                    <i data-feather="bell"></i><span>Notifications</span>
+                </a>
+                <a href="users.html" class="nav-item">
+                    <i data-feather="users"></i><span>LGA Admins</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <i data-feather="bar-chart-2"></i><span>Analytics</span>
+                </a>
+                <div class="nav-divider"></div>
+                <div class="nav-label">LGA DASHBOARDS</div>
+                <div class="lga-list" id="sidebarLgaList">
+                    <!-- Populated via JS -->
+                </div>
+                <div class="nav-divider"></div>
+                <a href="settings.html" class="nav-item active">
+                    <i data-feather="settings"></i><span>Settings</span>
+                </a>
+                <a href="#" class="nav-item" id="logoutBtn" style="margin-top: auto; color: #ef4444;">
+                    <i data-feather="log-out"></i><span>Log Out</span>
+                </a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">SA</div>
+                    <div class="user-info">
+                        <span class="user-name">Super Admin</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-search">
+                    <i data-feather="settings" style="color: var(--primary); width:20px; height:20px;"></i>
+                    <span style="font-weight:600; color:var(--slate-700); font-size:0.9rem;">System Settings</span>
+                </div>
+                <div class="topbar-actions">
+                    <div id="serverStatusPill" class="connection-pill unknown" style="margin-right: 1rem;">
+                        <div class="status-dot"></div>
+                        <span>Checking...</span>
+                    </div>
+                    <button class="btn btn-primary" id="saveAllBtn">
+                        <i data-feather="save"></i>
+                        Save All Settings
+                    </button>
+                </div>
+            </header>
+
+            <div class="dashboard-content">
+                <div class="content-header">
+                    <div class="header-title">
+                        <h1>Settings</h1>
+                        <p>Configure Paystack integration, LGA branding, and system preferences.</p>
+                    </div>
+                </div>
+
+                <div class="settings-layout">
+                    <!-- Left Column -->
+                    <div class="settings-column">
+
+                        <!-- Paystack Configuration -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="settings-card-icon settings-icon-indigo">
+                                    <i data-feather="credit-card"></i>
+                                </div>
+                                <div>
+                                    <h3>Paystack Integration</h3>
+                                    <p>Configure your payment gateway keys</p>
+                                </div>
+                            </div>
+
+                            <div class="settings-mode-toggle" id="paystackModeToggle">
+                                <button class="mode-btn active" data-mode="test" id="testModeBtn">
+                                    <i data-feather="flask"></i> Test Mode
+                                </button>
+                                <button class="mode-btn" data-mode="live" id="liveModeBtn">
+                                    <i data-feather="zap"></i> Live Mode
+                                </button>
+                            </div>
+
+                            <div class="settings-field-group">
+                                <div class="settings-field">
+                                    <label for="paystackPublicKey">Public Key</label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="paystackPublicKey" placeholder="Enter Paystack Public Key">
+                                        <button class="field-copy-btn" onclick="copyField('paystackPublicKey')" title="Copy">
+                                            <i data-feather="copy"></i>
+                                        </button>
+                                    </div>
+                                    <span class="field-hint">Used in the browser to initialise the Paystack popup.</span>
+                                </div>
+                                <div class="settings-field">
+                                    <label for="paystackSecretKey">Secret Key</label>
+                                    <div class="input-with-icon">
+                                        <input type="password" id="paystackSecretKey" placeholder="Enter Paystack Secret Key">
+                                        <button class="field-copy-btn" onclick="toggleSecret('paystackSecretKey')" title="Toggle visibility">
+                                            <i data-feather="eye"></i>
+                                        </button>
+                                    </div>
+                                    <span class="field-hint">Kept on the server for payment verification. Never exposed to the browser.</span>
+                                </div>
+                            </div>
+
+                            <div class="settings-status-row" id="paystackStatus">
+                                <div class="status-dot pending"></div>
+                                <span>No keys configured — running in <strong>Simulation Mode</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Connection -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="settings-card-icon settings-icon-indigo">
+                                    <i data-feather="server"></i>
+                                </div>
+                                <div>
+                                    <h3>Advanced Connection</h3>
+                                    <p>Backend API Configuration</p>
+                                </div>
+                            </div>
+                            <div class="settings-field-group">
+                                <div class="settings-field">
+                                    <label for="apiBaseUrl">API Base URL</label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="apiBaseUrl" placeholder="https://your-app.onrender.com">
+                                        <button class="field-copy-btn" onclick="copyField('apiBaseUrl')" title="Copy">
+                                            <i data-feather="copy"></i>
+                                        </button>
+                                    </div>
+                                    <span class="field-hint">Specify the full URL of your LGA RevMax backend (e.g. http://192.168.1.10:3000). Leave empty for default.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Branding -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="settings-card-icon settings-icon-emerald">
+                                    <i data-feather="image"></i>
+                                </div>
+                                <div>
+                                    <h3>LGA Branding</h3>
+                                    <p>Organisation name and report header details</p>
+                                </div>
+                            </div>
+                            <div class="settings-field-group">
+                                <div class="settings-field">
+                                    <label for="orgName">Organisation Name</label>
+                                    <input type="text" id="orgName" placeholder="e.g. Zamfara State Govt">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="orgSubtitle">Subtitle / Department</label>
+                                    <input type="text" id="orgSubtitle" placeholder="e.g. Revenue Administration">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="orgEmail">Official Email</label>
+                                    <input type="email" id="orgEmail" placeholder="e.g. revenue@zamfara.gov.ng">
+                                </div>
+                                <div class="settings-field">
+                                    <label for="orgPhone">Official Phone</label>
+                                    <input type="tel" id="orgPhone" placeholder="e.g. +234 800 000 0000">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="settings-column">
+
+                        <!-- System Preferences -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <div class="settings-card-icon settings-icon-amber">
+                                    <i data-feather="sliders"></i>
+                                </div>
+                                <div>
+                                    <h3>System Preferences</h3>
+                                    <p>Application behaviour and defaults</p>
+                                </div>
+                            </div>
+                            <div class="settings-field-group">
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <span class="toggle-label">Simulation Mode</span>
+                                        <span class="toggle-hint">Bypass Paystack — mark payments as paid instantly</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="simMode" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <span class="toggle-label">Require Invoice Before Payment</span>
+                                        <span class="toggle-hint">Taxpayer must have a profile before payment is accepted</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="requireInvoice" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="settings-toggle-row">
+                                    <div>
+                                        <span class="toggle-label">Auto-generate Invoice Reference</span>
+                                        <span class="toggle-hint">System generates LGA/REV/YYYY/XXXX references automatically</span>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="autoRef" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Danger Zone -->
+                        <div class="settings-card settings-card-danger">
+                            <div class="settings-card-header">
+                                <div class="settings-card-icon settings-icon-rose">
+                                    <i data-feather="alert-triangle"></i>
+                                </div>
+                                <div>
+                                    <h3>Danger Zone</h3>
+                                    <p>Irreversible data operations</p>
+                                </div>
+                            </div>
+                            <div class="danger-actions">
+                                <div class="danger-action-row">
+                                    <div>
+                                        <span class="danger-label">Export All Revenue Data</span>
+                                        <span class="danger-hint">Download a full JSON backup of all records</span>
+                                    </div>
+                                    <button class="btn-outline-sm" id="exportBackupBtn">
+                                        <i data-feather="download-cloud"></i> Export
+                                    </button>
+                                </div>
+                                <div class="danger-action-row">
+                                    <div>
+                                        <span class="danger-label">Clear All Revenue Records</span>
+                                        <span class="danger-hint">Permanently delete all taxpayer data from the system</span>
+                                    </div>
+                                    <button class="btn-outline-sm btn-danger-sm" id="clearDataBtn">
+                                        <i data-feather="trash-2"></i> Clear Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- About -->
+                        <div class="settings-card settings-card-about">
+                            <div class="about-logo-row">
+                                <img src="logo.png" alt="LGA RevMax Logo" style="width:40px; height:40px; object-fit:contain;">
+                                <div>
+                                    <h3>LGA RevMax</h3>
+                                    <span class="version-badge">v1.3.0</span>
+                                </div>
+                            </div>
+                            <p class="about-desc">Local Government Revenue Management System for Zamfara State. Built for efficient, transparent, and accountable revenue collection.</p>
+                            <div class="about-meta">
+                                <span><i data-feather="server"></i> Node.js + Express</span>
+                                <span><i data-feather="credit-card"></i> Paystack Ready</span>
+                                <span><i data-feather="shield"></i> Gov-Grade Security</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>
