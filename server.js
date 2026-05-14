@@ -89,13 +89,21 @@ app.get('/api/tax-rates', (req, res) => {
 // --- Revenues API ---
 app.get('/api/revenues', (req, res) => {
     let revenues = readJsonFile(revenuesFile);
+    console.log(`[API] Fetching revenues. Query LGA: ${req.query.lga}`);
+    
     // Optional LGA filter for role-based access
     if (req.query.lga && req.query.lga !== 'System-wide') {
-        revenues = revenues.filter(r => (r.lga || r.city || '').toLowerCase() === req.query.lga.toLowerCase());
+        const filterLga = req.query.lga.toLowerCase().trim();
+        revenues = revenues.filter(r => {
+            const recordLga = (r.lga || r.city || '').toLowerCase().trim();
+            return recordLga === filterLga;
+        });
+        console.log(`[API] Filtered to ${revenues.length} records for LGA: ${filterLga}`);
     }
     // Individual capture filter
     if (req.query.capturedBy) {
         revenues = revenues.filter(r => String(r.capturedBy) === String(req.query.capturedBy));
+        console.log(`[API] Further filtered by capturedBy: ${req.query.capturedBy}. Result: ${revenues.length}`);
     }
     res.json(revenues);
 });

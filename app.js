@@ -314,8 +314,9 @@ async function fetchRevenues() {
             ? '/api/revenues' 
             : `/api/revenues?lga=${encodeURIComponent(currentContextLga)}`;
         
-        // Individual capture filter for non-Super Admins
-        if (currentUser.role !== 'Super Admin' && currentUser.id) {
+        // Individual capture filter for Field Officers ONLY
+        // LGA Admins and Revenue Officers should see all records in their assigned LGA
+        if (currentUser.role === 'Field Officer' && currentUser.id) {
             const separator = url.includes('?') ? '&' : '?';
             url += `${separator}capturedBy=${encodeURIComponent(currentUser.id)}`;
         }
@@ -401,15 +402,26 @@ function updateDashboard() {
                     totalCollected += (tax.amountPaid || amount);
                 }
             });
+        } else if (t.chargeRate) {
+            // Legacy support for single-tax records
+            totalTaxItems++;
+            const amountMatch = (t.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            totalGeneration += amount;
+            if (t.status === 'Paid') {
+                totalCollected += amount;
+            }
         }
     });
 
     if (totalRevenueEl) totalRevenueEl.textContent = `₦${totalGeneration.toLocaleString()}`;
     if (totalCollectedEl) totalCollectedEl.textContent = `₦${totalCollected.toLocaleString()}`;
 
-    // Update LGA Stats Label if in specific LGA context
+    // Update LGA Stats Label and Trend text if in specific LGA context
     if (lgaStatsLabel) {
         lgaStatsLabel.textContent = currentContextLga === 'System-wide' ? 'LGAs Covered' : 'Active Context';
+        const trendEl = lgaStatsLabel.parentElement.querySelector('.stat-trend span');
+        if (trendEl) trendEl.textContent = currentContextLga;
     }
 
     // Total Transactions (Using tax items count for more granularity, or keeping profiles count)

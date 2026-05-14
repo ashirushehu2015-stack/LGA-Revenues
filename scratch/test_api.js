@@ -1,36 +1,21 @@
-const http = require('http');
+const axios = require('axios');
 
-const postData = JSON.stringify({
-    id: 'test-user-node',
-    name: 'Node Test User',
-    email: 'node@test.com',
-    role: 'LGA Admin',
-    lga: 'Gusau',
-    status: 'Active'
-});
-
-const options = {
-    hostname: 'localhost',
-    port: 3000,
-    path: '/api/users',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(postData)
+async function testApi() {
+    try {
+        const res = await axios.get('http://localhost:3000/api/revenues?lga=Anka');
+        console.log('Anka Revenues:', res.data.length);
+        if (res.data.length > 0) {
+            console.log('First Record LGA:', res.data[0].lga);
+        } else {
+            // Get all to see what's there
+            const allRes = await axios.get('http://localhost:3000/api/revenues');
+            console.log('Total Revenues:', allRes.data.length);
+            const lgas = [...new Set(allRes.data.map(r => r.lga))];
+            console.log('Available LGAs:', lgas);
+        }
+    } catch (e) {
+        console.error('API Error:', e.message);
     }
-};
+}
 
-const req = http.request(options, (res) => {
-    console.log(`STATUS: ${res.statusCode}`);
-    res.setEncoding('utf8');
-    res.on('data', (chunk) => {
-        console.log(`BODY: ${chunk}`);
-    });
-});
-
-req.on('error', (e) => {
-    console.error(`problem with request: ${e.message}`);
-});
-
-req.write(postData);
-req.end();
+testApi();
