@@ -66,7 +66,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 270px;
+    width: 200px;
     background-color: var(--white);
     border-right: 1px solid rgba(0, 0, 0, 0.05);
     display: flex;
@@ -242,7 +242,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 2.5rem;
+    padding: 0 1.5rem;
     position: sticky;
     top: 0;
     z-index: 50;
@@ -355,8 +355,8 @@ body {
 
 /* Dashboard Content */
 .dashboard-content {
-    padding: 2rem;
-    max-width: 1200px;
+    padding: 1rem;
+    max-width: 1600px;
     margin: 0 auto;
     width: 100%;
 }
@@ -379,14 +379,14 @@ body {
 /* Stats Cards */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
 }
 
 .stat-card {
     background: var(--white);
-    padding: 1.5rem;
+    padding: 1rem;
     border-radius: var(--radius-xl);
     border: 1px solid rgba(0, 0, 0, 0.04);
     box-shadow: var(--shadow-sm);
@@ -499,7 +499,7 @@ body {
 
 .data-table th,
 .data-table td {
-    padding: 1rem 0.875rem;
+    padding: 0.5rem 0.5rem;
     text-align: left;
     border-bottom: 1px solid var(--slate-200);
 }
@@ -516,9 +516,9 @@ body {
 }
 
 .data-table td {
-    padding: 1.125rem 1rem;
+    padding: 0.5rem 0.5rem;
     color: var(--slate-600);
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     border-bottom: 1px solid #f8f9fa;
     transition: var(--transition);
 }
@@ -533,7 +533,7 @@ body {
 .data-table td:nth-child(3), /* Business Address */
 .data-table td:nth-child(6), /* Assigned Tax */
 .data-table td:nth-child(7) { /* Charge Rate */
-    max-width: 300px;
+    max-width: 240px;
 }
 
 .data-table tbody tr {
@@ -546,7 +546,7 @@ body {
 
 /* Removed wrapping per user request - enforcing strict single-line records */
 .data-table td:nth-child(5) {
-    min-width: 260px;
+    min-width: 180px;
 }
 
 .data-table td:last-child {
