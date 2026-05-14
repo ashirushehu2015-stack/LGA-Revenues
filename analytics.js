@@ -10,7 +10,11 @@ let currentContextLga = 'System-wide';
 feather.replace();
 
 const currentUser = JSON.parse(localStorage.getItem('lga_user') || '{}');
-if (currentUser.name) {
+
+// Session Enforcement
+if (!currentUser.name) {
+    window.location.href = 'landing.html';
+} else {
     document.querySelector('.user-name').textContent = currentUser.name;
     document.querySelector('.user-role').textContent = currentUser.role;
     document.querySelector('.avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();

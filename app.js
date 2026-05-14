@@ -11,11 +11,15 @@ let currentContextLga = 'System-wide';
 
 // Auth & Session Management
 const currentUser = JSON.parse(localStorage.getItem('lga_user') || '{}');
-if (currentUser.name) {
+
+// Session Enforcement
+if (!currentUser.name) {
+    window.location.href = 'landing.html';
+} else {
     document.querySelector('.user-name').textContent = currentUser.name;
     document.querySelector('.user-role').textContent = currentUser.role;
     document.querySelector('.avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    
+
     // Lock LGA Admin to their specific LGA
     if (currentUser.role !== 'Super Admin' && currentUser.lga && currentUser.lga !== 'System-wide') {
         currentContextLga = currentUser.lga;
