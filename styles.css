@@ -743,16 +743,23 @@ input:focus, select:focus {
 }
 
 /* Tax Selection Buttons */
+/* Modal Tax Search */
+.tax-search-wrapper input:focus {
+    outline: none !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
 .tax-buttons-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    max-height: 200px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: 400px;
     overflow-y: auto;
-    padding: 0.75rem;
-    border: 1px solid var(--slate-300);
-    border-radius: var(--radius-md);
-    background-color: var(--white);
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid var(--slate-100);
 }
 
 .tax-category-header {
@@ -1624,7 +1631,7 @@ input:focus, select:focus {
 
 .rate-tag {
     font-weight: 700;
-    color: var(--primary);
+    color: var(--slate-700);
 }
 
 .tax-tag:last-child, .rate-tag:last-child, .status-tag-cell:last-child {

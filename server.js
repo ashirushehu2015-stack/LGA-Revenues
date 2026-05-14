@@ -125,7 +125,8 @@ app.post('/api/revenues', (req, res) => {
             // Trigger Registration SMS for each new record
             processedRevenues.forEach(r => {
                 if (r.phoneNumber) {
-                    const msg = `LGA RevMax: Welcome ${r.businessName}! Your Invoice Ref is ${r.invoiceRef}. Total taxes assigned: ${r.taxes ? r.taxes.length : 0}. Access portal at: ${runtimeConfig.appUrl}/portal.html`;
+                    const hostUrl = req.protocol + '://' + req.get('host');
+                    const msg = `LGA RevMax: Welcome ${r.businessName}! Your Invoice Ref is ${r.invoiceRef}. Total taxes assigned: ${r.taxes ? r.taxes.length : 0}. Access portal at: ${hostUrl}/portal.html`;
                     smsHelper.send(r.phoneNumber, msg, 'Registration');
                 }
             });

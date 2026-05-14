@@ -76,36 +76,72 @@ async function fetchTaxRates() {
 }
 fetchTaxRates();
 
-function renderTaxButtons() {
+// Modal Tax Search
+document.getElementById('modalTaxSearch')?.addEventListener('input', (e) => {
+    renderTaxButtons(e.target.value);
+});
+
+function renderTaxButtons(filter = '') {
     const taxButtonsContainer = document.getElementById('taxButtonsContainer');
     if (!taxButtonsContainer) return;
     taxButtonsContainer.innerHTML = '';
     
-    taxCategories.forEach(category => {
-        const header = document.createElement('div');
-        header.className = 'tax-category-header';
-        header.textContent = category.categoryName;
-        taxButtonsContainer.appendChild(header);
+    const searchTerm = filter.toLowerCase().trim();
+    let totalMatches = 0;
 
-        category.taxes.forEach(tax => {
-            const btn = document.createElement('div');
-            btn.className = 'tax-btn';
-            btn.textContent = tax.name;
-            btn.dataset.name = tax.name;
-            btn.dataset.urban = tax.urban;
-            btn.dataset.semiUrban = tax.semiUrban;
-            btn.dataset.subUrban = tax.subUrban;
-            btn.dataset.duration = tax.duration;
-            
-            btn.addEventListener('click', () => {
-                btn.classList.toggle('selected');
-                toggleValuationField();
-                updateLiveCalculator();
+    // Track which taxes were already selected so we can keep them highlighted
+    const selectedTaxNames = new Set();
+    if (editId) {
+        const t = transactions.find(item => item.id === editId);
+        if (t && t.taxes) t.taxes.forEach(tx => selectedTaxNames.add(tx.name));
+    }
+    // Also check current UI state for newly selected buttons
+    const currentSelected = Array.from(document.querySelectorAll('.tax-btn.selected')).map(b => b.dataset.name);
+    currentSelected.forEach(name => selectedTaxNames.add(name));
+
+    taxCategories.forEach(category => {
+        // Check if category name matches or any tax inside matches
+        const catMatches = category.categoryName.toLowerCase().includes(searchTerm);
+        const matchingTaxes = category.taxes.filter(tax => 
+            catMatches || tax.name.toLowerCase().includes(searchTerm)
+        );
+
+        if (matchingTaxes.length > 0) {
+            const header = document.createElement('div');
+            header.className = 'tax-category-header';
+            header.textContent = category.categoryName;
+            taxButtonsContainer.appendChild(header);
+
+            matchingTaxes.forEach(tax => {
+                totalMatches++;
+                const btn = document.createElement('div');
+                btn.className = 'tax-btn';
+                if (selectedTaxNames.has(tax.name)) btn.classList.add('selected');
+                
+                btn.textContent = tax.name;
+                btn.dataset.name = tax.name;
+                btn.dataset.urban = tax.urban;
+                btn.dataset.semiUrban = tax.semiUrban;
+                btn.dataset.subUrban = tax.subUrban;
+                btn.dataset.duration = tax.duration;
+                
+                btn.addEventListener('click', () => {
+                    btn.classList.toggle('selected');
+                    toggleValuationField();
+                    updateLiveCalculator();
+                });
+                
+                taxButtonsContainer.appendChild(btn);
             });
-            
-            taxButtonsContainer.appendChild(btn);
-        });
+        }
     });
+
+    if (totalMatches === 0 && searchTerm !== '') {
+        taxButtonsContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--slate-400); width: 100%;">No taxes found matching "' + filter + '"</div>';
+    }
+    
+    // Re-suggest based on Line of Business if needed
+    smartTaxSuggest();
 }
 
 /**
@@ -317,6 +353,13 @@ function closeModals() {
     editId = null;
     revenueForm.reset();
     
+    // Reset tax search
+    const searchInput = document.getElementById('modalTaxSearch');
+    if (searchInput) {
+        searchInput.value = '';
+        renderTaxButtons(); // Reset buttons to full list
+    }
+
     // Reset tax buttons
     if (taxButtonsContainer) {
         taxButtonsContainer.querySelectorAll('.tax-btn').forEach(btn => {
@@ -414,7 +457,7 @@ function renderTable() {
         const isPortal = t.origin === 'Portal';
         
         tr.innerHTML = `
-            <td class="fw-600" style="color: var(--slate-500);">${index + 1}</td>
+            <td class="fw-600" style="color: var(--slate-500); font-size: 0.75rem;">${t.id || ''}</td>
             <td class="fw-600">
                 ${t.businessName || ''}
                 ${isPortal ? '<span class="source-badge">Portal</span>' : ''}
@@ -552,7 +595,7 @@ function generateInvoiceHTML(t) {
                 <div style="flex: 1;">
                     <p style="font-size: 11px; font-weight: 700; margin: 0;">${tax.name}</p>
                     <p style="font-size: 9px; color: #666; margin: 0;">Cycle: ${tax.duration}</p>
-                    <p style="font-size: 10px; font-weight: 700; color: var(--primary); margin: 2px 0 0 0;">Amount: ${amountDisplay}</p>
+                    <p style="font-size: 10px; font-weight: 700; color: var(--slate-700); margin: 2px 0 0 0;">Amount: ${amountDisplay}</p>
                 </div>
                 <div style="text-align: right; min-width: 100px;">
                     ${isPaid ? 
