@@ -457,7 +457,7 @@ function renderTable() {
         const isPortal = t.origin === 'Portal';
         
         tr.innerHTML = `
-            <td class="fw-600" style="color: var(--slate-500); font-size: 0.75rem;">${t.id || ''}</td>
+            <td class="fw-600" style="color: var(--slate-500);">${index + 1}</td>
             <td class="fw-600">
                 ${t.businessName || ''}
                 ${isPortal ? '<span class="source-badge">Portal</span>' : ''}
