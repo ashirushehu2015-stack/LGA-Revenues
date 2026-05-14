@@ -123,8 +123,11 @@ async function loadAnalytics() {
             ? '/api/revenues' 
             : `/api/revenues?lga=${encodeURIComponent(currentContextLga)}`;
         
-        // Individual capture filter for non-Super Admins
-        if (currentUser.role !== 'Super Admin' && currentUser.id) {
+        // RBAC Enforcement:
+        // 1. Super Admin & LGA Admin: Full view of records in their context.
+        // 2. Revenue Officer & Field Officer: Restricted to only what they personally captured.
+        const restrictedRoles = ['Revenue Officer', 'Field Officer'];
+        if (restrictedRoles.includes(currentUser.role) && currentUser.id) {
             const separator = url.includes('?') ? '&' : '?';
             url += `${separator}capturedBy=${encodeURIComponent(currentUser.id)}`;
         }
