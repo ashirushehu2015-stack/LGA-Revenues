@@ -738,6 +738,7 @@ window.editRevenue = function(id) {
     document.getElementById('phoneNumber').value = t.phoneNumber || '';
     document.getElementById('status').value = t.status || 'Active';
     document.getElementById('areaClass').value = t.areaClass || 'urban';
+    document.getElementById('password').value = t.password || '';
 
     // Set assessment value if any tax is a percentage one
     const pTax = (t.taxes || []).find(tx => tx.rateType === 'Percentage');
@@ -927,6 +928,7 @@ revenueForm.addEventListener('submit', (e) => {
         lineOfBusiness: document.getElementById('lineOfBusiness').value,
         contactPerson: document.getElementById('contactPerson').value,
         phoneNumber: document.getElementById('phoneNumber').value,
+        password: document.getElementById('password').value,
         status: document.getElementById('status').value, // This is overall profile status
         origin: currentUser.role === 'Revenue Officer' ? 'Officer' : 'Admin',
         capturedBy: currentUser.id,

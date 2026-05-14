@@ -209,6 +209,7 @@ registerForm.addEventListener('submit', async (e) => {
         contactPerson: document.getElementById('regContactPerson').value,
         addressCp: document.getElementById('regAddressCp').value,
         phoneNumber: document.getElementById('regPhoneNumber').value,
+        password: document.getElementById('regPassword').value,
         status: 'Active',
         origin: 'Portal',
         taxes: finalTaxes
@@ -243,6 +244,7 @@ const loginForm = document.getElementById('payerLoginForm');
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const identifier = document.getElementById('loginIdentifier').value;
+    const password = document.getElementById('loginPassword').value;
     
     try {
         const res = await LgaConnection.apiFetch('/api/revenues'); 
@@ -251,9 +253,19 @@ loginForm.addEventListener('submit', async (e) => {
         const payer = allPayers.find(p => p.phoneNumber === identifier || p.invoiceRef === identifier);
         
         if (payer) {
-            currentPayer = payer;
-            localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
-            showDashboard();
+            // Verification logic:
+            // 1. If record has a 'password' field, it must match.
+            // 2. If it doesn't have a 'password' field (legacy), fallback to 'phoneNumber' as password.
+            const storedPassword = payer.password || payer.phoneNumber;
+            
+            if (password === storedPassword) {
+                currentPayer = payer;
+                localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
+                showDashboard();
+            } else {
+                document.getElementById('loginError').textContent = 'Invalid password. Please try again or contact support.';
+                document.getElementById('loginError').style.display = 'block';
+            }
         } else {
             document.getElementById('loginError').textContent = 'Payer record not found. Please register your business.';
             document.getElementById('loginError').style.display = 'block';
