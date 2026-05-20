@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievances Management - LGA RevMax</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="connection.js"></script>
+    <style>
+        /* ── Grievance-Specific Overrides ─── */
+        .stat-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+        .stat-card {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            border: 1px solid var(--slate-100);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s;
+        }
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .stat-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        .stat-icon i { width: 22px; height: 22px; }
+        .bg-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .bg-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .bg-emerald { background: linear-gradient(135deg, #10b981, #059669); }
+        .bg-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .bg-primary { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .stat-info h3 { font-size: 1.875rem; font-weight: 800; color: var(--slate-900); line-height: 1; }
+        .stat-info p { font-size: 0.8125rem; color: var(--slate-400); margin-top: 0.25rem; font-weight: 500; }
+
+        /* Controls Bar */
+        .controls-bar {
+            display: flex;
+            gap: 0.875rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .controls-bar input {
+            flex: 1;
+            min-width: 220px;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            outline: none;
+            transition: all 0.2s;
+            background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 0.75rem center;
+        }
+        .controls-bar input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .controls-bar select {
+            padding: 0.625rem 2rem 0.625rem 1rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            outline: none;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            color: var(--slate-700);
+            cursor: pointer;
+        }
+
+        /* Table */
+        .grv-table-wrap {
+            background: white;
+            border-radius: 1.25rem;
+            border: 1px solid var(--slate-100);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+        .grv-table { width: 100%; border-collapse: collapse; }
+        .grv-table thead tr { background: linear-gradient(to right, #f8fafc, #f1f5f9); }
+        .grv-table th {
+            padding: 1rem 1.25rem;
+            text-align: left;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--slate-400);
+            border-bottom: 1px solid var(--slate-100);
+            white-space: nowrap;
+        }
+        .grv-table tbody tr {
+            border-bottom: 1px solid var(--slate-50);
+            transition: background 0.15s;
+        }
+        .grv-table tbody tr:hover { background: #f8fafc; }
+        .grv-table td { padding: 1rem 1.25rem; font-size: 0.875rem; color: var(--slate-700); vertical-align: middle; }
+        .grv-table td strong { color: var(--slate-900); }
+        .grv-table td .sub { font-size: 0.75rem; color: var(--slate-400); }
+
+        /* Badges */
+        .badge {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+        .badge-pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .badge-review { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .badge-resolved { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .badge-rejected { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .priority-badge-low { background: #ecfdf5; color: #059669; }
+        .priority-badge-medium { background: #fffbeb; color: #d97706; }
+        .priority-badge-high { background: #fef2f2; color: #dc2626; }
+
+        /* Action Btns */
+        .action-btns { display: flex; gap: 0.5rem; }
+        .btn-action {
+            display: flex; align-items: center; gap: 0.25rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.625rem;
+            border: none;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-action i { width: 14px; height: 14px; }
+        .btn-view { background: #eef2ff; color: #4f46e5; }
+        .btn-view:hover { background: #e0e7ff; }
+        .btn-respond { background: #ecfdf5; color: #059669; }
+        .btn-respond:hover { background: #d1fae5; }
+        .btn-reject { background: #fef2f2; color: #dc2626; }
+        .btn-reject:hover { background: #fee2e2; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15,23,42,0.5);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal-box {
+            background: white;
+            border-radius: 1.5rem;
+            width: 100%;
+            max-width: 660px;
+            max-height: 88vh;
+            overflow-y: auto;
+            padding: 2.5rem;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.75rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .modal-header h3 { font-size: 1.25rem; font-weight: 800; color: var(--slate-900); }
+        .modal-ref { font-size: 0.75rem; color: var(--slate-400); font-weight: 600; margin-top: 0.25rem; }
+        .close-modal-btn {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--slate-200);
+            background: var(--slate-50);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .close-modal-btn:hover { background: var(--slate-100); }
+        .close-modal-btn i { width: 16px; height: 16px; }
+
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        .detail-field label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--slate-400); display: block; margin-bottom: 0.25rem; }
+        .detail-field p { font-size: 0.9rem; font-weight: 600; color: var(--slate-800); }
+
+        .desc-box {
+            background: var(--slate-50);
+            border: 1px solid var(--slate-100);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            color: var(--slate-700);
+            margin-bottom: 1.5rem;
+        }
+
+        .response-section { margin-top: 1rem; }
+        .response-section label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--slate-600); display: block; margin-bottom: 0.5rem; }
+        .response-section textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 110px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .response-section textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+        .status-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: var(--slate-700);
+            outline: none;
+            margin-bottom: 1rem;
+            background: white;
+            transition: all 0.2s;
+        }
+        .status-select:focus { border-color: var(--primary); }
+
+        .modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+        .btn-modal-save {
+            flex: 1;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.35);
+        }
+        .btn-modal-save:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(99,102,241,0.45); }
+        .btn-modal-save i { width: 18px; height: 18px; }
+        .btn-modal-cancel {
+            padding: 0.875rem 1.5rem;
+            background: var(--slate-100);
+            border: none;
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--slate-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-modal-cancel:hover { background: var(--slate-200); }
+
+        .empty-state { text-align: center; padding: 4rem 1rem; color: var(--slate-400); }
+        .empty-state i { width: 48px; height: 48px; margin-bottom: 1rem; }
+        .empty-state h3 { font-size: 1.125rem; font-weight: 700; color: var(--slate-600); }
+
+        .page-count { font-size: 0.8125rem; color: var(--slate-400); padding: 1rem 1.25rem; border-top: 1px solid var(--slate-50); }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="logo.png" alt="Logo" style="width:45px;height:45px;object-fit:contain;">
+                <span class="logo-text">LGA RevMax</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item"><i data-feather="grid"></i><span>Overview</span></a>
+            <a href="analytics.html" class="nav-item"><i data-feather="bar-chart-2"></i><span>Analytics</span></a>
+            <a href="notifications.html" class="nav-item"><i data-feather="bell"></i><span>Notifications</span></a>
+            <a href="users.html" class="nav-item"><i data-feather="users"></i><span>LGA Admins</span></a>
+            <a href="grievances-admin.html" class="nav-item active"><i data-feather="alert-circle"></i><span>Grievances</span></a>
+            <div class="nav-divider"></div>
+            <div class="nav-label">EXTERNALS</div>
+            <a href="portal.html" class="nav-item" target="_blank"><i data-feather="external-link"></i><span>Public Portal</span></a>
+            <a href="grievances.html" class="nav-item" target="_blank"><i data-feather="message-circle"></i><span>Grievances Portal</span></a>
+            <a href="landing.html" class="nav-item"><i data-feather="home"></i><span>Landing Page</span></a>
+            <div class="nav-divider"></div>
+            <div class="nav-label">LGA DASHBOARDS</div>
+            <div class="lga-list" id="sidebarLgaList"></div>
+            <div class="nav-divider"></div>
+            <a href="settings.html" class="nav-item"><i data-feather="settings"></i><span>Settings</span></a>
+            <a href="#" class="nav-item" id="logoutBtn" style="margin-top:auto;color:#ef4444;">
+                <i data-feather="log-out"></i><span>Log Out</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-search">
+                <i data-feather="alert-circle"></i>
+                <span style="font-weight:600;">Grievances Management</span>
+            </div>
+            <div class="topbar-actions">
+                <div id="serverStatusPill" class="connection-pill unknown" style="margin-right:1rem;">
+                    <div class="status-dot"></div><span>Checking...</span>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar"></div>
+                    <div><div class="user-name"></div><div class="user-role"></div></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="dashboard-content">
+            <div class="content-header">
+                <div class="header-title">
+                    <h1>Grievances & Complaints</h1>
+                    <p>Review, respond to, and resolve citizen tax grievances submitted across all LGAs.</p>
+                </div>
+                <div>
+                    <a href="grievances.html" target="_blank" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.5rem;">
+                        <i data-feather="external-link" style="width:16px;height:16px;"></i> View Public Portal
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stat-cards">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary"><i data-feather="inbox"></i></div>
+                    <div class="stat-info"><h3 id="statTotal">0</h3><p>Total Grievances</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-amber"><i data-feather="clock"></i></div>
+                    <div class="stat-info"><h3 id="statPending">0</h3><p>Pending Review</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-blue"><i data-feather="search"></i></div>
+                    <div class="stat-info"><h3 id="statReview">0</h3><p>Under Review</p></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-emerald"><i data-feather="check-circle"></i></div>
+                    <div class="stat-info"><h3 id="statResolved">0</h3><p>Resolved</p></div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-bar">
+                <input type="text" id="searchInput" placeholder="Search by name, reference, subject, LGA…" oninput="filterGrievances()">
+                <select id="filterStatus" onchange="filterGrievances()">
+                    <option value="">All Statuses</option>
+                    <option>Pending</option>
+                    <option>Under Review</option>
+                    <option>Resolved</option>
+                    <option>Rejected</option>
+                </select>
+                <select id="filterPriority" onchange="filterGrievances()">
+                    <option value="">All Priorities</option>
+                    <option>High</option>
+                    <option>Medium</option>
+                    <option>Low</option>
+                </select>
+                <select id="filterLga" onchange="filterGrievances()">
+                    <option value="">All LGAs</option>
+                    <option>Anka</option><option>Bakura</option><option>Birnin Magaji</option>
+                    <option>Bukkuyum</option><option>Bungudu</option><option>Gummi</option>
+                    <option>Gusau</option><option>Kaura Namoda</option><option>Maradun</option>
+                    <option>Maru</option><option>Shinkafi</option><option>Talata Mafara</option>
+                    <option>Tsafe</option><option>Zurmi</option>
+                </select>
+                <button class="btn btn-outline" onclick="loadGrievances()" style="display:flex;align-items:center;gap:0.5rem;white-space:nowrap;">
+                    <i data-feather="refresh-cw" style="width:16px;height:16px;"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Table -->
+            <div class="grv-table-wrap">
+                <table class="grv-table">
+                    <thead>
+                        <tr>
+                            <th>Reference</th>
+                            <th>Complainant</th>
+                            <th>LGA</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Submitted</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="grievancesTbody">
+                        <tr><td colspan="8" style="text-align:center;padding:3rem;color:var(--slate-400);">Loading grievances...</td></tr>
+                    </tbody>
+                </table>
+                <div class="page-count" id="pageCount"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Detail / Respond Modal -->
+<div class="modal-overlay" id="respondModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <h3 id="modalSubject">—</h3>
+                <div class="modal-ref" id="modalRef">—</div>
+            </div>
+            <button class="close-modal-btn" onclick="closeModal()">
+                <i data-feather="x"></i>
+            </button>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-field"><label>Complainant</label><p id="modalName">—</p></div>
+            <div class="detail-field"><label>Phone</label><p id="modalPhone">—</p></div>
+            <div class="detail-field"><label>LGA</label><p id="modalLga">—</p></div>
+            <div class="detail-field"><label>Category</label><p id="modalCategory">—</p></div>
+            <div class="detail-field"><label>Priority</label><p id="modalPriority">—</p></div>
+            <div class="detail-field"><label>Invoice Ref</label><p id="modalInvoiceRef">—</p></div>
+        </div>
+
+        <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--slate-400);margin-bottom:.5rem;">Description</div>
+        <div class="desc-box" id="modalDescription">—</div>
+
+        <div class="response-section">
+            <label>Update Status</label>
+            <select class="status-select" id="modalStatus">
+                <option value="Pending">Pending</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+            <label>Official Response / Note</label>
+            <textarea id="modalResponse" placeholder="Write your official response or internal note here. This will be visible to the complainant in their tracking portal…"></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+            <button class="btn-modal-save" onclick="saveResponse()">
+                <i data-feather="send"></i> Save & Send Response
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+feather.replace();
+
+// Auth
+const currentUser = JSON.parse(localStorage.getItem('lga_user') || '{}');
+if (!currentUser.name) window.location.href = 'landing.html';
+document.querySelector('.user-name').textContent = currentUser.name;
+document.querySelector('.user-role').textContent = currentUser.role;
+document.querySelector('.avatar').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+// Sidebar
+const LGAS = ["Anka","Bakura","Birnin Magaji","Bukkuyum","Bungudu","Gummi","Gusau","Kaura Namoda","Maradun","Maru","Shinkafi","Talata Mafara","Tsafe","Zurmi"];
+function initSidebar() {
+    const list = document.getElementById('sidebarLgaList');
+    if (currentUser.role !== 'Super Admin') {
+        list.innerHTML = `<div class="lga-item active">${currentUser.lga || 'Assigned LGA'}</div>`;
+        return;
+    }
+    let html = `<div class="lga-item" onclick="window.location.href='index.html?lga=System-wide'">System-wide</div>`;
+    LGAS.forEach(l => { html += `<div class="lga-item" onclick="window.location.href='index.html?lga=${encodeURIComponent(l)}'">${l}</div>`; });
+    list.innerHTML = html;
+}
+initSidebar();
+
+document.getElementById('logoutBtn').addEventListener('click', e => {
+    e.preventDefault();
+    localStorage.removeItem('lga_user');
+    window.location.href = 'landing.html';
+});
+
+const statusPill = document.getElementById('serverStatusPill');
+LgaConnection.onStatusChange(s => {
+    statusPill.className = `connection-pill ${s}`;
+    statusPill.querySelector('span').textContent = s.charAt(0).toUpperCase() + s.slice(1);
+});
+
+// ── Data ─────────────────────────────────
+let allGrievances = [];
+let currentGrievanceId = null;
+
+async function loadGrievances() {
+    try {
+        const res = await LgaConnection.apiFetch('/api/grievances');
+        allGrievances = await res.json();
+
+        // LGA filter for non-Super-Admin
+        if (currentUser.role !== 'Super Admin' && currentUser.lga && currentUser.lga !== 'System-wide') {
+            allGrievances = allGrievances.filter(g => g.lga === currentUser.lga);
+        }
+
+        updateStats();
+        filterGrievances();
+    } catch {
+        document.getElementById('grievancesTbody').innerHTML = `<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--slate-400);">Failed to load grievances. Server may be offline.</td></tr>`;
+    }
+}
+
+function updateStats() {
+    document.getElementById('statTotal').textContent = allGrievances.length;
+    document.getElementById('statPending').textContent = allGrievances.filter(g => g.status === 'Pending').length;
+    document.getElementById('statReview').textContent = allGrievances.filter(g => g.status === 'Under Review').length;
+    document.getElementById('statResolved').textContent = allGrievances.filter(g => g.status === 'Resolved').length;
+}
+
+function filterGrievances() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const status = document.getElementById('filterStatus').value;
+    const priority = document.getElementById('filterPriority').value;
+    const lga = document.getElementById('filterLga').value;
+
+    let filtered = allGrievances.filter(g => {
+        const matchQ = !q || g.name?.toLowerCase().includes(q) || g.ref?.toLowerCase().includes(q) || g.subject?.toLowerCase().includes(q) || g.lga?.toLowerCase().includes(q);
+        const matchStatus = !status || g.status === status;
+        const matchPriority = !priority || g.priority === priority;
+        const matchLga = !lga || g.lga === lga;
+        return matchQ && matchStatus && matchPriority && matchLga;
+    });
+
+    // Sort: High priority first, then by date desc
+    filtered.sort((a, b) => {
+        const pOrder = { High: 0, Medium: 1, Low: 2 };
+        if (pOrder[a.priority] !== pOrder[b.priority]) return pOrder[a.priority] - pOrder[b.priority];
+        return new Date(b.submittedAt) - new Date(a.submittedAt);
+    });
+
+    renderTable(filtered);
+    document.getElementById('pageCount').textContent = `Showing ${filtered.length} of ${allGrievances.length} grievances`;
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById('grievancesTbody');
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i data-feather="inbox"></i><h3>No grievances found</h3><p>Try adjusting your filters.</p></div></td></tr>`;
+        feather.replace();
+        return;
+    }
+
+    tbody.innerHTML = data.map(g => {
+        const statusCls = {
+            'Pending': 'badge-pending', 'Under Review': 'badge-review',
+            'Resolved': 'badge-resolved', 'Rejected': 'badge-rejected'
+        }[g.status] || 'badge-pending';
+        const priorityCls = { Low: 'priority-badge-low', Medium: 'priority-badge-medium', High: 'priority-badge-high' }[g.priority] || '';
+        const date = new Date(g.submittedAt).toLocaleDateString('en-NG', { day: '2-digit', month: 'short', year: 'numeric' });
+
+        return `<tr>
+            <td><strong style="font-size:0.8rem;letter-spacing:0.03em;">${g.ref}</strong></td>
+            <td><strong>${g.name}</strong><div class="sub">${g.phone}</div></td>
+            <td>${g.lga}</td>
+            <td style="max-width:180px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.category}</div><div class="sub">${g.subject?.substring(0,40)}${g.subject?.length > 40 ? '…' : ''}</div></td>
+            <td><span class="badge ${priorityCls}">${g.priority}</span></td>
+            <td><span class="badge ${statusCls}">${g.status}</span></td>
+            <td>${date}</td>
+            <td>
+                <div class="action-btns">
+                    <button class="btn-action btn-view" onclick='openModal(${JSON.stringify(g.id)})'>
+                        <i data-feather="eye"></i> Respond
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+    feather.replace();
+}
+
+// ── Modal ─────────────────────────────────
+function openModal(id) {
+    const g = allGrievances.find(x => x.id === id);
+    if (!g) return;
+    currentGrievanceId = id;
+
+    document.getElementById('modalSubject').textContent = g.subject;
+    document.getElementById('modalRef').textContent = g.ref + ' · ' + g.lga + ' LGA · Submitted ' + new Date(g.submittedAt).toLocaleDateString();
+    document.getElementById('modalName').textContent = g.name;
+    document.getElementById('modalPhone').textContent = g.phone;
+    document.getElementById('modalLga').textContent = g.lga;
+    document.getElementById('modalCategory').textContent = g.category;
+    document.getElementById('modalPriority').textContent = g.priority;
+    document.getElementById('modalInvoiceRef').textContent = g.invoiceRef || 'N/A';
+    document.getElementById('modalDescription').textContent = g.description;
+    document.getElementById('modalStatus').value = g.status;
+    document.getElementById('modalResponse').value = g.adminResponse || '';
+
+    document.getElementById('respondModal').classList.add('active');
+    feather.replace();
+}
+
+function closeModal() {
+    document.getElementById('respondModal').classList.remove('active');
+    currentGrievanceId = null;
+}
+
+document.getElementById('respondModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('respondModal')) closeModal();
+});
+
+async function saveResponse() {
+    if (!currentGrievanceId) return;
+    const status = document.getElementById('modalStatus').value;
+    const response = document.getElementById('modalResponse').value.trim();
+
+    const g = allGrievances.find(x => x.id === currentGrievanceId);
+    if (!g) return;
+
+    // Build timeline entry
+    const newEntry = {
+        event: status === 'Resolved' ? 'Grievance Resolved' :
+               status === 'Rejected' ? 'Grievance Rejected' :
+               status === 'Under Review' ? 'Under Review' : 'Status Updated',
+        date: new Date().toISOString(),
+        response: response || null
+    };
+
+    const updatedGrievance = {
+        ...g,
+        status,
+        adminResponse: response,
+        resolvedAt: (status === 'Resolved' || status === 'Rejected') ? new Date().toISOString() : g.resolvedAt,
+        respondedBy: currentUser.name,
+        timeline: [...(g.timeline || []), newEntry]
+    };
+
+    try {
+        const res = await LgaConnection.apiFetch(`/api/grievances/${currentGrievanceId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedGrievance)
+        });
+        const data = await res.json();
+        if (data.success) {
+            const idx = allGrievances.findIndex(x => x.id === currentGrievanceId);
+            allGrievances[idx] = updatedGrievance;
+            closeModal();
+            updateStats();
+            filterGrievances();
+            showToast('Response saved successfully!', 'success');
+        } else {
+            throw new Error(data.message);
+        }
+    } catch {
+        showToast('Failed to save. Please try again.', 'error');
+    }
+}
+
+// ── Toast ─────────────────────────────────
+function showToast(msg, type = 'success') {
+    const existing = document.getElementById('lga-toast');
+    if (existing) existing.remove();
+    const toast = document.createElement('div');
+    toast.id = 'lga-toast';
+    toast.className = `lga-toast lga-toast-${type}`;
+    toast.innerHTML = `<i data-feather="${type === 'success' ? 'check-circle' : 'x-circle'}"></i><span>${msg}</span>`;
+    document.body.appendChild(toast);
+    feather.replace();
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3500);
+}
+
+loadGrievances();
+</script>
+</body>
+</html>

@@ -396,6 +396,91 @@ app.get('/api/notifications', (req, res) => {
     res.json(smsHelper.getLogs());
 });
 
+// --- Grievances API ---
+const grievancesFile = path.join(dataDir, 'grievances.json');
+if (!fs.existsSync(grievancesFile)) fs.writeFileSync(grievancesFile, JSON.stringify([]));
+
+// GET all grievances (with optional LGA filter)
+app.get('/api/grievances', (req, res) => {
+    let grievances = readJsonFile(grievancesFile);
+    if (req.query.lga && req.query.lga !== 'System-wide') {
+        grievances = grievances.filter(g => g.lga === req.query.lga);
+    }
+    // Sort newest first
+    grievances.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+    res.json(grievances);
+});
+
+// GET single grievance by reference code (for public tracker)
+app.get('/api/grievances/:ref', (req, res) => {
+    const grievances = readJsonFile(grievancesFile);
+    const ref = decodeURIComponent(req.params.ref);
+    // Try matching by ref code first, then by id
+    const found = grievances.find(g => g.ref === ref || g.id === ref);
+    if (found) {
+        res.json(found);
+    } else {
+        res.status(404).json({ success: false, message: 'Grievance not found' });
+    }
+});
+
+// POST new grievance (public submission)
+app.post('/api/grievances', (req, res) => {
+    try {
+        const grievance = req.body;
+        if (!grievance.name || !grievance.lga || !grievance.subject || !grievance.description) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+        const grievances = readJsonFile(grievancesFile);
+        // Ensure unique ref
+        grievance.id = grievance.id || Date.now().toString();
+        grievance.submittedAt = grievance.submittedAt || new Date().toISOString();
+        grievance.status = 'Pending';
+        grievances.push(grievance);
+        writeJsonFile(grievancesFile, grievances);
+        console.log(`[Grievances] New submission: ${grievance.ref} from ${grievance.name} (${grievance.lga})`);
+        res.json({ success: true, message: 'Grievance submitted', ref: grievance.ref });
+    } catch (err) {
+        console.error('Error saving grievance:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// PUT update grievance status / response (admin)
+app.put('/api/grievances/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const update = req.body;
+        const grievances = readJsonFile(grievancesFile);
+        const idx = grievances.findIndex(g => g.id === id);
+        if (idx === -1) return res.status(404).json({ success: false, message: 'Grievance not found' });
+        grievances[idx] = { ...grievances[idx], ...update };
+        writeJsonFile(grievancesFile, grievances);
+        res.json({ success: true, message: 'Grievance updated', grievance: grievances[idx] });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE grievance (admin only, hard delete)
+app.delete('/api/grievances/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        let grievances = readJsonFile(grievancesFile);
+        const initial = grievances.length;
+        grievances = grievances.filter(g => g.id !== id);
+        if (grievances.length < initial) {
+            writeJsonFile(grievancesFile, grievances);
+            res.json({ success: true, message: 'Grievance deleted' });
+        } else {
+            res.status(404).json({ success: false, message: 'Grievance not found' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`LGA Revenues server running on port ${PORT}`);
 });

@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grievances & Complaints Portal - LGA RevMax</title>
+    <meta name="description" content="Submit your tax-related grievances, disputes, and feedback to your Local Government Area through the secure LGA RevMax Grievances Portal.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="connection.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --danger: #ef4444;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1e293b;
+            --slate-900: #0f172a;
+            --white: #ffffff;
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.04);
+            --shadow-xl: 0 20px 50px rgba(0,0,0,0.12);
+            --radius: 1rem;
+            --radius-lg: 1.5rem;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+            color: var(--slate-800);
+        }
+
+        /* ── Nav ─────────────────────────────── */
+        .grv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 2.5rem;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .grv-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        .grv-logo img { width: 40px; height: 40px; object-fit: contain; }
+        .grv-logo span {
+            font-weight: 800;
+            font-size: 1.25rem;
+            background: linear-gradient(135deg, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.3);
+            color: #fca5a5;
+            padding: 0.375rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+        .nav-badge i { width: 14px; height: 14px; }
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .btn-nav-home {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.8);
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .btn-nav-home:hover { background: rgba(255,255,255,0.15); color: white; }
+        .btn-nav-home i { width: 16px; height: 16px; }
+
+        /* ── Hero Banner ─────────────────────── */
+        .grv-hero {
+            text-align: center;
+            padding: 4rem 1.5rem 3rem;
+            position: relative;
+        }
+        .grv-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%; transform: translateX(-50%);
+            width: 500px; height: 300px;
+            background: radial-gradient(ellipse, rgba(99,102,241,0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .grv-hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(99,102,241,0.15);
+            border: 1px solid rgba(99,102,241,0.3);
+            color: #a5b4fc;
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 1.5rem;
+        }
+        .grv-hero-badge i { width: 14px; height: 14px; }
+        .grv-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.15;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+        .grv-hero h1 span {
+            background: linear-gradient(135deg, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .grv-hero p {
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.6);
+            max-width: 580px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        /* ── Stat Chips ──────────────────────── */
+        .grv-stats {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        .stat-chip {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+        .stat-chip .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .dot-green { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.6); }
+        .dot-amber { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.6); }
+        .dot-indigo { background: #818cf8; box-shadow: 0 0 6px rgba(129,140,248,0.6); }
+
+        /* ── Main Container ──────────────────── */
+        .grv-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem 5rem;
+        }
+
+        /* ── Tab Switcher ────────────────────── */
+        .grv-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: var(--radius);
+            padding: 0.35rem;
+            margin-bottom: 2.5rem;
+            gap: 0.25rem;
+        }
+        .grv-tab {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 0.75rem;
+            border: none;
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .grv-tab i { width: 18px; height: 18px; }
+        .grv-tab.active {
+            background: var(--primary-gradient);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+        }
+        .grv-tab:not(.active):hover {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* ── Card ────────────────────────────── */
+        .grv-card {
+            background: rgba(255,255,255,0.97);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        .grv-card-header {
+            display: flex; align-items: center; gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--slate-100);
+        }
+        .grv-card-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        .grv-card-icon i { width: 24px; height: 24px; }
+        .icon-red { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 12px rgba(239,68,68,0.35); }
+        .icon-indigo { background: var(--primary-gradient); box-shadow: 0 4px 12px rgba(99,102,241,0.35); }
+        .icon-emerald { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 12px rgba(16,185,129,0.35); }
+        .grv-card-title h2 { font-size: 1.375rem; font-weight: 800; color: var(--slate-900); }
+        .grv-card-title p { font-size: 0.875rem; color: var(--slate-400); margin-top: 0.25rem; }
+
+        /* ── Form ────────────────────────────── */
+        .grv-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-group label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate-600);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            color: var(--slate-800);
+            background: var(--white);
+            transition: var(--transition);
+            outline: none;
+        }
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            padding-right: 2.5rem;
+        }
+        .form-group textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+        }
+
+        /* Priority Selector */
+        .priority-options {
+            display: flex; gap: 0.75rem;
+        }
+        .priority-opt {
+            flex: 1;
+            position: relative;
+        }
+        .priority-opt input[type="radio"] {
+            position: absolute; opacity: 0; width: 0; height: 0;
+        }
+        .priority-opt label {
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+            transition: var(--transition);
+            color: var(--slate-500);
+        }
+        .priority-opt input:checked + label.low { border-color: #10b981; background: #ecfdf5; color: #059669; }
+        .priority-opt input:checked + label.medium { border-color: #f59e0b; background: #fffbeb; color: #d97706; }
+        .priority-opt input:checked + label.high { border-color: #ef4444; background: #fef2f2; color: #dc2626; }
+        .priority-opt label i { width: 16px; height: 16px; }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed var(--slate-200);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        .file-upload-area:hover, .file-upload-area.drag-over {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.04);
+        }
+        .file-upload-area input[type="file"] {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer;
+            width: 100%; height: 100%; border: none; padding: 0;
+        }
+        .file-upload-area i { width: 32px; height: 32px; color: var(--slate-300); margin-bottom: 0.5rem; }
+        .file-upload-area p { font-size: 0.875rem; color: var(--slate-400); }
+        .file-upload-area span { font-size: 0.75rem; color: var(--slate-300); }
+        #uploadedFileName { font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.5rem; }
+
+        /* Submit Btn */
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 0.875rem;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 0.625rem;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+            margin-top: 0.5rem;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(99,102,241,0.5); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit i { width: 20px; height: 20px; }
+        .btn-submit.loading { opacity: 0.75; pointer-events: none; }
+
+        /* ── Success State ───────────────────── */
+        .success-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            display: none;
+        }
+        .success-icon {
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            box-shadow: 0 8px 25px rgba(16,185,129,0.4);
+            animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .success-icon i { width: 36px; height: 36px; }
+        @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .success-state h3 { font-size: 1.75rem; font-weight: 800; color: var(--slate-900); margin-bottom: 0.75rem; }
+        .success-state p { color: var(--slate-500); font-size: 1rem; line-height: 1.6; margin-bottom: 0.5rem; }
+        .tracking-ref {
+            display: inline-block;
+            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            border: 1px solid #c7d2fe;
+            color: var(--primary);
+            padding: 0.625rem 1.5rem;
+            border-radius: 99px;
+            font-size: 1.125rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 1rem 0;
+        }
+        .btn-new-grievance {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.75rem 2rem;
+            background: var(--slate-100);
+            border: none;
+            border-radius: 99px;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--slate-700);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-new-grievance:hover { background: var(--slate-200); }
+        .btn-new-grievance i { width: 16px; height: 16px; }
+
+        /* ── Tracker View ────────────────────── */
+        .track-search {
+            display: flex; gap: 0.75rem; margin-bottom: 2rem;
+        }
+        .track-search input {
+            flex: 1;
+            padding: 0.875rem 1.25rem;
+            border: 1.5px solid var(--slate-200);
+            border-radius: 0.875rem;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .track-search input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
+        .btn-track {
+            padding: 0.875rem 1.75rem;
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 0.875rem;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 0.5rem;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .btn-track:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(99,102,241,0.4); }
+        .btn-track i { width: 18px; height: 18px; }
+
+        /* Status Timeline */
+        .grievance-detail-card {
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .gdc-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--slate-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .gdc-ref { font-size: 0.75rem; color: var(--slate-400); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .gdc-title { font-size: 1.125rem; font-weight: 700; color: var(--slate-900); margin-top: 0.25rem; }
+        .gdc-meta { font-size: 0.8125rem; color: var(--slate-400); margin-top: 0.375rem; }
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.375rem 0.875rem;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            white-space: nowrap;
+        }
+        .status-badge i { width: 12px; height: 12px; }
+        .badge-pending { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .badge-review { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+        .badge-resolved { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .badge-rejected { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .gdc-body { padding: 1.5rem; }
+        .gdc-section-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--slate-400); margin-bottom: 0.5rem; }
+        .gdc-description { font-size: 0.9375rem; color: var(--slate-700); line-height: 1.7; margin-bottom: 1.5rem; }
+
+        /* Timeline */
+        .timeline { position: relative; padding-left: 1.75rem; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px; top: 12px; bottom: 0;
+            width: 2px;
+            background: var(--slate-100);
+        }
+        .timeline-item { position: relative; margin-bottom: 1.5rem; }
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-dot {
+            position: absolute;
+            left: -1.75rem;
+            top: 4px;
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid white;
+        }
+        .timeline-dot i { width: 10px; height: 10px; }
+        .dot-submitted { background: #a5b4fc; }
+        .dot-review { background: #60a5fa; }
+        .dot-resolved { background: #34d399; }
+        .dot-rejected { background: #f87171; }
+        .timeline-content { }
+        .timeline-content h4 { font-size: 0.875rem; font-weight: 700; color: var(--slate-800); }
+        .timeline-content p { font-size: 0.8125rem; color: var(--slate-400); margin-top: 0.125rem; }
+        .timeline-response {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 1px solid #a7f3d0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 0.75rem;
+        }
+        .timeline-response p { color: #065f46; font-size: 0.875rem; line-height: 1.6; }
+
+        /* Empty / Error States */
+        .track-empty {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--slate-400);
+        }
+        .track-empty i { width: 48px; height: 48px; margin-bottom: 1rem; color: var(--slate-200); }
+        .track-empty h3 { font-weight: 700; color: var(--slate-600); margin-bottom: 0.5rem; }
+
+        /* ── FAQ Accordion ───────────────────── */
+        .faq-item {
+            border: 1px solid var(--slate-100);
+            border-radius: 0.875rem;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+        .faq-item:hover { border-color: #c7d2fe; }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            background: white;
+            user-select: none;
+        }
+        .faq-question h4 { font-size: 0.9375rem; font-weight: 600; color: var(--slate-800); }
+        .faq-question .faq-icon {
+            width: 28px; height: 28px;
+            background: var(--slate-100);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        .faq-question .faq-icon i { width: 14px; height: 14px; color: var(--slate-600); }
+        .faq-item.open .faq-icon { background: var(--primary-gradient); transform: rotate(180deg); }
+        .faq-item.open .faq-icon i { color: white; }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+        .faq-item.open .faq-answer { max-height: 300px; }
+        .faq-answer-inner {
+            padding: 0 1.5rem 1.25rem;
+            font-size: 0.9rem;
+            color: var(--slate-500);
+            line-height: 1.7;
+            border-top: 1px solid var(--slate-50);
+        }
+
+        /* ── Help Section ────────────────────── */
+        .help-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+        .help-card {
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--slate-50);
+            border: 1px solid var(--slate-100);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .help-card:hover { border-color: #c7d2fe; background: #eef2ff; transform: translateY(-2px); }
+        .help-card-icon {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .help-card-icon i { width: 20px; height: 20px; }
+        .hc-purple { background: #ede9fe; color: #7c3aed; }
+        .hc-blue { background: #eff6ff; color: #2563eb; }
+        .hc-green { background: #ecfdf5; color: #059669; }
+        .hc-orange { background: #fff7ed; color: #ea580c; }
+        .help-card-text h4 { font-size: 0.9375rem; font-weight: 700; color: var(--slate-800); }
+        .help-card-text p { font-size: 0.8125rem; color: var(--slate-400); margin-top: 0.125rem; }
+
+        /* Tab view display */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── Process Steps ───────────────────── */
+        .process-steps {
+            display: flex; gap: 0;
+            margin-bottom: 2.5rem;
+        }
+        .process-step {
+            flex: 1;
+            text-align: center;
+            padding: 1.25rem 0.75rem;
+            position: relative;
+        }
+        .process-step::after {
+            content: '';
+            position: absolute;
+            top: 28px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, #6366f1, #c7d2fe);
+        }
+        .process-step:last-child::after { display: none; }
+        .step-num {
+            width: 42px; height: 42px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            margin: 0 auto 0.75rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.4);
+        }
+        .process-step h4 { font-size: 0.8125rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.25rem; }
+        .process-step p { font-size: 0.75rem; color: var(--slate-400); line-height: 1.5; }
+
+        /* Toast */
+        .grv-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--slate-900);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .grv-toast.show { transform: translateY(0); opacity: 1; }
+        .grv-toast i { width: 18px; height: 18px; }
+        .grv-toast.success { background: linear-gradient(135deg, #10b981, #059669); }
+        .grv-toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        @media (max-width: 768px) {
+            .grv-hero h1 { font-size: 2rem; }
+            .grv-form-grid { grid-template-columns: 1fr; }
+            .grv-form-grid .form-group.full { grid-column: 1; }
+            .help-grid { grid-template-columns: 1fr; }
+            .process-steps { flex-direction: column; gap: 0.5rem; }
+            .process-step::after { display: none; }
+            .priority-options { flex-direction: column; }
+            .grv-nav { padding: 1rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="grv-nav">
+        <a href="landing.html" class="grv-logo">
+            <img src="logo.png" alt="LGA RevMax Logo">
+            <span>LGA RevMax</span>
+        </a>
+        <div class="nav-badge">
+            <i data-feather="alert-circle"></i>
+            Grievances Portal
+        </div>
+        <div class="nav-right">
+            <a href="landing.html" class="btn-nav-home">
+                <i data-feather="home"></i>
+                Home
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="grv-hero">
+        <div class="grv-hero-badge">
+            <i data-feather="shield"></i>
+            Official Zamfara LGA Grievances Mechanism
+        </div>
+        <h1>Your Voice <span>Matters.</span><br>We Listen. We Act.</h1>
+        <p>Submit tax disputes, assessment complaints, overcharging concerns or any grievance related to LGA revenue services. Every submission is tracked, reviewed, and responded to within 7 working days.</p>
+        <div class="grv-stats">
+            <div class="stat-chip"><div class="dot dot-green"></div> Official Government Channel</div>
+            <div class="stat-chip"><div class="dot dot-amber"></div> 7-Day Response Guarantee</div>
+            <div class="stat-chip"><div class="dot dot-indigo"></div> Fully Confidential</div>
+        </div>
+    </section>
+
+    <!-- Main -->
+    <div class="grv-container">
+
+        <!-- Tabs -->
+        <div class="grv-tabs">
+            <button class="grv-tab active" onclick="switchTab('submit')" id="tab-submit">
+                <i data-feather="edit-3"></i> Submit Grievance
+            </button>
+            <button class="grv-tab" onclick="switchTab('track')" id="tab-track">
+                <i data-feather="search"></i> Track My Case
+            </button>
+            <button class="grv-tab" onclick="switchTab('faq')" id="tab-faq">
+                <i data-feather="help-circle"></i> Help & FAQs
+            </button>
+        </div>
+
+        <!-- ─── SUBMIT GRIEVANCE TAB ─── -->
+        <div id="content-submit" class="tab-content active">
+
+            <!-- Process Steps -->
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-num">1</div>
+                    <h4>Fill the Form</h4>
+                    <p>Provide accurate details about your grievance</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-num">2</div>
+                    <h4>Submit & Get Ref</h4>
+                    <p>Receive a unique tracking reference instantly</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-num">3</div>
+                    <h4>Under Review</h4>
+                    <p>Admin reviews and investigates your case</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-num">4</div>
+                    <h4>Resolution</h4>
+                    <p>Official response sent within 7 working days</p>
+                </div>
+            </div>
+
+            <div class="grv-card">
+                <div class="grv-card-header">
+                    <div class="grv-card-icon icon-red">
+                        <i data-feather="file-text"></i>
+                    </div>
+                    <div class="grv-card-title">
+                        <h2>Grievance Submission Form</h2>
+                        <p>All fields marked with * are required. Your information is kept strictly confidential.</p>
+                    </div>
+                </div>
+
+                <!-- Submission Form -->
+                <div id="formView">
+                    <form id="grievanceForm" onsubmit="submitGrievance(event)">
+                        <div class="grv-form-grid">
+                            <div class="form-group">
+                                <label>Full Name *</label>
+                                <input type="text" id="grvName" required placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number *</label>
+                                <input type="tel" id="grvPhone" required placeholder="e.g. 08012345678">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address</label>
+                                <input type="email" id="grvEmail" placeholder="optional — for email updates">
+                            </div>
+                            <div class="form-group">
+                                <label>Invoice/Tax Reference</label>
+                                <input type="text" id="grvInvoiceRef" placeholder="e.g. LGA/REV/2026/XXXX">
+                            </div>
+                            <div class="form-group">
+                                <label>Local Government Area *</label>
+                                <select id="grvLga" required>
+                                    <option value="">— Select your LGA —</option>
+                                    <option>Anka</option><option>Bakura</option>
+                                    <option>Birnin Magaji</option><option>Bukkuyum</option>
+                                    <option>Bungudu</option><option>Gummi</option>
+                                    <option>Gusau</option><option>Kaura Namoda</option>
+                                    <option>Maradun</option><option>Maru</option>
+                                    <option>Shinkafi</option><option>Talata Mafara</option>
+                                    <option>Tsafe</option><option>Zurmi</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Category *</label>
+                                <select id="grvCategory" required>
+                                    <option value="">— Select category —</option>
+                                    <option>Incorrect Tax Assessment</option>
+                                    <option>Overcharging / Double Billing</option>
+                                    <option>Payment Not Reflected</option>
+                                    <option>Receipt Not Issued</option>
+                                    <option>Harassment by Revenue Officers</option>
+                                    <option>Wrongful Seizure / Enforcement</option>
+                                    <option>Business Not Found in System</option>
+                                    <option>Request for Tax Exemption</option>
+                                    <option>Dispute of Property Valuation</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group full">
+                                <label>Subject / Title of Grievance *</label>
+                                <input type="text" id="grvSubject" required placeholder="Brief title describing your complaint">
+                            </div>
+                            <div class="form-group full">
+                                <label>Detailed Description *</label>
+                                <textarea id="grvDescription" required placeholder="Please describe your grievance in detail — include dates, amounts, officer names (if applicable), and any other relevant information that will help us investigate."></textarea>
+                            </div>
+                            <div class="form-group full">
+                                <label>Priority Level *</label>
+                                <div class="priority-options">
+                                    <div class="priority-opt">
+                                        <input type="radio" name="priority" id="pLow" value="Low" checked>
+                                        <label for="pLow" class="low"><i data-feather="info"></i> Low</label>
+                                    </div>
+                                    <div class="priority-opt">
+                                        <input type="radio" name="priority" id="pMedium" value="Medium">
+                                        <label for="pMedium" class="medium"><i data-feather="alert-triangle"></i> Medium</label>
+                                    </div>
+                                    <div class="priority-opt">
+                                        <input type="radio" name="priority" id="pHigh" value="High">
+                                        <label for="pHigh" class="high"><i data-feather="alert-octagon"></i> High</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group full">
+                                <label>Supporting Evidence (Optional)</label>
+                                <div class="file-upload-area" id="uploadArea">
+                                    <input type="file" id="grvEvidence" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onchange="handleFileSelect(this)">
+                                    <i data-feather="upload-cloud"></i>
+                                    <p>Drag & drop or click to upload evidence</p>
+                                    <span>Supports: JPG, PNG, PDF, DOC (Max 5MB)</span>
+                                    <div id="uploadedFileName"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="submitBtn">
+                            <i data-feather="send"></i>
+                            Submit Grievance Securely
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Success State -->
+                <div class="success-state" id="successView">
+                    <div class="success-icon">
+                        <i data-feather="check"></i>
+                    </div>
+                    <h3>Grievance Submitted!</h3>
+                    <p>Your complaint has been officially recorded and assigned to the relevant LGA office.</p>
+                    <p>Your unique tracking reference is:</p>
+                    <div class="tracking-ref" id="trackingRefDisplay">GRM/2026/XXXX</div>
+                    <p style="font-size:0.875rem; color: var(--slate-400);">Save this reference number to track your case status. You will receive updates within <strong>7 working days.</strong></p>
+                    <button class="btn-new-grievance" onclick="resetForm()">
+                        <i data-feather="plus"></i>
+                        Submit Another Grievance
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── TRACK CASE TAB ─── -->
+        <div id="content-track" class="tab-content">
+            <div class="grv-card">
+                <div class="grv-card-header">
+                    <div class="grv-card-icon icon-indigo">
+                        <i data-feather="search"></i>
+                    </div>
+                    <div class="grv-card-title">
+                        <h2>Track Your Grievance</h2>
+                        <p>Enter your reference number to see the current status and admin response.</p>
+                    </div>
+                </div>
+
+                <div class="track-search">
+                    <input type="text" id="trackInput" placeholder="Enter reference e.g. GRM/2026/AB12" oninput="this.value=this.value.toUpperCase()">
+                    <button class="btn-track" onclick="trackGrievance()">
+                        <i data-feather="search"></i> Track Case
+                    </button>
+                </div>
+
+                <div id="trackResult">
+                    <div class="track-empty">
+                        <i data-feather="inbox"></i>
+                        <h3>Enter Your Reference</h3>
+                        <p>Your tracking reference was provided when you submitted your grievance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── FAQ TAB ─── -->
+        <div id="content-faq" class="tab-content">
+            <div class="grv-card">
+                <div class="grv-card-header">
+                    <div class="grv-card-icon icon-emerald">
+                        <i data-feather="help-circle"></i>
+                    </div>
+                    <div class="grv-card-title">
+                        <h2>Frequently Asked Questions</h2>
+                        <p>Common questions about the grievances process.</p>
+                    </div>
+                </div>
+
+                <div id="faqList">
+                    <!-- Populated by JS -->
+                </div>
+
+                <div class="help-grid">
+                    <a href="portal.html" class="help-card">
+                        <div class="help-card-icon hc-purple"><i data-feather="user"></i></div>
+                        <div class="help-card-text">
+                            <h4>Payer Portal</h4>
+                            <p>Access your tax records & payments</p>
+                        </div>
+                    </a>
+                    <a href="mailto:revenue@zamfara.gov.ng" class="help-card">
+                        <div class="help-card-icon hc-blue"><i data-feather="mail"></i></div>
+                        <div class="help-card-text">
+                            <h4>Email Support</h4>
+                            <p>revenue@zamfara.gov.ng</p>
+                        </div>
+                    </a>
+                    <a href="tel:+2348000000000" class="help-card">
+                        <div class="help-card-icon hc-green"><i data-feather="phone"></i></div>
+                        <div class="help-card-text">
+                            <h4>Hotline</h4>
+                            <p>Mon–Fri, 8am–5pm WAT</p>
+                        </div>
+                    </a>
+                    <a href="landing.html" class="help-card">
+                        <div class="help-card-icon hc-orange"><i data-feather="map-pin"></i></div>
+                        <div class="help-card-text">
+                            <h4>Visit Us</h4>
+                            <p>LGA Headquarters, Gusau</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast -->
+    <div class="grv-toast" id="grvToast">
+        <i data-feather="check-circle"></i>
+        <span id="grvToastMsg">Success</span>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // ── Tab Switching ─────────────────────
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.grv-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('content-' + tab).classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+
+        // ── FAQ Data ──────────────────────────
+        const faqs = [
+            { q: "How long does it take to resolve a grievance?", a: "All grievances are acknowledged within 24 hours and reviewed by the relevant LGA within 7 working days. Complex cases involving investigations may take up to 21 working days." },
+            { q: "Is my personal information kept confidential?", a: "Absolutely. Your grievance is only shared with the authorized LGA officers responsible for resolution. We never disclose complainant details to third parties." },
+            { q: "What documents should I attach as evidence?", a: "Attach any relevant documents such as: tax invoices, payment receipts, SMS confirmations, letters from the LGA office, or photos showing the situation. The more evidence you provide, the faster we can resolve your case." },
+            { q: "Can I submit a grievance on behalf of someone else?", a: "Yes, you may submit on behalf of another person (e.g., a family member or business client) but you must clearly state this in your description and provide their contact details." },
+            { q: "What happens after I submit?", a: "Your grievance is logged, assigned a unique reference number, and forwarded to the appropriate LGA Admin. They investigate, and the outcome is recorded and communicated back to you via the tracking portal." },
+            { q: "What if I'm not satisfied with the response?", a: "If you are dissatisfied with the initial resolution, you can escalate your case by submitting a new grievance and referencing your original GRM number. Super Admin will escalate it to state-level review." },
+            { q: "How do I check the status of my case?", a: "Use the 'Track My Case' tab above and enter your GRM reference number (e.g. GRM/2026/XXXX) to see real-time updates on your case status and admin response." },
+        ];
+
+        function renderFAQs() {
+            const container = document.getElementById('faqList');
+            container.innerHTML = faqs.map((faq, i) => `
+                <div class="faq-item" id="faq-${i}" onclick="toggleFaq(${i})">
+                    <div class="faq-question">
+                        <h4>${faq.q}</h4>
+                        <div class="faq-icon"><i data-feather="chevron-down"></i></div>
+                    </div>
+                    <div class="faq-answer">
+                        <div class="faq-answer-inner">${faq.a}</div>
+                    </div>
+                </div>
+            `).join('');
+            feather.replace();
+        }
+        renderFAQs();
+
+        function toggleFaq(i) {
+            const item = document.getElementById('faq-' + i);
+            item.classList.toggle('open');
+        }
+
+        // ── File Select ───────────────────────
+        function handleFileSelect(input) {
+            const display = document.getElementById('uploadedFileName');
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('File too large. Maximum size is 5MB.', 'error');
+                    input.value = '';
+                    display.textContent = '';
+                    return;
+                }
+                display.textContent = '✓ ' + file.name;
+            }
+        }
+
+        // Drag & Drop styling
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+        uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag-over'); });
+
+        // ── Generate Reference ────────────────
+        function generateRef() {
+            const year = new Date().getFullYear();
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ0123456789';
+            const rand = Array.from({length: 4}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+            return `GRM/${year}/${rand}`;
+        }
+
+        // ── Submit Grievance ──────────────────
+        async function submitGrievance(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.classList.add('loading');
+            btn.innerHTML = '<i data-feather="loader"></i> Submitting...';
+            feather.replace();
+
+            const ref = generateRef();
+            const payload = {
+                id: Date.now().toString(),
+                ref,
+                name: document.getElementById('grvName').value.trim(),
+                phone: document.getElementById('grvPhone').value.trim(),
+                email: document.getElementById('grvEmail').value.trim(),
+                invoiceRef: document.getElementById('grvInvoiceRef').value.trim(),
+                lga: document.getElementById('grvLga').value,
+                category: document.getElementById('grvCategory').value,
+                subject: document.getElementById('grvSubject').value.trim(),
+                description: document.getElementById('grvDescription').value.trim(),
+                priority: document.querySelector('input[name="priority"]:checked').value,
+                status: 'Pending',
+                submittedAt: new Date().toISOString(),
+                timeline: [
+                    {
+                        event: 'Grievance Submitted',
+                        date: new Date().toISOString(),
+                        note: 'Your grievance has been officially recorded in the system.'
+                    }
+                ],
+                adminResponse: null,
+                resolvedAt: null
+            };
+
+            try {
+                const res = await LgaConnection.apiFetch('/api/grievances', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('trackingRefDisplay').textContent = ref;
+                    document.getElementById('formView').style.display = 'none';
+                    document.getElementById('successView').style.display = 'block';
+                    feather.replace();
+                    showToast('Grievance submitted successfully!', 'success');
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (err) {
+                showToast('Failed to submit. Please try again.', 'error');
+                btn.classList.remove('loading');
+                btn.innerHTML = '<i data-feather="send"></i> Submit Grievance Securely';
+                feather.replace();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('grievanceForm').reset();
+            document.getElementById('uploadedFileName').textContent = '';
+            document.getElementById('formView').style.display = 'block';
+            document.getElementById('successView').style.display = 'none';
+            const btn = document.getElementById('submitBtn');
+            btn.classList.remove('loading');
+            btn.innerHTML = '<i data-feather="send"></i> Submit Grievance Securely';
+            feather.replace();
+        }
+
+        // ── Track Grievance ───────────────────
+        async function trackGrievance() {
+            const ref = document.getElementById('trackInput').value.trim();
+            if (!ref) { showToast('Please enter a reference number.', 'error'); return; }
+
+            const container = document.getElementById('trackResult');
+            container.innerHTML = '<div class="track-empty"><i data-feather="loader"></i><h3>Looking up case...</h3></div>';
+            feather.replace();
+
+            try {
+                const res = await LgaConnection.apiFetch(`/api/grievances/${encodeURIComponent(ref)}`);
+                const data = await res.json();
+                if (!data || res.status === 404) throw new Error('Not found');
+
+                const statusBadge = getStatusBadge(data.status);
+                const priorityColor = { Low: '#10b981', Medium: '#f59e0b', High: '#ef4444' }[data.priority] || '#64748b';
+
+                container.innerHTML = `
+                    <div class="grievance-detail-card">
+                        <div class="gdc-header">
+                            <div>
+                                <div class="gdc-ref">${data.ref}</div>
+                                <div class="gdc-title">${data.subject}</div>
+                                <div class="gdc-meta">
+                                    ${data.lga} LGA &bull; ${data.category} &bull;
+                                    <span style="color:${priorityColor}; font-weight:600;">${data.priority} Priority</span>
+                                </div>
+                            </div>
+                            <span class="status-badge ${statusBadge.cls}">${statusBadge.icon} ${data.status}</span>
+                        </div>
+                        <div class="gdc-body">
+                            <div class="gdc-section-label">Description</div>
+                            <div class="gdc-description">${data.description}</div>
+                            <div class="gdc-section-label">Case Timeline</div>
+                            <div class="timeline">
+                                ${(data.timeline || []).map(t => `
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot ${getDotClass(t.event)}">
+                                            <i data-feather="${getDotIcon(t.event)}"></i>
+                                        </div>
+                                        <div class="timeline-content">
+                                            <h4>${t.event}</h4>
+                                            <p>${new Date(t.date).toLocaleString()}</p>
+                                            ${t.response ? `<div class="timeline-response"><p><strong>Official Response:</strong> ${t.response}</p></div>` : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                feather.replace();
+            } catch (err) {
+                container.innerHTML = `
+                    <div class="track-empty">
+                        <i data-feather="x-circle"></i>
+                        <h3>Case Not Found</h3>
+                        <p>No grievance found with reference <strong>${ref}</strong>. Please check and try again.</p>
+                    </div>
+                `;
+                feather.replace();
+            }
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                'Pending':     { cls: 'badge-pending', icon: '⏳' },
+                'Under Review':{ cls: 'badge-review',  icon: '🔍' },
+                'Resolved':    { cls: 'badge-resolved', icon: '✅' },
+                'Rejected':    { cls: 'badge-rejected', icon: '❌' }
+            };
+            return map[status] || { cls: 'badge-pending', icon: '⏳' };
+        }
+
+        function getDotClass(event) {
+            if (event.includes('Submitted')) return 'dot-submitted';
+            if (event.includes('Review')) return 'dot-review';
+            if (event.includes('Resolved')) return 'dot-resolved';
+            if (event.includes('Rejected')) return 'dot-rejected';
+            return 'dot-submitted';
+        }
+
+        function getDotIcon(event) {
+            if (event.includes('Submitted')) return 'file-text';
+            if (event.includes('Review')) return 'search';
+            if (event.includes('Resolved')) return 'check-circle';
+            if (event.includes('Rejected')) return 'x-circle';
+            return 'circle';
+        }
+
+        // ── Toast ─────────────────────────────
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('grvToast');
+            const m = document.getElementById('grvToastMsg');
+            t.className = 'grv-toast ' + type;
+            m.textContent = msg;
+            t.classList.add('show');
+            feather.replace();
+            setTimeout(() => t.classList.remove('show'), 4000);
+        }
+    </script>
+</body>
+</html>
