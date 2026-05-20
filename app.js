@@ -448,13 +448,59 @@ function updateDashboard() {
         totalLgasEl.textContent = uniqueLgas.size;
     }
 
-    // Calculate Trend Percentages based on 30-Day periods (Current 30 Days vs Previous 30 Days)
+    // Calculate Overall Revenue Composition Percentages (Collected % + Pending % = Total Generation 100%)
+    const overallTotal = totalGeneration || 0;
+    const overallCollected = totalCollected || 0;
+    const overallPending = totalPending || 0;
+
+    const genPct = overallTotal > 0 ? 100.0 : 0.0;
+    const collPct = overallTotal > 0 ? (overallCollected / overallTotal) * 100 : 0.0;
+    const pendPct = overallTotal > 0 ? (overallPending / overallTotal) * 100 : 0.0;
+
+    // Helper for financial card composition percentages
+    function updateCompositionUI(el, pct, type) {
+        if (!el) return;
+
+        let iconName = 'percent';
+        let bgStyle = '';
+        let colorStyle = '';
+        let pctText = `${pct.toFixed(1)}%`;
+
+        if (type === 'total') {
+            iconName = 'activity';
+            bgStyle = 'rgba(99, 102, 241, 0.1)';
+            colorStyle = '#6366f1';
+            pctText = '100.0%';
+        } else if (type === 'collected') {
+            iconName = 'check-circle';
+            bgStyle = 'rgba(16, 185, 129, 0.1)';
+            colorStyle = '#10b981';
+        } else if (type === 'pending') {
+            iconName = 'clock';
+            bgStyle = 'rgba(245, 158, 11, 0.1)';
+            colorStyle = '#f59e0b';
+        }
+
+        el.className = `stat-trend ${type}`;
+        el.style.color = colorStyle;
+        el.style.backgroundColor = bgStyle;
+        el.style.padding = '2px 6px';
+        el.style.borderRadius = '4px';
+        el.style.display = 'inline-flex';
+        el.style.alignItems = 'center';
+        el.style.gap = '2px';
+
+        el.innerHTML = `
+            <i data-feather="${iconName}" style="width: 12px; height: 12px; stroke-width: 3px;"></i>
+            <span>${pctText}</span>
+        `;
+    }
+
+    // Keep transaction growth calculation based on 30-Day periods
     const now = Date.now();
     const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
     const sixtyDaysAgo = now - 60 * 24 * 60 * 60 * 1000;
 
-    let currentGen = 0, prevGen = 0;
-    let currentColl = 0, prevColl = 0;
     let currentTx = 0, prevTx = 0;
 
     transactions.forEach(t => {
@@ -475,42 +521,7 @@ function updateDashboard() {
         } else {
             prevTx++;
         }
-
-        if (t.taxes && Array.isArray(t.taxes)) {
-            t.taxes.forEach(tax => {
-                const amount = tax.amount || 0;
-                if (period === 'current') {
-                    currentGen += amount;
-                    if (tax.status === 'Paid') {
-                        currentColl += (tax.amountPaid || amount);
-                    }
-                } else {
-                    prevGen += amount;
-                    if (tax.status === 'Paid') {
-                        prevColl += (tax.amountPaid || amount);
-                    }
-                }
-            });
-        } else if (t.chargeRate) {
-            // Legacy support
-            const amountMatch = (t.chargeRate || '').match(/₦?([0-9,]+)/);
-            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
-            if (period === 'current') {
-                currentGen += amount;
-                if (t.status === 'Paid') {
-                    currentColl += amount;
-                }
-            } else {
-                prevGen += amount;
-                if (t.status === 'Paid') {
-                    prevColl += amount;
-                }
-            }
-        }
     });
-
-    const currentPending = currentGen - currentColl;
-    const prevPending = prevGen - prevColl;
 
     function updateTrendUI(el, currentVal, prevVal) {
         if (!el) return;
@@ -563,9 +574,12 @@ function updateDashboard() {
         `;
     }
 
-    updateTrendUI(trendTotalGenerationEl, currentGen, prevGen);
-    updateTrendUI(trendCollectedEl, currentColl, prevColl);
-    updateTrendUI(trendPendingEl, currentPending, prevPending);
+    // Apply overall revenue compositions
+    updateCompositionUI(trendTotalGenerationEl, genPct, 'total');
+    updateCompositionUI(trendCollectedEl, collPct, 'collected');
+    updateCompositionUI(trendPendingEl, pendPct, 'pending');
+
+    // Apply transaction 30-day trend growth
     updateTrendUI(trendTransactionsEl, currentTx, prevTx);
 
     feather.replace();
