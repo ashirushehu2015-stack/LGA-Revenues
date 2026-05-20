@@ -62,6 +62,7 @@ const tableSearch = document.getElementById('tableSearch') || document.querySele
 // Stats Elements
 const totalRevenueEl = document.getElementById('totalRevenue');
 const totalCollectedEl = document.getElementById('totalCollected');
+const totalPendingEl = document.getElementById('totalPending');
 const totalTransactionsEl = document.getElementById('totalTransactions');
 const totalLgasEl = document.getElementById('totalLgas');
 const lgaStatsLabel = document.getElementById('lgaStatsLabel');
@@ -422,6 +423,10 @@ function updateDashboard() {
 
     if (totalRevenueEl) totalRevenueEl.textContent = `₦${totalGeneration.toLocaleString()}`;
     if (totalCollectedEl) totalCollectedEl.textContent = `₦${totalCollected.toLocaleString()}`;
+    
+    // Total Pending is calculated as the difference
+    let totalPending = totalGeneration - totalCollected;
+    if (totalPendingEl) totalPendingEl.textContent = `₦${totalPending.toLocaleString()}`;
 
     // Update LGA Stats Label and Trend text if in specific LGA context
     if (lgaStatsLabel) {

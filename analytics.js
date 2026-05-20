@@ -149,15 +149,27 @@ async function loadAnalytics() {
     let paidItems      = 0;
 
     revenues.forEach(r => {
-        (r.taxes || []).forEach(tx => {
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => {
+                totalTaxItems++;
+                if (tx.status === 'Paid') {
+                    totalCollected += (tx.amountPaid || tx.amount || 0);
+                    paidItems++;
+                } else {
+                    totalPending += (tx.amount || 0);
+                }
+            });
+        } else if (r.chargeRate) {
             totalTaxItems++;
-            if (tx.status === 'Paid') {
-                totalCollected += (tx.amountPaid || tx.amount || 0);
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            if (r.status === 'Paid') {
+                totalCollected += amount;
                 paidItems++;
             } else {
-                totalPending += (tx.amount || 0);
+                totalPending += amount;
             }
-        });
+        }
     });
 
     const uniqueLgas = new Set(revenues.map(r => r.lga || r.city).filter(Boolean));
@@ -176,7 +188,13 @@ async function loadAnalytics() {
     revenues.forEach(r => {
         const lga = r.lga || r.city || 'Unknown';
         if (!lgaMap[lga]) lgaMap[lga] = 0;
-        (r.taxes || []).forEach(tx => { lgaMap[lga] += (tx.amount || 0); });
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => { lgaMap[lga] += (tx.amount || 0); });
+        } else if (r.chargeRate) {
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            lgaMap[lga] += amount;
+        }
     });
 
     const lgaSorted = Object.entries(lgaMap).sort((a, b) => b[1] - a[1]);
@@ -264,12 +282,23 @@ async function loadAnalytics() {
     // ── Chart 3: Tax Categories (Horizontal Bar) ─────────────────────────────
     const categoryMap = {};
     revenues.forEach(r => {
-        (r.taxes || []).forEach(tx => {
-            // Derive category from tax name prefix (first word group)
-            const cat = tx.name.split(' ')[0] || 'Other';
-            if (!categoryMap[cat]) categoryMap[cat] = 0;
-            categoryMap[cat] += (tx.amount || 0);
-        });
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => {
+                // Derive category from tax name prefix (first word group)
+                const cat = tx.name.split(' ')[0] || 'Other';
+                if (!categoryMap[cat]) categoryMap[cat] = 0;
+                categoryMap[cat] += (tx.amount || 0);
+            });
+        } else if (r.chargeRate) {
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            if (amount > 0) {
+                const firstTax = (r.assignedTax || '').split(',')[0].trim();
+                const cat = firstTax.split(' ')[0] || 'Other';
+                if (!categoryMap[cat]) categoryMap[cat] = 0;
+                categoryMap[cat] += amount;
+            }
+        }
     });
 
     const catSorted = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]).slice(0, 8);
@@ -345,7 +374,13 @@ async function loadAnalytics() {
 
     // ── Top Taxpayers List ───────────────────────────────────────────────────
     const taxpayerTotals = revenues.map(r => {
-        const total = (r.taxes || []).reduce((acc, tx) => acc + (tx.amount || 0), 0);
+        let total = 0;
+        if (r.taxes && Array.isArray(r.taxes)) {
+            total = r.taxes.reduce((acc, tx) => acc + (tx.amount || 0), 0);
+        } else if (r.chargeRate) {
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            total = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+        }
         return { name: r.businessName || 'Unknown', lga: r.lga || r.city || '', total };
     }).sort((a, b) => b.total - a.total).slice(0, 7);
 
@@ -394,7 +429,12 @@ async function loadAnalytics() {
     // ── Chart 5: Tax Items per Taxpayer distribution ─────────────────────────
     const taxCounts = {};
     revenues.forEach(r => {
-        const cnt = (r.taxes || []).length;
+        let cnt = 0;
+        if (r.taxes && Array.isArray(r.taxes)) {
+            cnt = r.taxes.length;
+        } else if (r.chargeRate) {
+            cnt = 1;
+        }
         const key = cnt === 0 ? '0' : cnt <= 2 ? '1-2' : cnt <= 5 ? '3-5' : '6+';
         taxCounts[key] = (taxCounts[key] || 0) + 1;
     });
@@ -443,19 +483,35 @@ async function loadAnalytics() {
         
         if (creationDateStr) {
             if (!timelineMap[creationDateStr]) timelineMap[creationDateStr] = { assessed: 0, collected: 0 };
-            (r.taxes || []).forEach(tx => {
-                timelineMap[creationDateStr].assessed += (tx.amount || 0);
-            });
+            if (r.taxes && Array.isArray(r.taxes)) {
+                r.taxes.forEach(tx => {
+                    timelineMap[creationDateStr].assessed += (tx.amount || 0);
+                });
+            } else if (r.chargeRate) {
+                const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+                const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+                timelineMap[creationDateStr].assessed += amount;
+            }
         }
 
         // Collected revenue should be mapped to the actual payment date if available
-        (r.taxes || []).forEach(tx => {
-            if (tx.status === 'Paid' && tx.paymentDate) {
-                const pDateStr = tx.paymentDate.split('T')[0];
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => {
+                if (tx.status === 'Paid' && tx.paymentDate) {
+                    const pDateStr = tx.paymentDate.split('T')[0];
+                    if (!timelineMap[pDateStr]) timelineMap[pDateStr] = { assessed: 0, collected: 0 };
+                    timelineMap[pDateStr].collected += (tx.amountPaid || tx.amount || 0);
+                }
+            });
+        } else if (r.chargeRate && r.status === 'Paid') {
+            let pDateStr = r.paymentDate ? r.paymentDate.split('T')[0] : creationDateStr;
+            if (pDateStr) {
+                const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+                const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
                 if (!timelineMap[pDateStr]) timelineMap[pDateStr] = { assessed: 0, collected: 0 };
-                timelineMap[pDateStr].collected += (tx.amountPaid || tx.amount || 0);
+                timelineMap[pDateStr].collected += amount;
             }
-        });
+        }
     });
 
     const sortedTimeline = Object.entries(timelineMap).sort((a, b) => a[0].localeCompare(b[0]));

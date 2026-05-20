@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LGA RevMax Project Presentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --accent: #38bdf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Presentation Container */
+        .presentation {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Slides */
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateX(50px);
+            text-align: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+        }
+
+        /* Background Elements */
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(15, 23, 42, 0) 70%);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .glow-1 { top: -10%; left: -10%; }
+        .glow-2 { bottom: -10%; right: -10%; }
+
+        /* Typography */
+        h1 {
+            font-size: 5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .accent-text {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Grid Layouts for content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 24px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            text-align: left;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .card p {
+            font-size: 1.1rem;
+            color: #94a3b8;
+        }
+
+        /* Navigation Controls */
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .progress-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+            z-index: 100;
+        }
+
+        .slide-counter {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 0.9rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        /* Specific slide styles */
+        .hero-slide .badge {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            display: inline-block;
+        }
+
+        .tech-pill {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.75rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 500;
+            font-size: 1.1rem;
+            margin: 0.5rem;
+            display: inline-block;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide.active * {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .slide.active *:nth-child(1) { animation-delay: 0.1s; }
+        .slide.active *:nth-child(2) { animation-delay: 0.2s; }
+        .slide.active *:nth-child(3) { animation-delay: 0.3s; }
+        .slide.active *:nth-child(4) { animation-delay: 0.4s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
+    <div class="presentation">
+        <!-- Slide 1: Hero -->
+        <div class="slide active hero-slide">
+            <div class="badge">LGA RevMax Overview</div>
+            <h1>Revolutionizing <span class="accent-text">Revenue</span></h1>
+            <p>A Modern, Transparent, and Automated Management System for Local Government Areas in Zamfara State.</p>
+        </div>
+
+        <!-- Slide 2: The Challenge -->
+        <div class="slide">
+            <h2>The Challenge</h2>
+            <p>Traditional revenue collection faces significant hurdles that impede growth and transparency.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-icon"><i data-feather="x-circle"></i></div>
+                    <h3>Manual Processes</h3>
+                    <p>Paper-based tracking leads to errors, delays, and lost records.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="trending-down"></i></div>
+                    <h3>Revenue Leakage</h3>
+                    <p>Lack of real-time monitoring allows for significant financial discrepancies.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="alert-triangle"></i></div>
+                    <h3>Poor Transparency</h3>
+                    <p>Difficult for citizens to verify payments and for administrators to audit records.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: The Solution -->
+        <div class="slide">
+            <h2>The RevMax Solution</h2>
+            <p>An integrated ecosystem designed to bring efficiency and accountability to every step of the revenue cycle.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-icon"><i data-feather="zap"></i></div>
+                    <h3>Automation</h3>
+                    <p>Digital assessment and billing eliminate manual bottlenecks.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="eye"></i></div>
+                    <h3>Transparency</h3>
+                    <p>Real-time audit trails and instant digital receipts for every transaction.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="shield"></i></div>
+                    <h3>Security</h3>
+                    <p>Role-based access control and secure payment gateway integration.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Key Modules -->
+        <div class="slide">
+            <h2>Core Modules</h2>
+            <p>LGA RevMax is built with specialized modules for both administrators and citizens.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-icon"><i data-feather="grid"></i></div>
+                    <h3>Admin Dashboard</h3>
+                    <p>Centralized control for user management, LGA configuration, and system settings.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="user"></i></div>
+                    <h3>Payer Portal</h3>
+                    <p>Self-service portal for business registration, tax assessment, and online payments.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="pie-chart"></i></div>
+                    <h3>Analytics Engine</h3>
+                    <p>Deep insights into collection trends, targets, and officer performance metrics.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Innovation -->
+        <div class="slide">
+            <h2>Innovation at Core</h2>
+            <p>Leveraging technology to solve complex administrative challenges.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-icon"><i data-feather="cpu"></i></div>
+                    <h3>Smart Tax Calculator</h3>
+                    <p>Dynamic assessment based on business type, location, and asset valuations.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="smartphone"></i></div>
+                    <h3>Auto-Notifications</h3>
+                    <p>Automated SMS and Email reminders for upcoming tax deadlines and payments.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="file-text"></i></div>
+                    <h3>Digital Receipts</h3>
+                    <p>Instant generation of professional, verifiable receipts with QR code support.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Tech Stack -->
+        <div class="slide">
+            <h2>The Tech Stack</h2>
+            <p>Built with modern, scalable, and robust technologies.</p>
+            <div style="margin-top: 3rem;">
+                <div class="tech-pill">Node.js</div>
+                <div class="tech-pill">Express.js</div>
+                <div class="tech-pill">PostgreSQL</div>
+                <div class="tech-pill">Vanilla JavaScript</div>
+                <div class="tech-pill">Modern CSS3</div>
+                <div class="tech-pill">Paystack API</div>
+                <div class="tech-pill">Feather Icons</div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Success Metrics -->
+        <div class="slide">
+            <h2>Impact & Success</h2>
+            <p>Driving measurable results for Local Government Areas.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <h3 style="font-size: 3rem; color: var(--primary);">14</h3>
+                    <p>LGAs Integrated Across Zamfara</p>
+                </div>
+                <div class="card">
+                    <h3 style="font-size: 3rem; color: var(--success);">₦2.5B+</h3>
+                    <p>Revenue Managed & Tracked</p>
+                </div>
+                <div class="card">
+                    <h3 style="font-size: 3rem; color: var(--accent);">100%</h3>
+                    <p>Transparent Audit Trails</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Future Roadmap -->
+        <div class="slide">
+            <h2>Future Roadmap</h2>
+            <p>Continuously evolving to meet the needs of the modern administration.</p>
+            <div class="content-grid">
+                <div class="card">
+                    <div class="card-icon"><i data-feather="layers"></i></div>
+                    <h3>Mobile App</h3>
+                    <p>Field officer app for on-site registration and verification.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="trending-up"></i></div>
+                    <h3>AI Predictions</h3>
+                    <p>Revenue forecasting using machine learning algorithms.</p>
+                </div>
+                <div class="card">
+                    <div class="card-icon"><i data-feather="link"></i></div>
+                    <h3>API Integration</h3>
+                    <p>Deep integration with state and national financial systems.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 9: Conclusion -->
+        <div class="slide">
+            <h1>Thank <span class="accent-text">You</span></h1>
+            <p>LGA RevMax: Empowering Local Government for a Sustainable Future.</p>
+            <div style="margin-top: 3rem;">
+                <p style="font-size: 1.1rem;">Designed for Zamfara State Local Government Revenue Services</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="nav-btn" id="prevBtn"><i data-feather="chevron-left"></i></button>
+        <button class="nav-btn" id="nextBtn"><i data-feather="chevron-right"></i></button>
+    </div>
+
+    <div class="slide-counter" id="slideCounter">1 / 9</div>
+    <div class="progress-bar" id="progressBar"></div>
+
+    <script>
+        feather.replace();
+
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const counter = document.getElementById('slideCounter');
+        const progress = document.getElementById('progressBar');
+        
+        let currentSlide = 0;
+
+        function updateSlides() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+
+            // Update counter and progress
+            counter.textContent = `${currentSlide + 1} / ${slides.length}`;
+            progress.style.width = `${((currentSlide + 1) / slides.length) * 100}%`;
+
+            // Update buttons
+            prevBtn.style.opacity = currentSlide === 0 ? '0.5' : '1';
+            prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'all';
+            nextBtn.style.opacity = currentSlide === slides.length - 1 ? '0.5' : '1';
+            nextBtn.style.pointerEvents = currentSlide === slides.length - 1 ? 'none' : 'all';
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateSlides();
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlides();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextBtn.click();
+            } else if (e.key === 'ArrowLeft') {
+                prevBtn.click();
+            }
+        });
+
+        // Initial setup
+        updateSlides();
+    </script>
+</body>
+</html>
