@@ -3,7 +3,7 @@ feather.replace();
 
 // Global State
 const LGAS = [
-    "Anka", "Bakura", "Birnin Magaji/Kiyaw", "Bukkuyum", "Bungudu", "Gummi", 
+    "Anka", "Bakura", "Birnin Magaji", "Bukkuyum", "Bungudu", "Gummi", 
     "Gusau", "Kaura Namoda", "Maradun", "Maru", "Shinkafi", "Talata Mafara", 
     "Tsafe", "Zurmi"
 ];
