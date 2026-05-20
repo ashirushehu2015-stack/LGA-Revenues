@@ -194,6 +194,55 @@
                     </div>
                 </div>
 
+                <!-- Grievances Widget -->
+                <div class="table-container" id="grievancesWidget" style="margin-bottom: 1.5rem;">
+                    <div class="table-header">
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#dc2626);display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(239,68,68,0.3);">
+                                <i data-feather="alert-circle" style="width:20px;height:20px;"></i>
+                            </div>
+                            <div>
+                                <h2 style="font-size:1rem;">Citizen Grievances & Complaints</h2>
+                                <p style="font-size: 0.75rem; color: var(--slate-400); margin-top: 2px;">
+                                    <span id="grvWidgetCount">0</span> active complaints —
+                                    <span id="grvWidgetPending" style="color:#f59e0b;font-weight:600;">0 pending</span>,
+                                    <span id="grvWidgetReview" style="color:#3b82f6;font-weight:600;">0 under review</span>
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;align-items:center;">
+                            <a href="grievances-admin.html" class="btn-outline-sm" style="text-decoration:none;display:flex;align-items:center;gap:0.375rem;">
+                                <i data-feather="external-link" style="width:14px;height:14px;"></i>
+                                <span>Manage All</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="grievancesTable">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Complainant</th>
+                                    <th>LGA</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grievancesWidgetBody">
+                                <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--slate-400);font-size:0.875rem;">Loading grievances...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="grvWidgetEmpty" style="display:none;text-align:center;padding:2.5rem 1rem;color:var(--slate-400);">
+                        <i data-feather="check-circle" style="width:36px;height:36px;margin-bottom:0.75rem;color:var(--emerald);"></i>
+                        <h3 style="font-size:0.9375rem;font-weight:700;color:var(--slate-600);">No Active Grievances</h3>
+                        <p style="font-size:0.8125rem;">No citizen complaints have been submitted yet.</p>
+                    </div>
+                </div>
+
                 <!-- Recent Transactions Table -->
                 <div class="table-container">
                     <div class="table-header">

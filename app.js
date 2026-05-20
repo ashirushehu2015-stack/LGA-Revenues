@@ -1328,3 +1328,103 @@ function showToast(message, type = 'success') {
         setTimeout(() => toast.remove(), 400);
     }, 3000);
 }
+
+// ══════════════════════════════════════════════
+// ═══ GRIEVANCES DASHBOARD WIDGET ═════════════
+// ══════════════════════════════════════════════
+async function loadGrievancesWidget() {
+    const tbody = document.getElementById('grievancesWidgetBody');
+    const emptyEl = document.getElementById('grvWidgetEmpty');
+    const tableEl = document.getElementById('grievancesTable');
+    if (!tbody) return; // guard if element missing
+
+    try {
+        const res = await LgaConnection.apiFetch('/api/grievances');
+        let grievances = await res.json();
+
+        // Filter by current LGA context (LGA Admins see only their LGA)
+        if (currentContextLga && currentContextLga !== 'System-wide') {
+            grievances = grievances.filter(g => g.lga === currentContextLga);
+        }
+
+        // Sort: High priority first, then newest first
+        const pOrder = { High: 0, Medium: 1, Low: 2 };
+        grievances.sort((a, b) => {
+            if (pOrder[a.priority] !== pOrder[b.priority]) return (pOrder[a.priority] || 2) - (pOrder[b.priority] || 2);
+            return new Date(b.submittedAt) - new Date(a.submittedAt);
+        });
+
+        // Update summary counts
+        const pending = grievances.filter(g => g.status === 'Pending').length;
+        const review = grievances.filter(g => g.status === 'Under Review').length;
+        const active = grievances.filter(g => g.status !== 'Resolved' && g.status !== 'Rejected').length;
+
+        document.getElementById('grvWidgetCount').textContent = active;
+        document.getElementById('grvWidgetPending').textContent = pending + ' pending';
+        document.getElementById('grvWidgetReview').textContent = review + ' under review';
+
+        // Show only non-resolved (active) grievances, max 10
+        const activeGrievances = grievances.filter(g => g.status !== 'Resolved' && g.status !== 'Rejected').slice(0, 10);
+
+        if (activeGrievances.length === 0) {
+            tableEl.style.display = 'none';
+            emptyEl.style.display = 'block';
+            feather.replace();
+            return;
+        }
+
+        tableEl.style.display = '';
+        emptyEl.style.display = 'none';
+
+        tbody.innerHTML = activeGrievances.map(g => {
+            const statusMap = {
+                'Pending': { cls: 'status-pending', label: 'Pending' },
+                'Under Review': { cls: 'status-partial', label: 'Under Review' },
+                'Resolved': { cls: 'status-completed', label: 'Resolved' },
+                'Rejected': { cls: 'status-overdue', label: 'Rejected' }
+            };
+            const st = statusMap[g.status] || statusMap['Pending'];
+
+            const priorityStyles = {
+                Low: 'background:#ecfdf5;color:#059669;',
+                Medium: 'background:#fffbeb;color:#d97706;',
+                High: 'background:#fef2f2;color:#dc2626;'
+            };
+            const pStyle = priorityStyles[g.priority] || '';
+
+            const date = new Date(g.submittedAt).toLocaleDateString('en-NG', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+
+            return `<tr>
+                <td><strong style="font-size:0.75rem;letter-spacing:0.03em;color:var(--primary);">${g.ref || '—'}</strong></td>
+                <td>
+                    <div style="font-weight:600;font-size:0.8125rem;">${g.name}</div>
+                    <div style="font-size:0.7rem;color:var(--slate-400);">${g.phone || ''}</div>
+                </td>
+                <td style="font-size:0.8125rem;">${g.lga}</td>
+                <td style="font-size:0.8125rem;max-width:160px;">
+                    <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${g.category}">${g.category}</div>
+                </td>
+                <td>
+                    <span style="display:inline-block;padding:0.2rem 0.625rem;border-radius:99px;font-size:0.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;${pStyle}">${g.priority}</span>
+                </td>
+                <td><span class="status-badge ${st.cls}">${st.label}</span></td>
+                <td style="font-size:0.8125rem;color:var(--slate-500);white-space:nowrap;">${date}</td>
+                <td>
+                    <a href="grievances-admin.html" style="display:inline-flex;align-items:center;gap:0.25rem;padding:0.3rem 0.625rem;border-radius:0.5rem;background:#eef2ff;color:#4f46e5;font-size:0.75rem;font-weight:600;text-decoration:none;transition:all 0.2s;">
+                        <i data-feather="eye" style="width:12px;height:12px;"></i> Respond
+                    </a>
+                </td>
+            </tr>`;
+        }).join('');
+
+        feather.replace();
+    } catch (err) {
+        console.error('[Grievances Widget] Error:', err);
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--slate-400);font-size:0.8125rem;">Could not load grievances. Server may be offline.</td></tr>';
+    }
+}
+
+// Load grievances widget on page load
+loadGrievancesWidget();
