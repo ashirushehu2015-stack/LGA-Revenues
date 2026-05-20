@@ -651,20 +651,21 @@ h1, h2, h3 {
 
 /* Footer */
 .footer {
-    background: var(--slate-900);
+    background: #080d1a;
     color: var(--slate-200);
-    padding: 4rem 0 2rem;
+    padding: 5rem 0 0;
+    border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .footer-container {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 4rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
 }
 
 .footer-brand .logo {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .footer-brand .logo-text {
@@ -673,34 +674,104 @@ h1, h2, h3 {
     -webkit-text-fill-color: var(--white);
 }
 
-.footer-links {
-    display: contents;
+.footer-brand p {
+    color: var(--slate-400);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    margin-bottom: 1.75rem;
+    max-width: 280px;
 }
 
+/* ── Social Links ─────────────────────── */
+.social-links {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+}
+
+.social-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--slate-400);
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.social-btn:hover {
+    transform: translateY(-3px);
+    border-color: transparent;
+}
+
+/* Individual brand colours on hover */
+.social-btn:nth-child(1):hover { background: #1877f2; color: white; box-shadow: 0 6px 20px rgba(24,119,242,0.4); }  /* Facebook */
+.social-btn:nth-child(2):hover { background: #000000; color: white; box-shadow: 0 6px 20px rgba(0,0,0,0.5); }        /* X/Twitter */
+.social-btn:nth-child(3):hover { background: linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); color: white; box-shadow: 0 6px 20px rgba(225,48,108,0.4); } /* Instagram */
+.social-btn:nth-child(4):hover { background: #ff0000; color: white; box-shadow: 0 6px 20px rgba(255,0,0,0.4); }      /* YouTube */
+.social-btn:nth-child(5):hover { background: #25d366; color: white; box-shadow: 0 6px 20px rgba(37,211,102,0.4); }   /* WhatsApp */
+
+/* ── Link Groups ──────────────────────── */
 .link-group h4 {
     color: var(--white);
-    font-size: 1.125rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .link-group a {
-    display: block;
-    color: var(--slate-200);
+    display: flex;
+    align-items: center;
+    color: var(--slate-400);
     text-decoration: none;
-    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    margin-bottom: 0.625rem;
     transition: var(--transition);
+    gap: 0.5rem;
 }
 
 .link-group a:hover {
-    color: var(--primary-light);
+    color: var(--white);
+    padding-left: 4px;
 }
 
+/* ── Footer Bottom ────────────────────── */
 .footer-bottom {
-    text-align: center;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 0;
+    margin: 0 2rem;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    font-size: 0.8125rem;
     color: var(--slate-600);
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-bottom-links {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.footer-bottom-links a {
+    color: var(--slate-600);
+    text-decoration: none;
+    font-size: 0.8125rem;
+    transition: var(--transition);
+}
+
+.footer-bottom-links a:hover {
+    color: var(--slate-200);
 }
 
 /* Modal System (Shared with Dashboard) */
@@ -1020,5 +1091,9 @@ h1, h2, h3 {
     .nav-links { display: none; }
     .hero-title { font-size: 2.5rem; }
     .hero-stats { flex-direction: column; gap: 1.5rem; }
-    .footer-container { grid-template-columns: 1fr; gap: 2rem; }
+    .footer-container { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .footer-brand { grid-column: 1 / -1; }
+    .footer-bottom { flex-direction: column; text-align: center; margin: 0 1rem; }
+    .footer-bottom-links { justify-content: center; flex-wrap: wrap; gap: 1rem; }
+    .social-links { gap: 0.5rem; }
 }
