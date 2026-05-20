@@ -66,6 +66,10 @@ const totalPendingEl = document.getElementById('totalPending');
 const totalTransactionsEl = document.getElementById('totalTransactions');
 const totalLgasEl = document.getElementById('totalLgas');
 const lgaStatsLabel = document.getElementById('lgaStatsLabel');
+const trendTotalGenerationEl = document.getElementById('trendTotalGeneration');
+const trendCollectedEl = document.getElementById('trendCollected');
+const trendPendingEl = document.getElementById('trendPending');
+const trendTransactionsEl = document.getElementById('trendTransactions');
 
 // // Tax Categories State (Fetched from server)
 let taxCategories = [];
@@ -443,6 +447,128 @@ function updateDashboard() {
         const uniqueLgas = new Set(transactions.map(t => t.lga || t.city).filter(Boolean));
         totalLgasEl.textContent = uniqueLgas.size;
     }
+
+    // Calculate Trend Percentages based on 30-Day periods (Current 30 Days vs Previous 30 Days)
+    const now = Date.now();
+    const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+    const sixtyDaysAgo = now - 60 * 24 * 60 * 60 * 1000;
+
+    let currentGen = 0, prevGen = 0;
+    let currentColl = 0, prevColl = 0;
+    let currentTx = 0, prevTx = 0;
+
+    transactions.forEach(t => {
+        const timestamp = parseInt(t.id);
+        if (isNaN(timestamp)) return; // Ignore non-numeric IDs
+
+        let period = null;
+        if (timestamp >= thirtyDaysAgo && timestamp <= now) {
+            period = 'current';
+        } else if (timestamp >= sixtyDaysAgo && timestamp < thirtyDaysAgo) {
+            period = 'previous';
+        }
+
+        if (!period) return;
+
+        if (period === 'current') {
+            currentTx++;
+        } else {
+            prevTx++;
+        }
+
+        if (t.taxes && Array.isArray(t.taxes)) {
+            t.taxes.forEach(tax => {
+                const amount = tax.amount || 0;
+                if (period === 'current') {
+                    currentGen += amount;
+                    if (tax.status === 'Paid') {
+                        currentColl += (tax.amountPaid || amount);
+                    }
+                } else {
+                    prevGen += amount;
+                    if (tax.status === 'Paid') {
+                        prevColl += (tax.amountPaid || amount);
+                    }
+                }
+            });
+        } else if (t.chargeRate) {
+            // Legacy support
+            const amountMatch = (t.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amount = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            if (period === 'current') {
+                currentGen += amount;
+                if (t.status === 'Paid') {
+                    currentColl += amount;
+                }
+            } else {
+                prevGen += amount;
+                if (t.status === 'Paid') {
+                    prevColl += amount;
+                }
+            }
+        }
+    });
+
+    const currentPending = currentGen - currentColl;
+    const prevPending = prevGen - prevColl;
+
+    function updateTrendUI(el, currentVal, prevVal) {
+        if (!el) return;
+
+        let pct = 0;
+        if (prevVal === 0) {
+            pct = currentVal > 0 ? 100.0 : 0.0;
+        } else {
+            pct = ((currentVal - prevVal) / prevVal) * 100;
+        }
+
+        const isPositive = pct > 0;
+        const isNegative = pct < 0;
+
+        let pctText = '';
+        if (isPositive) {
+            pctText = `+${pct.toFixed(1)}%`;
+        } else if (isNegative) {
+            pctText = `${pct.toFixed(1)}%`;
+        } else {
+            pctText = '0.0%';
+        }
+
+        let iconName = 'minus';
+        let bgStyle = 'rgba(100, 116, 139, 0.1)';
+        let colorStyle = '#64748b';
+
+        if (isPositive) {
+            iconName = 'arrow-up-right';
+            bgStyle = 'rgba(16, 185, 129, 0.1)';
+            colorStyle = '#10b981';
+        } else if (isNegative) {
+            iconName = 'arrow-down-right';
+            bgStyle = 'rgba(239, 68, 68, 0.1)';
+            colorStyle = '#ef4444';
+        }
+
+        el.className = `stat-trend ${isPositive ? 'up' : (isNegative ? 'down' : 'flat')}`;
+        el.style.color = colorStyle;
+        el.style.backgroundColor = bgStyle;
+        el.style.padding = '2px 6px';
+        el.style.borderRadius = '4px';
+        el.style.display = 'inline-flex';
+        el.style.alignItems = 'center';
+        el.style.gap = '2px';
+
+        el.innerHTML = `
+            <i data-feather="${iconName}" style="width: 12px; height: 12px; stroke-width: 3px;"></i>
+            <span>${pctText}</span>
+        `;
+    }
+
+    updateTrendUI(trendTotalGenerationEl, currentGen, prevGen);
+    updateTrendUI(trendCollectedEl, currentColl, prevColl);
+    updateTrendUI(trendPendingEl, currentPending, prevPending);
+    updateTrendUI(trendTransactionsEl, currentTx, prevTx);
+
+    feather.replace();
 }
 
 // Render Table
