@@ -629,6 +629,7 @@
 
             function generateTickerItems() {
                 track.innerHTML = '';
+                const generatedItems = [];
                 for (let i = 0; i < 15; i++) {
                     const randLga = lgas[Math.floor(Math.random() * lgas.length)];
                     const randItem = items[Math.floor(Math.random() * items.length)];
@@ -643,11 +644,17 @@
                     }
 
                     const minutesAgo = Math.floor(Math.random() * 58) + 1;
-                    
-                    const tickerItem = document.createElement('div');
-                    tickerItem.className = 'ticker-item';
-                    tickerItem.innerHTML = `<span class="lga-badge">${randLga} LGA</span> Verified payment: <strong>${randItem.desc}</strong> — <span class="amount-badge">₦${baseAmount.toLocaleString()}</span> <small>(${minutesAgo}m ago)</small>`;
-                    track.appendChild(tickerItem);
+                    generatedItems.push(`<span class="lga-badge">${randLga} LGA</span> Verified payment: <strong>${randItem.desc}</strong> — <span class="amount-badge">₦${baseAmount.toLocaleString()}</span> <small>(${minutesAgo}m ago)</small>`);
+                }
+
+                // Render twice for perfect infinite seamless loop with zero initial blank delay
+                for (let round = 0; round < 2; round++) {
+                    generatedItems.forEach(html => {
+                        const tickerItem = document.createElement('div');
+                        tickerItem.className = 'ticker-item';
+                        tickerItem.innerHTML = html;
+                        track.appendChild(tickerItem);
+                    });
                 }
             }
 
