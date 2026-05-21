@@ -1210,7 +1210,11 @@ h1, h2, h3 {
     gap: 4rem;
     position: absolute;
     white-space: nowrap;
-    animation: tickerRun 30s linear infinite;
+    animation: tickerRun 150s linear infinite;
+}
+
+.ticker-track:hover {
+    animation-play-state: paused;
 }
 
 .ticker-item {
@@ -1220,6 +1224,13 @@ h1, h2, h3 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.ticker-item:hover {
+    color: #ffffff;
+    transform: scale(1.02);
+    cursor: pointer;
 }
 
 .ticker-item span.lga-badge {
