@@ -297,7 +297,7 @@
                             <li><i data-feather="check-circle"></i> Sustainable public infrastructure</li>
                             <li><i data-feather="check-circle"></i> Accountable local administrations</li>
                         </ul>
-                        <button onclick="alert('Our administration is dedicated to the progress of Zamfara. By digitizing revenue systems, we ensure that every naira is accounted for and directly re-invested into public infrastructure, security, and welfare projects across our local governments.')" class="btn btn-primary btn-block">Read Governor's Vision</button>
+                        <button onclick="openGovernorModal()" class="btn btn-primary btn-block">Read Governor's Vision</button>
                     </div>
                 </div>
             </div>
@@ -390,35 +390,83 @@
                 <h4>Citizen Support Center</h4>
                 <p>Zamfara State LGA RevMax Assistance</p>
             </div>
-            <div class="support-panel-body">
-                <!-- Search Grievance Card -->
-                <div class="support-card">
-                    <h5><i data-feather="search"></i> Track Grievance</h5>
-                    <p>Enter your Grievance ID to check its resolution status in real-time.</p>
-                    <form class="grievance-search-form" id="panelGrievanceForm">
-                        <input type="text" placeholder="e.g. GRV-123456" id="panelGrievanceId" required>
-                        <button type="submit" class="btn btn-primary">Track</button>
-                    </form>
-                    <div class="grievance-result" id="panelGrievanceResult"></div>
+            
+            <!-- Support Tab Navigation -->
+            <div class="panel-tabs-header" style="margin: 1rem 1.5rem 0; padding-bottom: 0.5rem;">
+                <button class="panel-tab-btn active" onclick="switchSupportTab('support-chat', this)">
+                    <i data-feather="message-square"></i> AI Assistant
+                </button>
+                <button class="panel-tab-btn" onclick="switchSupportTab('support-track', this)">
+                    <i data-feather="search"></i> Grievances
+                </button>
+            </div>
+
+            <div class="support-panel-body" style="padding-top: 0.5rem;">
+                <!-- Tab 1: AI Chatbot Assistant -->
+                <div class="tab-content active" id="support-chat">
+                    <div class="chatbot-container">
+                        <div class="chat-thread" id="chatThread">
+                            <div class="chat-bubble bot">
+                                Hello! I am the LGA RevMax Digital Assistant. How can I help you today with your taxes or registration in Zamfara State?
+                            </div>
+                        </div>
+                        
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator" id="typingIndicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <!-- Chat Queries Selection -->
+                        <div class="chat-queries-wrap">
+                            <div class="chat-queries-title">Frequently Asked Questions</div>
+                            <button class="chat-query-btn" onclick="sendChatQuery('How do I register a business?')">
+                                How do I register a business?
+                            </button>
+                            <button class="chat-query-btn" onclick="sendChatQuery('What payment methods are supported?')">
+                                What payment methods are supported?
+                            </button>
+                            <button class="chat-query-btn" onclick="sendChatQuery('How do I verify a tax officer?')">
+                                How do I verify a tax officer?
+                            </button>
+                            <button class="chat-query-btn" onclick="sendChatQuery('Who is eligible for tax exemptions?')">
+                                Who is eligible for tax exemptions?
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Direct Actions -->
-                <div class="support-links">
-                    <a href="grievances.html" class="support-link-btn">
-                        <span>File a New Grievance</span>
-                        <i data-feather="arrow-right"></i>
-                    </a>
-                    <a href="portal.html" class="support-link-btn">
-                        <span>Access Payer Portal</span>
-                        <i data-feather="arrow-right"></i>
-                    </a>
-                </div>
+                <!-- Tab 2: Track Grievance -->
+                <div class="tab-content" id="support-track">
+                    <div class="support-card" style="margin-bottom: 1rem;">
+                        <h5><i data-feather="search"></i> Track Grievance</h5>
+                        <p>Enter your Grievance ID to check its resolution status in real-time.</p>
+                        <form class="grievance-search-form" id="panelGrievanceForm">
+                            <input type="text" placeholder="e.g. GRV-123456" id="panelGrievanceId" required>
+                            <button type="submit" class="btn btn-primary">Track</button>
+                        </form>
+                        <div class="grievance-result" id="panelGrievanceResult"></div>
+                    </div>
 
-                <!-- Hotlines -->
-                <div class="support-card">
-                    <h5><i data-feather="phone-call"></i> Support Hotlines</h5>
-                    <p style="margin-bottom: 0.25rem;"><strong>Email:</strong> revenue@zamfara.gov.ng</p>
-                    <p><strong>Phone:</strong> +234 800 000 0000</p>
+                    <!-- Direct Actions -->
+                    <div class="support-links" style="margin-bottom: 1rem;">
+                        <a href="grievances.html" class="support-link-btn">
+                            <span>File a New Grievance</span>
+                            <i data-feather="arrow-right"></i>
+                        </a>
+                        <a href="portal.html" class="support-link-btn">
+                            <span>Access Payer Portal</span>
+                            <i data-feather="arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <!-- Hotlines -->
+                    <div class="support-card">
+                        <h5><i data-feather="phone-call"></i> Support Hotlines</h5>
+                        <p style="margin-bottom: 0.25rem;"><strong>Email:</strong> revenue@zamfara.gov.ng</p>
+                        <p><strong>Phone:</strong> +234 800 000 0000</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -428,6 +476,94 @@
             <div class="pulse-ring"></div>
             <i data-feather="message-circle"></i>
         </button>
+    </div>
+
+    <!-- Governor's Vision Modal -->
+    <div class="modal-overlay" id="governorModal">
+        <div class="modal gov-modal">
+            <div class="modal-header-custom" style="margin-bottom: 1rem;">
+                <div class="modal-title-wrap">
+                    <div class="icon-wrap" style="background: var(--primary-gradient); box-shadow: var(--shadow-glow);">
+                        <i data-feather="award"></i>
+                    </div>
+                    <div class="title-text">
+                        <h2>Dr. Dauda Lawal</h2>
+                        <p>Executive Governor of Zamfara State</p>
+                    </div>
+                </div>
+                <button class="icon-btn close-btn" id="closeGovModalBtn">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+
+            <!-- Tab Navigation inside Modal -->
+            <div class="modal-tabs-header">
+                <button class="modal-tab-btn active" onclick="switchGovTab('gov-vision', this)">
+                    <i data-feather="message-circle"></i> Vision Message
+                </button>
+                <button class="modal-tab-btn" onclick="switchGovTab('gov-pillars', this)">
+                    <i data-feather="target"></i> Strategic Pillars
+                </button>
+                <button class="modal-tab-btn" onclick="switchGovTab('gov-revmax', this)">
+                    <i data-feather="cpu"></i> RevMax Role
+                </button>
+            </div>
+
+            <div class="modal-body" style="padding-top: 0;">
+                <!-- Tab 1: Vision Message -->
+                <div class="tab-content active" id="gov-vision">
+                    <div class="gov-vision-layout">
+                        <div class="gov-portrait-wrap">
+                            <img src="https://zamfara.gov.ng/wp-content/uploads/elementor/thumbs/IMG-20230809-WA0009-qany6o81dvrv5ugb9jpekuyu52cwqkfhajly7a7v28.jpg" alt="Dr. Dauda Lawal Portrait" class="gov-portrait">
+                        </div>
+                        <div class="gov-quote-wrap">
+                            <p class="gov-quote-text">
+                                Our administration is dedicated to the progress of Zamfara. By digitizing revenue systems, we ensure that every single naira is fully accounted for and directly re-invested into public infrastructure, security, healthcare, and welfare projects across our local governments.
+                            </p>
+                            <div class="gov-signature">Dr. Dauda Lawal</div>
+                            <div class="gov-title">Executive Governor, Zamfara State</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Strategic Pillars -->
+                <div class="tab-content" id="gov-pillars">
+                    <ul class="pillars-list">
+                        <li class="pillar-item">
+                            <h5><i data-feather="check-circle"></i> Digital-First</h5>
+                            <p>Transitioning all public financial systems from paper to state-of-the-art secure clouds.</p>
+                        </li>
+                        <li class="pillar-item">
+                            <h5><i data-feather="shield"></i> Accountability</h5>
+                            <p>Eliminating third-party collection leaks to build a transparent, trust-based tax system.</p>
+                        </li>
+                        <li class="pillar-item">
+                            <h5><i data-feather="trending-up"></i> Growth</h5>
+                            <p>Providing business-friendly rates that foster regional enterprise and commercial trade.</p>
+                        </li>
+                        <li class="pillar-item">
+                            <h5><i data-feather="users"></i> Community</h5>
+                            <p>Re-allocating verified tax gains to fund community clinics, schools, and security sectors.</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tab 3: RevMax Role -->
+                <div class="tab-content" id="gov-revmax" style="line-height: 1.7; color: var(--slate-300); font-size: 0.875rem;">
+                    <p style="margin-bottom: 1rem;">
+                        <strong>LGA RevMax</strong> serves as the technological spearhead for our grassroots financial reform. By unifying all 14 Local Government Areas on a single, secure digital ledger:
+                    </p>
+                    <ul style="padding-left: 1.25rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <li><strong>Prevents Over-charging:</strong> Citizens access state-regulated tax tables to know exactly what is due.</li>
+                        <li><strong>Real-time Audit Logs:</strong> Ministry officials monitor automated collection flows instantly to track local performance.</li>
+                        <li><strong>SMS notifications:</strong> Establishes direct citizen channels, alerting taxpayers of verified receipts and schedules automatically.</li>
+                    </ul>
+                    <p>
+                        This digital trust-engine is a critical step in building a self-reliant and highly progressive Zamfara State.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Login Modal -->
@@ -1104,6 +1240,135 @@
         window.addEventListener('DOMContentLoaded', () => {
             initScrollReveal();
         });
+
+        // --- Governor's Vision Modal Logic ---
+        const governorModal = document.getElementById('governorModal');
+        const closeGovModalBtn = document.getElementById('closeGovModalBtn');
+
+        function openGovernorModal() {
+            if (governorModal) {
+                governorModal.classList.add('active');
+            }
+        }
+
+        function closeGovernorModal() {
+            if (governorModal) {
+                governorModal.classList.remove('active');
+            }
+        }
+
+        if (closeGovModalBtn) {
+            closeGovModalBtn.addEventListener('click', closeGovernorModal);
+        }
+
+        if (governorModal) {
+            governorModal.addEventListener('click', (e) => {
+                if (e.target === governorModal) {
+                    closeGovernorModal();
+                }
+            });
+        }
+
+        function switchGovTab(tabId, btn) {
+            const modal = document.getElementById('governorModal');
+            if (!modal) return;
+            
+            modal.querySelectorAll('.modal-tab-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            
+            modal.querySelectorAll('.modal-body .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            btn.classList.add('active');
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        }
+
+        // --- Support Panel Tabs Logic ---
+        function switchSupportTab(tabId, btn) {
+            const panel = document.getElementById('supportPanel');
+            if (!panel) return;
+            
+            panel.querySelectorAll('.panel-tab-btn').forEach(b => {
+                b.classList.remove('active');
+            });
+            
+            panel.querySelectorAll('.support-panel-body .tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            btn.classList.add('active');
+            const targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+        }
+
+        // --- Citizen AI Chatbot Logic ---
+        function sendChatQuery(queryText) {
+            const chatThread = document.getElementById('chatThread');
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (!chatThread || !typingIndicator) return;
+
+            // 1. Print user message bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = 'chat-bubble user';
+            userBubble.textContent = queryText;
+            chatThread.appendChild(userBubble);
+
+            // Auto-scroll user query
+            chatThread.scrollTop = chatThread.scrollHeight;
+
+            // Disable query buttons during typing for premium feel
+            const queryBtns = document.querySelectorAll('.chat-query-btn');
+            queryBtns.forEach(btn => btn.disabled = true);
+
+            // 2. Show typing indicator
+            typingIndicator.style.display = 'flex';
+            chatThread.appendChild(typingIndicator); // Always append to keep at bottom
+            chatThread.scrollTop = chatThread.scrollHeight;
+
+            // 3. Simulated AI processing delay (800ms)
+            setTimeout(() => {
+                // Hide typing indicator
+                typingIndicator.style.display = 'none';
+
+                // Print bot response bubble
+                const botBubble = document.createElement('div');
+                botBubble.className = 'chat-bubble bot';
+                
+                let botResponse = '';
+                switch (queryText) {
+                    case 'How do I register a business?':
+                        botResponse = 'Go to Payer Portal -> New Business Registration, upload details and get a Taxpayer ID in 24 hours.';
+                        break;
+                    case 'What payment methods are supported?':
+                        botResponse = 'Secured payments via Paystack: Debit Card, Bank Transfer, USSD, or direct bank deposit.';
+                        break;
+                    case 'How do I verify a tax officer?':
+                        botResponse = 'Tax Officers carry official ID cards with QR codes. Scan it to verify their official credentials.';
+                        break;
+                    case 'Who is eligible for tax exemptions?':
+                        botResponse = 'Exemptions are granted to non-profit entities, public schools, and primary agricultural ventures under Ministry directives.';
+                        break;
+                    default:
+                        botResponse = 'Thank you for your question. For detailed support, please contact our helpdesk at revenue@zamfara.gov.ng or call +234 800 000 0000.';
+                }
+                
+                botBubble.textContent = botResponse;
+                chatThread.appendChild(botBubble);
+
+                // Re-enable query buttons
+                queryBtns.forEach(btn => btn.disabled = false);
+
+                // Auto-scroll bot response
+                chatThread.scrollTop = chatThread.scrollHeight;
+            }, 800);
+        }
     </script>
 </body>
 </html>
