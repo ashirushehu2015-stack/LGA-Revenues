@@ -21,6 +21,12 @@
                 <span class="logo-text">LGA RevMax</span>
             </div>
             <nav class="nav-links">
+                <!-- Regional Theme Accent Selector -->
+                <div class="theme-selector-wrap">
+                    <button class="theme-pill theme-btn-indigo active" onclick="changeTheme('indigo')" title="Indigo Nebula Theme" aria-label="Indigo Theme"></button>
+                    <button class="theme-pill theme-btn-emerald" onclick="changeTheme('emerald')" title="Zamfara Emerald Theme" aria-label="Emerald Theme"></button>
+                    <button class="theme-pill theme-btn-amber" onclick="changeTheme('amber')" title="Solar Amber Theme" aria-label="Amber Theme"></button>
+                </div>
                 <a href="#features" class="nav-link">Features</a>
                 <a href="grievances.html" class="nav-link" style="color: #f87171; font-weight: 600;">Grievances</a>
                 <button class="btn btn-outline" id="openLoginBtn">Log In</button>
@@ -298,6 +304,75 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section reveal-on-scroll">
+        <div class="container faq-container">
+            <div class="section-header">
+                <div class="badge">Common Questions</div>
+                <h2>Citizen & Taxpayer <span>Guidelines</span></h2>
+                <p>Find quick answers to common questions about tax compliance, registration, and payments in Zamfara State.</p>
+            </div>
+            
+            <div class="faq-grid">
+                <div class="faq-item reveal-on-scroll">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <span class="faq-question">How do I register my business for tax payments?</span>
+                        <div class="faq-icon-wrap">
+                            <i data-feather="plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            You can register your business by visiting the <a href="portal.html" style="color: var(--primary-hover); font-weight: 600;">Payer Portal</a>. Click on "New Business Registration", fill in your business details, upload required identifications, and submit. You will receive a unique Taxpayer ID (Payer Ref) via SMS and email within 24 hours.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item reveal-on-scroll">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <span class="faq-question">What payment methods are supported?</span>
+                        <div class="faq-icon-wrap">
+                            <i data-feather="plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            We support highly secure digital payments via Paystack. You can pay using your debit card (Mastercard, Visa, Verve), bank transfer, USSD, or direct bank deposit. All online payments generate an instant, verifiable digital receipt with a unique transaction reference number.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item reveal-on-scroll">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <span class="faq-question">How do I verify the authenticity of an invoice or tax officer?</span>
+                        <div class="faq-icon-wrap">
+                            <i data-feather="plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            Every official LGA RevMax invoice has a QR code and a unique Invoice Reference number. You can search this ID on our Payer Portal or support panel to verify its authenticity. Authentic LGA Tax Officers carry official digital ID cards containing QR codes that verify their credentials.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="faq-item reveal-on-scroll">
+                    <div class="faq-header" onclick="toggleFaq(this)">
+                        <span class="faq-question">What should I do if I am overcharged or have a complaint?</span>
+                        <div class="faq-icon-wrap">
+                            <i data-feather="plus"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            Zamfara State operates a transparent grievance redressal system. You can file a formal complaint by visiting our <a href="grievances.html" style="color: #f87171; font-weight: 600;">Grievances Portal</a> or expanding the citizen support widget in the bottom-right corner. All complaints are tracked with a Grievance ID and resolved within 3 working days.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="cta-section">
         <div class="container cta-container">
@@ -306,6 +381,54 @@
             <button onclick="handleAdminAccess()" class="btn btn-white btn-lg">Enter the Dashboard</button>
         </div>
     </section>
+
+    <!-- Floating Support FAB Widget -->
+    <div class="support-fab-wrap">
+        <!-- Expanded support panel -->
+        <div class="support-panel" id="supportPanel">
+            <div class="support-panel-header">
+                <h4>Citizen Support Center</h4>
+                <p>Zamfara State LGA RevMax Assistance</p>
+            </div>
+            <div class="support-panel-body">
+                <!-- Search Grievance Card -->
+                <div class="support-card">
+                    <h5><i data-feather="search"></i> Track Grievance</h5>
+                    <p>Enter your Grievance ID to check its resolution status in real-time.</p>
+                    <form class="grievance-search-form" id="panelGrievanceForm">
+                        <input type="text" placeholder="e.g. GRV-123456" id="panelGrievanceId" required>
+                        <button type="submit" class="btn btn-primary">Track</button>
+                    </form>
+                    <div class="grievance-result" id="panelGrievanceResult"></div>
+                </div>
+
+                <!-- Direct Actions -->
+                <div class="support-links">
+                    <a href="grievances.html" class="support-link-btn">
+                        <span>File a New Grievance</span>
+                        <i data-feather="arrow-right"></i>
+                    </a>
+                    <a href="portal.html" class="support-link-btn">
+                        <span>Access Payer Portal</span>
+                        <i data-feather="arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- Hotlines -->
+                <div class="support-card">
+                    <h5><i data-feather="phone-call"></i> Support Hotlines</h5>
+                    <p style="margin-bottom: 0.25rem;"><strong>Email:</strong> revenue@zamfara.gov.ng</p>
+                    <p><strong>Phone:</strong> +234 800 000 0000</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating action button -->
+        <button class="support-fab" id="supportFab" aria-label="Open citizen support portal" title="Citizen Support Panel">
+            <div class="pulse-ring"></div>
+            <i data-feather="message-circle"></i>
+        </button>
+    </div>
 
     <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
@@ -467,6 +590,28 @@
 
     <script>
         feather.replace();
+
+        // --- Theme Switcher Logic ---
+        function changeTheme(themeName) {
+            document.body.classList.remove('theme-emerald', 'theme-amber');
+            if (themeName !== 'indigo') {
+                document.body.classList.add('theme-' + themeName);
+            }
+            document.querySelectorAll('.theme-pill').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`.theme-btn-${themeName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            localStorage.setItem('lga_accent_theme', themeName);
+        }
+        
+        // Load saved theme immediately before DOM is fully rendered to avoid flash
+        const savedTheme = localStorage.getItem('lga_accent_theme');
+        if (savedTheme) {
+            changeTheme(savedTheme);
+        }
 
         // --- Animated Stats Counters ---
         function animateValue(obj, start, end, duration, prefix = "", suffix = "") {
@@ -799,6 +944,166 @@
                 loginModal.classList.add('active');
             }
         }
+
+        // --- FAQ Accordion Interactivity ---
+        function toggleFaq(header) {
+            const item = header.parentElement;
+            const content = item.querySelector('.faq-content');
+            const isActive = item.classList.contains('active');
+            
+            // Close all other FAQ items
+            document.querySelectorAll('.faq-item').forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.classList.remove('active');
+                    otherItem.querySelector('.faq-content').style.maxHeight = null;
+                }
+            });
+            
+            if (isActive) {
+                item.classList.remove('active');
+                content.style.maxHeight = null;
+            } else {
+                item.classList.add('active');
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        }
+
+        // --- Floating Support FAB Toggle ---
+        const supportFab = document.getElementById('supportFab');
+        const supportPanel = document.getElementById('supportPanel');
+        
+        if (supportFab && supportPanel) {
+            supportFab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                supportFab.classList.toggle('active');
+                supportPanel.classList.toggle('active');
+                
+                // If opening, change icon from message-circle to x, else back
+                if (supportFab.classList.contains('active')) {
+                    supportFab.innerHTML = '<div class="pulse-ring"></div><i data-feather="x"></i>';
+                } else {
+                    supportFab.innerHTML = '<div class="pulse-ring"></div><i data-feather="message-circle"></i>';
+                }
+                feather.replace();
+            });
+            
+            // Close panel when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!supportPanel.contains(e.target) && !supportFab.contains(e.target)) {
+                    supportFab.classList.remove('active');
+                    supportPanel.classList.remove('active');
+                    supportFab.innerHTML = '<div class="pulse-ring"></div><i data-feather="message-circle"></i>';
+                    feather.replace();
+                }
+            });
+        }
+
+        // --- Panel Grievance Search Handler ---
+        const panelGrievanceForm = document.getElementById('panelGrievanceForm');
+        const panelGrievanceResult = document.getElementById('panelGrievanceResult');
+        
+        if (panelGrievanceForm && panelGrievanceResult) {
+            panelGrievanceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const grievanceId = document.getElementById('panelGrievanceId').value.trim();
+                
+                panelGrievanceResult.style.display = 'block';
+                panelGrievanceResult.className = 'grievance-result';
+                panelGrievanceResult.textContent = 'Searching...';
+                
+                try {
+                    const baseUrl = window.LgaConnection ? window.LgaConnection.baseUrl : '';
+                    const response = await fetch(`${baseUrl}/api/grievance/${grievanceId}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        panelGrievanceResult.className = 'grievance-result success';
+                        panelGrievanceResult.innerHTML = `<strong>Status:</strong> ${data.status}<br><strong>Category:</strong> ${data.category}<br><strong>Message:</strong> ${data.message}`;
+                    } else {
+                        // Fallback simulated tracking for beautiful offline demo experience
+                        setTimeout(() => {
+                            if (grievanceId.toUpperCase().startsWith('GRV-')) {
+                                panelGrievanceResult.className = 'grievance-result success';
+                                panelGrievanceResult.innerHTML = `<strong>Status:</strong> Under Investigation<br><strong>Category:</strong> Tariff Dispute<br><strong>Updated:</strong> Just now (Simulated)`;
+                            } else {
+                                panelGrievanceResult.className = 'grievance-result error';
+                                panelGrievanceResult.textContent = 'Grievance not found. Please verify the ID format (e.g. GRV-123456).';
+                            }
+                        }, 600);
+                    }
+                } catch (err) {
+                    // Fallback simulated tracking for beautiful offline/server issues experience
+                    setTimeout(() => {
+                        if (grievanceId.toUpperCase().startsWith('GRV-')) {
+                            panelGrievanceResult.className = 'grievance-result success';
+                            panelGrievanceResult.innerHTML = `<strong>Status:</strong> In Progress<br><strong>Category:</strong> Service Outage<br><strong>Updated:</strong> 1 hour ago (Simulated)`;
+                        } else {
+                            panelGrievanceResult.className = 'grievance-result error';
+                            panelGrievanceResult.textContent = 'Connection error. Simulated check: Use ID starting with "GRV-"';
+                        }
+                    }, 500);
+                }
+            });
+        }
+
+        // --- Hardware-Accelerated Intersection Observer Scroll-Reveal ---
+        function initScrollReveal() {
+            // Apply reveal-on-scroll class to main containers/sections dynamically
+            const selectorsToReveal = [
+                '.features .section-header', 
+                '.features-grid .feature-card',
+                '.estimator-section .section-header', 
+                '.estimator-card',
+                '.public-services .section-header',
+                '.public-services .module-card',
+                '.faq-section .section-header',
+                '.faq-item'
+            ];
+            
+            selectorsToReveal.forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    if (!el.classList.contains('reveal-on-scroll')) {
+                        el.classList.add('reveal-on-scroll');
+                    }
+                });
+            });
+            
+            // Apply delay classes to grids for staggered animations
+            document.querySelectorAll('.features-grid .feature-card').forEach((card, index) => {
+                card.classList.add(`reveal-delay-${(index % 3) + 1}`);
+            });
+            document.querySelectorAll('.public-services .module-card').forEach((card, index) => {
+                card.classList.add(`reveal-delay-${(index % 2) + 1}`);
+            });
+            document.querySelectorAll('.faq-item').forEach((item, index) => {
+                item.classList.add(`reveal-delay-${(index % 2) + 1}`);
+            });
+
+            const revealCallback = (entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('revealed');
+                        observer.unobserve(entry.target); // Reveal only once
+                    }
+                });
+            };
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -80px 0px', // Trigger slightly before element enters view
+                threshold: 0.05
+            };
+
+            const observer = new IntersectionObserver(revealCallback, observerOptions);
+            
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            initScrollReveal();
+        });
     </script>
 </body>
 </html>
