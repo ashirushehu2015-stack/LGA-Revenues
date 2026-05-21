@@ -1097,3 +1097,312 @@ h1, h2, h3 {
     .footer-bottom-links { justify-content: center; flex-wrap: wrap; gap: 1rem; }
     .social-links { gap: 0.5rem; }
 }
+
+/* Premium Landing Page Overhaul Extensions */
+
+/* Animated Floating Gradients */
+@keyframes floatGradients {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    50% { transform: translate(50px, -40px) scale(1.15) rotate(180deg); }
+    100% { transform: translate(-20px, 60px) scale(0.9) rotate(360deg); }
+}
+
+.shape-1 {
+    animation: floatGradients 25s infinite alternate ease-in-out;
+}
+.shape-2 {
+    animation: floatGradients 30s infinite alternate-reverse ease-in-out;
+}
+
+/* Glassmorphism Navigation Update */
+.navbar {
+    border-bottom: 1px solid transparent;
+}
+.navbar.scrolled {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-link {
+    position: relative;
+    padding: 0.25rem 0;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent-gradient);
+    transition: var(--transition);
+}
+.nav-link:hover::after {
+    width: 100%;
+}
+
+/* Live Ticker Container styling */
+.live-ticker-section {
+    background: #080d1a;
+    padding: 1.25rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+.ticker-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.ticker-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.5rem 1rem;
+    border-radius: 99px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #a5b4fc;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.ticker-pulse {
+    width: 8px;
+    height: 8px;
+    background-color: #10b981;
+    border-radius: 50%;
+    position: relative;
+}
+
+.ticker-pulse::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 2px solid #10b981;
+    animation: pulseGlow 1.5s infinite;
+    opacity: 0;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(2); opacity: 0; }
+}
+
+.ticker-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    height: 24px;
+}
+
+.ticker-track {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    position: absolute;
+    white-space: nowrap;
+    animation: tickerRun 30s linear infinite;
+}
+
+.ticker-item {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ticker-item span.lga-badge {
+    background: rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    color: #a5b4fc;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.ticker-item span.amount-badge {
+    color: #34d399;
+    font-weight: 700;
+}
+
+@keyframes tickerRun {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+/* Premium Tax Estimator Widget */
+.estimator-section {
+    padding: 8rem 0;
+    background-color: #0a0f1d;
+    background-image: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 65%);
+    color: var(--white);
+    position: relative;
+}
+
+.estimator-container {
+    max-width: 950px;
+    margin: 0 auto;
+}
+
+.estimator-card {
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-xl);
+    padding: 3.5rem;
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.estimator-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 4px;
+    background: var(--primary-gradient);
+}
+
+.estimator-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 3.5rem;
+    margin-top: 2.5rem;
+}
+
+.estimator-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.estimator-form .form-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.estimator-form select {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    transition: var(--transition);
+}
+
+.estimator-form select option {
+    background-color: #0f172a;
+    color: var(--white);
+}
+
+.estimator-form select:focus {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* Result Panel Display */
+.estimator-result-panel {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+.result-glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: var(--primary-gradient);
+    filter: blur(80px);
+    opacity: 0.2;
+    pointer-events: none;
+}
+
+.result-header {
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.result-amount {
+    font-size: 2.75rem;
+    font-weight: 800;
+    color: #34d399;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+    line-height: 1.1;
+    text-shadow: 0 0 20px rgba(52, 211, 153, 0.3);
+}
+
+.result-duration {
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 2rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+}
+
+.result-details {
+    width: 100%;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+}
+
+.detail-row span.label {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.detail-row span.val {
+    color: var(--white);
+    font-weight: 600;
+}
+
+/* Custom stats styles in Hero */
+.hero-stat-item h3 {
+    transition: var(--transition);
+}
+
+@media (max-width: 868px) {
+    .estimator-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+    .estimator-card {
+        padding: 2rem;
+    }
+}
