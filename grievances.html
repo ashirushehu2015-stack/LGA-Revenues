@@ -98,6 +98,26 @@
         .btn-nav-home:hover { background: rgba(255,255,255,0.15); color: white; }
         .btn-nav-home i { width: 16px; height: 16px; }
 
+        .btn-nav-portal {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 0.5rem 1.25rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        .btn-nav-portal:hover {
+            background: rgba(16, 185, 129, 0.25);
+            color: #34d399;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+        }
+        .btn-nav-portal i { width: 16px; height: 16px; }
+
         /* ── Hero Banner ─────────────────────── */
         .grv-hero {
             text-align: center;
@@ -862,10 +882,16 @@
                     <p>Your unique tracking reference is:</p>
                     <div class="tracking-ref" id="trackingRefDisplay">GRM/2026/XXXX</div>
                     <p style="font-size:0.875rem; color: var(--slate-400);">Save this reference number to track your case status. You will receive updates within <strong>7 working days.</strong></p>
-                    <button class="btn-new-grievance" onclick="resetForm()">
-                        <i data-feather="plus"></i>
-                        Submit Another Grievance
-                    </button>
+                    <div class="success-actions" style="display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap;">
+                        <button class="btn-new-grievance" onclick="resetForm()" style="margin: 0;">
+                            <i data-feather="plus"></i>
+                            Submit Another
+                        </button>
+                        <a href="landing.html" class="btn-nav-home" id="successHomeBtn" style="margin: 0;">
+                            <i data-feather="home"></i>
+                            Return Home
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -969,6 +995,32 @@
             const ref = params.get('ref');
             const lga = params.get('lga');
             const category = params.get('category');
+
+            // If we came from the Payer Portal (detected via query params), inject a "Back to Payer Portal" button
+            if (ref || name || phone) {
+                const navRight = document.querySelector('.nav-right');
+                if (navRight) {
+                    const portalBtn = document.createElement('a');
+                    portalBtn.href = 'portal.html';
+                    portalBtn.className = 'btn-nav-portal';
+                    portalBtn.innerHTML = '<i data-feather="arrow-left"></i> Payer Portal';
+                    // Insert it before the Home button
+                    navRight.insertBefore(portalBtn, navRight.firstChild);
+                }
+
+                // Customize success state Return button
+                const successHomeBtn = document.getElementById('successHomeBtn');
+                if (successHomeBtn) {
+                    successHomeBtn.href = 'portal.html';
+                    successHomeBtn.innerHTML = '<i data-feather="arrow-left"></i> Return to Payer Portal';
+                    successHomeBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                    successHomeBtn.style.color = '#34d399';
+                    successHomeBtn.style.background = 'rgba(16, 185, 129, 0.12)';
+                }
+                
+                // Refresh feather icons to render injected HTML
+                feather.replace();
+            }
 
             if (name) {
                 const grvName = document.getElementById('grvName');
