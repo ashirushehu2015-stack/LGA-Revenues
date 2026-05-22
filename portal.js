@@ -542,3 +542,14 @@ if (statusPill) {
         }
     });
 }
+
+// Open external grievances portal deep-linked with payer context
+window.openGrievancesPortal = function() {
+    if (!currentPayer) return;
+    const name = encodeURIComponent(currentPayer.contactPerson || '');
+    const phone = encodeURIComponent(currentPayer.phoneNumber || '');
+    const ref = encodeURIComponent(currentPayer.invoiceRef || '');
+    const lga = encodeURIComponent(currentPayer.lga || '');
+    
+    window.open(`grievances.html?name=${name}&phone=${phone}&ref=${ref}&lga=${lga}`, '_blank');
+};

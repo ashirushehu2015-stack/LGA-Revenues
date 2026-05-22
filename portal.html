@@ -148,16 +148,31 @@
         <!-- Dashboard Section -->
         <main id="dashboardSection" class="dashboard-section" style="display: none;">
             <div class="dashboard-header">
-                <div class="payer-info-card">
-                    <p class="payer-welcome">Welcome back,</p>
-                    <h1 id="dashBusinessName">Business Name</h1>
-                    <div class="owner-info">
-                        <i data-feather="user"></i>
-                        <span id="dashOwnerName">Owner Name</span>
+                <div class="payer-info-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+                    <div>
+                        <p class="payer-welcome">Welcome back,</p>
+                        <h1 id="dashBusinessName">Business Name</h1>
+                        <div class="owner-info">
+                            <i data-feather="user"></i>
+                            <span id="dashOwnerName">Owner Name</span>
+                        </div>
+                        <div class="payer-meta">
+                            <span id="dashPayerRef" class="ref-badge">LGA/REV/2026/XXXX</span>
+                            <span id="dashLga">Gusau LGA</span>
+                        </div>
                     </div>
-                    <div class="payer-meta">
-                        <span id="dashPayerRef" class="ref-badge">LGA/REV/2026/XXXX</span>
-                        <span id="dashLga">Gusau LGA</span>
+                    <div class="card-quick-actions" style="background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.2); max-width: 320px; backdrop-filter: blur(10px);">
+                        <h3 style="color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-feather="help-circle" style="width: 18px; height: 18px; color: #fbbf24;"></i>
+                            Need Assistance?
+                        </h3>
+                        <p style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                            Disputed assessments, payment issues, or general complaints can be filed directly through our official redressing system.
+                        </p>
+                        <button class="btn" onclick="openGrievancesPortal()" style="background: #ef4444; color: white; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 600; padding: 0.75rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
+                            <i data-feather="alert-circle" style="width:16px; height:16px;"></i>
+                            <span>Dispute Tax / File Grievance</span>
+                        </button>
                     </div>
                 </div>
             </div>

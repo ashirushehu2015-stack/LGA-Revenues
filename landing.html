@@ -28,6 +28,7 @@
                     <button class="theme-pill theme-btn-amber" onclick="changeTheme('amber')" title="Solar Amber Theme" aria-label="Amber Theme"></button>
                 </div>
                 <a href="#features" class="nav-link">Features</a>
+                <a href="#" class="nav-link" id="navSupportLink" onclick="toggleSupportPanel(event)">Citizen Support Center</a>
                 <a href="grievances.html" class="nav-link" style="color: #f87171; font-weight: 600;">Grievances</a>
                 <button class="btn btn-outline" id="openLoginBtn">Log In</button>
                 <button onclick="handleAdminAccess()" class="btn btn-primary">Go to Dashboard</button>
@@ -726,6 +727,18 @@
 
     <script>
         feather.replace();
+
+        // --- Toggle Support Panel from Navbar ---
+        function toggleSupportPanel(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const supportFab = document.getElementById('supportFab');
+            if (supportFab) {
+                supportFab.click();
+            }
+        }
 
         // --- Theme Switcher Logic ---
         function changeTheme(themeName) {

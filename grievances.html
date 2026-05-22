@@ -959,7 +959,67 @@
     </div>
 
     <script>
-        feather.replace();
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+
+            // Auto-prefill form fields from URL parameters (e.g. from Payer Portal deep links)
+            const params = new URLSearchParams(window.location.search);
+            const name = params.get('name');
+            const phone = params.get('phone');
+            const ref = params.get('ref');
+            const lga = params.get('lga');
+            const category = params.get('category');
+
+            if (name) {
+                const grvName = document.getElementById('grvName');
+                if (grvName) grvName.value = decodeURIComponent(name);
+            }
+            if (phone) {
+                const grvPhone = document.getElementById('grvPhone');
+                if (grvPhone) grvPhone.value = decodeURIComponent(phone);
+            }
+            if (ref) {
+                const grvInvoiceRef = document.getElementById('grvInvoiceRef');
+                if (grvInvoiceRef) grvInvoiceRef.value = decodeURIComponent(ref);
+            }
+            if (lga) {
+                const decodedLga = decodeURIComponent(lga).toLowerCase().trim();
+                const grvLga = document.getElementById('grvLga');
+                if (grvLga) {
+                    let matched = false;
+                    for (let i = 0; i < grvLga.options.length; i++) {
+                        const opt = grvLga.options[i];
+                        if (opt.text.toLowerCase().trim() === decodedLga) {
+                            grvLga.selectedIndex = i;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) {
+                        for (let i = 0; i < grvLga.options.length; i++) {
+                            const opt = grvLga.options[i];
+                            if (decodedLga.includes(opt.text.toLowerCase().trim()) || 
+                                opt.text.toLowerCase().trim().includes(decodedLga)) {
+                                grvLga.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (category) {
+                const decodedCat = decodeURIComponent(category).toLowerCase().trim();
+                const grvCategory = document.getElementById('grvCategory');
+                if (grvCategory) {
+                    for (let i = 0; i < grvCategory.options.length; i++) {
+                        if (grvCategory.options[i].text.toLowerCase().trim() === decodedCat) {
+                            grvCategory.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        });
 
         // ── Tab Switching ─────────────────────
         function switchTab(tab) {
