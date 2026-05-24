@@ -1,3 +1,231 @@
+// --- Multilingual Localized Translations Engine (English & Hausa) ---
+const translations = {
+    en: {
+        nav_checking: "Checking...",
+        nav_logout: "Log Out",
+        nav_home: "Home",
+        tab_login: "Login",
+        tab_register: "Register Business",
+        login_welcome: "Welcome Back",
+        login_desc: "Enter your Phone Number or Invoice Reference to access your portal.",
+        login_id_label: "Phone Number or Invoice Ref",
+        login_id_placeholder: "e.g. 08012345678 or LGA/REV/...",
+        login_pass_label: "Access Password",
+        login_pass_placeholder: "Enter your portal password",
+        login_pass_hint: "First time? Your initial password is your Phone Number.",
+        login_btn: "Access Portal",
+        connection_issue_title: "Connection Issue",
+        connection_issue_desc: "The system backend is unreachable. Please ensure the server is running or contact support.",
+        reg_title: "Business Registration",
+        reg_desc: "Register your business with the Local Government Area for revenue assessment.",
+        reg_business_name: "Business Name",
+        reg_business_name_placeholder: "Enter your business name",
+        reg_business_address: "Business Address",
+        reg_business_address_placeholder: "Enter business location",
+        reg_lga: "LGA",
+        reg_lga_select: "Select LGA",
+        reg_line_of_business: "Line of Business",
+        reg_line_of_business_placeholder: "e.g. Retail, Construction",
+        reg_contact_person: "Contact Person Name",
+        reg_contact_person_placeholder: "Full name",
+        reg_phone_number: "Phone Number",
+        reg_phone_number_placeholder: "Phone number",
+        reg_password: "Create Portal Password",
+        reg_password_placeholder: "Min 6 characters",
+        reg_assessment_value: "Estimated Property / Asset Value (₦)",
+        reg_assessment_value_placeholder: "Enter estimated value for percentage-based taxes (e.g. Tenement Rates)",
+        reg_valuation_hint: "For businesses subject to percentage-based rates (like Tenement Rates), please provide an estimated value for faster assessment.",
+        reg_personal_address: "Personal Address (Contact Person)",
+        reg_personal_address_placeholder: "Enter your home/office address",
+        reg_tax_categories: "Assigned Tax Categories",
+        reg_tax_search_placeholder: "Search taxes (e.g. Tenement, Shop, License)...",
+        reg_no_taxes: "No taxes selected",
+        reg_submit_btn: "Create Payer Account",
+        dash_welcome: "Welcome back,",
+        dash_need_assistance: "Need Assistance?",
+        dash_assistance_desc: "Disputed assessments, payment issues, or general complaints can be filed directly through our official redressing system.",
+        dash_dispute_btn: "Dispute Tax / File Grievance",
+        dash_unpaid_label: "Unpaid Balance",
+        dash_total_paid_label: "Total Paid",
+        dash_assigned_taxes: "Assigned Taxes & Assessments",
+        dash_assigned_desc: "Select an item to pay online or download the assessment notice.",
+        dash_recent_activity: "Recent Activity",
+        checkout_title: "Choose Payment Method",
+        pay_online_title: "Pay Online",
+        pay_online_desc: "Instant verification via Card/USSD/Bank",
+        bank_transfer_title: "Bank Transfer",
+        bank_transfer_desc: "Direct manual mobile transfer",
+        bank_teller_title: "Bank Teller",
+        bank_teller_desc: "Branch cash deposit upload",
+        cash_counter_title: "LGA Cash Counter",
+        cash_counter_desc: "Cash payment at LGA Office",
+        panel_paystack_title: "Paystack Secure Payment",
+        panel_paystack_desc: "You will be redirected to the secure Paystack gateway to make your payment instantly. Once paid, your digital receipt will be automatically generated.",
+        panel_paystack_btn: "Proceed to Pay Online",
+        panel_transfer_title: "Direct Bank Transfer",
+        bank_name_label: "Bank Name",
+        bank_acc_name_label: "Account Name",
+        bank_acc_num_label: "Account Number",
+        panel_transfer_desc: "Perform a bank transfer of the exact tax amount to the details above. Then, input your transfer details below for confirmation.",
+        transfer_ref_label: "Transfer Ref / Transaction Session ID",
+        transfer_ref_placeholder: "e.g. TX-12938473849929",
+        transfer_depositor_label: "Sender Account Name",
+        transfer_depositor_placeholder: "e.g. Bashir Sani",
+        transfer_submit_btn: "Submit Transfer for Audit",
+        panel_teller_title: "Branch Cash Deposit",
+        panel_teller_desc: "Deposit cash into the official bank account above, and submit your paper teller details below.",
+        teller_num_label: "Teller Stamp / Serial Number",
+        teller_num_placeholder: "e.g. TL-8839201",
+        teller_depositor_label: "Depositor Name",
+        teller_depositor_placeholder: "e.g. Sani & Sons Ltd",
+        teller_submit_btn: "Submit Teller for Audit",
+        panel_cash_title: "Cash at Counter",
+        panel_cash_desc: "Please visit your Local Government Secretariat's Revenue Office. Mention your unique Invoice Reference / Business Name at the counter to pay cash directly.",
+        nearest_center_label: "Nearest Collection Center",
+        cash_hours_label: "Hours: Mon – Fri, 8:00 AM – 4:00 PM WAT",
+        cash_close_btn: "Got it, close checkout",
+        receipt_title: "Tax Document",
+        receipt_print_btn: "Print",
+        receipt_pdf_btn: "PDF"
+    },
+    ha: {
+        nav_checking: "Ana duba...",
+        nav_logout: "Fita",
+        nav_home: "Gida",
+        tab_login: "Shiga",
+        tab_register: "Rijistar Kasuwanci",
+        login_welcome: "Barka da Dawowa",
+        login_desc: "Shigar da Lambar Waya ko Hujjar Invoice don shiga shafinka.",
+        login_id_label: "Lambar Waya ko Hujjar Invoice",
+        login_id_placeholder: "Kamar 08012345678 ko LGA/REV/...",
+        login_pass_label: "Kalmar Sirri ta Shiga",
+        login_pass_placeholder: "Shigar da kalmar sirrinka ta portal",
+        login_pass_hint: "Karon farko ne? Kalmar sirrinka ta farko ita ce lambar wayarka.",
+        login_btn: "Shiga Shafin",
+        connection_issue_title: "Matsalar Haɗi",
+        connection_issue_desc: "Ba za a iya samun uwar garke ba. Tabbatar cewa uwar garken tana aiki ko tuntuɓi sashen taimako.",
+        reg_title: "Rijistar Kasuwanci",
+        reg_desc: "Yi wa kasuwancinka rijista da Karamar Hukumar don tantance haraji.",
+        reg_business_name: "Sunan Kasuwanci",
+        reg_business_name_placeholder: "Shigar da sunan kasuwancinka",
+        reg_business_address: "Adireshin Kasuwanci",
+        reg_business_address_placeholder: "Shigar da adireshin kasuwanci",
+        reg_lga: "Karamar Hukuma",
+        reg_lga_select: "Zaɓi Karamar Hukuma",
+        reg_line_of_business: "Nau'in Kasuwanci",
+        reg_line_of_business_placeholder: "Kamar Shago, Kasuwanci, gini",
+        reg_contact_person: "Sunan Wakili",
+        reg_contact_person_placeholder: "Cikakken Suna",
+        reg_phone_number: "Lambar Waya",
+        reg_phone_number_placeholder: "Lambar waya",
+        reg_password: "Ƙirƙiri Kalmar Sirri ta Portal",
+        reg_password_placeholder: "Aƙalla haruffa 6",
+        reg_assessment_value: "Kiyasin Darajar Dukiya / Kaya (₦)",
+        reg_assessment_value_placeholder: "Shigar da kiyasin darajar kuɗi don harajin kashi gida (misali Tenement Rates)",
+        reg_valuation_hint: "Don kasuwanci da ke ƙarƙashin harajin kashi dari (kamar kuɗin gida), da fatan za a bayar da kiyasin darajar kaya don sauƙaƙa tantancewa.",
+        reg_personal_address: "Adireshin Gida (Wakili)",
+        reg_personal_address_placeholder: "Shigar da adireshin gidanka ko na ofis",
+        reg_tax_categories: "Rukunin Haraji da Aka Ware",
+        reg_tax_search_placeholder: "Nemi haraji (kamar Shago, Kuɗin Gida, Lasisi)...",
+        reg_no_taxes: "Ba a zaɓi kowane haraji ba",
+        reg_submit_btn: "Ƙirƙiri Asusun Mai Biyan Haraji",
+        dash_welcome: "Barka da dawowa,",
+        dash_need_assistance: "Kuna Bukatar Taimako?",
+        dash_assistance_desc: "Ana iya shigar da korafe-korafe game da haraji, matsalolin biya, ko wasu korafe-korafe kai tsaye ta hanyar tsarinmu na hukuma.",
+        dash_dispute_btn: "Nuna Rashin Yarda / Shigar da Ƙorafi",
+        dash_unpaid_label: "Sauran Kuɗi",
+        dash_total_paid_label: "Jimillar Kuɗin da Aka Biya",
+        dash_assigned_taxes: "Ayyukan Haraji da Aka Ware",
+        dash_assigned_desc: "Zaɓi abu ɗaya don biya a kan layi ko zazzage takardar sanarwar haraji.",
+        dash_recent_activity: "Ayyukan Kwanan Nan",
+        checkout_title: "Zaɓi Hanyar Biya",
+        pay_online_title: "Biya a Kan Layi",
+        pay_online_desc: "Tabbatarwa take ta Katin banki/USSD/Banki",
+        bank_transfer_title: "Canja wurin Banki",
+        bank_transfer_desc: "Canja kuɗi ta wayar tarho kai tsaye",
+        bank_teller_title: "Bank Teller",
+        bank_teller_desc: "Tura hoton takardar banki",
+        cash_counter_title: "Ofishin Karamar Hukuma",
+        cash_counter_desc: "Biyan kuɗi na hannu a ofishin Karamar Hukuma",
+        panel_paystack_title: "Amintaccen Biyan Kuɗi na Paystack",
+        panel_paystack_desc: "Za a tura ku zuwa amintaccen shafin Paystack don yin biyan kuɗi nan take. Bayan kun biya, za a ƙirƙiri takardar biyan kuɗi ta dijital ta atomatik.",
+        panel_paystack_btn: "Ci gaba da Biyan Kuɗi a Kan Layi",
+        panel_transfer_title: "Canja kuɗi ta Banki Kai tsaye",
+        bank_name_label: "Sunan Banki",
+        bank_acc_name_label: "Sunan Asusu",
+        bank_acc_num_label: "Lambar Asusu",
+        panel_transfer_desc: "Aika canja wurin banki na ainihin adadin harajin zuwa bayanan da ke sama. Sannan shigar da bayanan aikawar ku a ƙasa don tabbatarwa.",
+        transfer_ref_label: "Lambar Hujja ta Tura Kuɗi / ID na Zama",
+        transfer_ref_placeholder: "Kamar TX-12938473849929",
+        transfer_depositor_label: "Sunan Mai Aika Kuɗin",
+        transfer_depositor_placeholder: "Kamar Bashir Sani",
+        transfer_submit_btn: "Tura Canja wurin Kuɗi don Bincike",
+        panel_teller_title: "Ajiye Kuɗi a Ofishin Banki",
+        panel_teller_desc: "Sanya tsabar kuɗi a cikin asusun banki na hukuma da ke sama, sannan ka shigar da bayanan takardar ajiye kuɗinka na takarda a ƙasa.",
+        teller_num_label: "Tambarin Takarda / Lambar Serial",
+        teller_num_placeholder: "Kamar TL-8839201",
+        teller_depositor_label: "Sunan Mai Ajiye Kuɗin",
+        teller_depositor_placeholder: "Kamar Sani & Sons Ltd",
+        teller_submit_btn: "Tura Takardar don Bincike",
+        panel_cash_title: "Kuɗi a Kanti",
+        panel_cash_desc: "Da fatan za a ziyarci Ofishin Haraji na Sakatariyar Karamar Hukumar ku. Ambaci lambar Hujjar Invoice / Sunan Kasuwanci na musamman a wurin biyan kuɗi don biya da tsabar kuɗi kai tsaye.",
+        nearest_center_label: "Cibiyar Karɓa Mafi Kusa",
+        cash_hours_label: "Lokaci: Lit – Jum, 8:00 na safe – 4:00 na yamma WAT",
+        cash_close_btn: "Na gane, rufe wurin biya",
+        receipt_title: "Takardar Haraji",
+        receipt_print_btn: "Buga",
+        receipt_pdf_btn: "PDF"
+    }
+};
+
+let currentLang = localStorage.getItem('lga_lang') || 'en';
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('lga_lang', lang);
+    
+    // Synchronize selector value
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) langSelect.value = lang;
+
+    // Translate all standard text nodes
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key] !== undefined) {
+            // Check if there are any child element nodes to preserve (like icon <i> tags)
+            const icon = el.querySelector('i');
+            if (icon) {
+                // If it contains a child icon, let's preserve the icon and append translated text
+                el.innerHTML = '';
+                el.appendChild(icon);
+                el.appendChild(document.createTextNode(' ' + translations[lang][key]));
+            } else {
+                el.textContent = translations[lang][key];
+            }
+        }
+    });
+
+    // Translate all placeholder attributes
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang] && translations[lang][key] !== undefined) {
+            el.setAttribute('placeholder', translations[lang][key]);
+        }
+    });
+
+    // Re-render language-dependent items in state if any
+    updateSelectedSummary();
+    if (currentPayer) {
+        // Redraw welcome headers, info labels, etc
+        document.getElementById('dashBusinessName').textContent = currentPayer.businessName;
+        document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || (currentLang === 'ha' ? 'Wakili' : 'Business Owner');
+        document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || (currentLang === 'ha' ? 'Hujja tana nan tafe' : 'Pending Ref');
+        const lgaText = currentLang === 'ha' ? `Karamar Hukumar ${currentPayer.lga}` : `${currentPayer.lga} LGA`;
+        document.getElementById('dashLga').textContent = lgaText;
+        renderPayerTaxes();
+    }
+}
+
 // Tax Categories State (Fetched from server)
 let taxCategories = [];
 
@@ -51,6 +279,17 @@ feather.replace();
 
 // --- Quick Access Logic ---
 document.addEventListener('DOMContentLoaded', async () => {
+    // Bind language select event listener
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.addEventListener('change', (e) => {
+            setLanguage(e.target.value);
+        });
+    }
+    
+    // Set initial language
+    setLanguage(currentLang);
+    
     await fetchSettings();
     
     if (currentPayer) {
@@ -132,15 +371,18 @@ function renderTaxSelector(filter = '') {
     });
 
     if (matchCount === 0) {
-        taxSelector.innerHTML = '<div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--slate-400);">No taxes found matching your search.</div>';
+        const noTaxesMsg = currentLang === 'ha' ? 'Ba a sami harajin da ya dace da bincikenka ba.' : 'No taxes found matching your search.';
+        taxSelector.innerHTML = `<div style="grid-column: span 2; text-align: center; padding: 2rem; color: var(--slate-400);">${noTaxesMsg}</div>`;
     }
 }
 
 function updateSelectedSummary() {
+    if (!selectedTaxesSummary) return;
     if (selectedTaxes.size === 0) {
-        selectedTaxesSummary.innerHTML = '<span>No taxes selected</span>';
+        selectedTaxesSummary.innerHTML = `<span data-i18n="reg_no_taxes">${currentLang === 'ha' ? 'Ba a zaɓi kowane haraji ba' : 'No taxes selected'}</span>`;
     } else {
-        selectedTaxesSummary.innerHTML = `<span>${selectedTaxes.size} Tax Item(s) Selected</span>`;
+        const text = currentLang === 'ha' ? `Rukunin Haraji ${selectedTaxes.size} da aka Zaɓa` : `${selectedTaxes.size} Tax Item(s) Selected`;
+        selectedTaxesSummary.innerHTML = `<span>${text}</span>`;
     }
 }
 
@@ -157,7 +399,8 @@ registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     if (selectedTaxes.size === 0) {
-        alert('Please select at least one tax category.');
+        const msg = currentLang === 'ha' ? 'Da fatan za a zaɓi aƙalla rukunin haraji guda ɗaya.' : 'Please select at least one tax category.';
+        alert(msg);
         return;
     }
 
@@ -225,18 +468,21 @@ registerForm.addEventListener('submit', async (e) => {
         const data = await res.json();
         
         if (data.success) {
-            alert('Registration Successful! Your Invoice Reference is: ' + (data.added_ref || 'Available in portal.'));
+            const successMsg = currentLang === 'ha' ? 'Rijista ta yi nasara! Lambar Hujjarku ita ce: ' : 'Registration Successful! Your Invoice Reference is: ';
+            alert(successMsg + (data.added_ref || 'Available in portal.'));
             currentPayer = newPayer;
             currentPayer.invoiceRef = data.added_ref;
             localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
             showDashboard();
         } else {
-            alert('Registration failed: ' + data.message);
+            const failMsg = currentLang === 'ha' ? 'Rijista ta gaza: ' : 'Registration failed: ';
+            alert(failMsg + data.message);
         }
     } catch (err) {
         console.error(err);
         document.getElementById('connectionTroubleshoot').style.display = 'block';
-        alert('Server error during registration. Is the server running?');
+        const serverErrorMsg = currentLang === 'ha' ? 'Kuskuren uwar garke lokacin rijista. Shin uwar garken tana aiki?' : 'Server error during registration. Is the server running?';
+        alert(serverErrorMsg);
     }
 });
 
@@ -267,14 +513,14 @@ loginForm.addEventListener('submit', async (e) => {
             syncPayerProfile(); // Trigger immediate sync
         } else {
             if (loginError) {
-                loginError.textContent = data.message || 'Invalid credentials. Please try again.';
+                loginError.textContent = data.message || (currentLang === 'ha' ? 'Bayanan shiga ba daidai ba ne. Da fatan za a sake gwadawa.' : 'Invalid credentials. Please try again.');
                 loginError.style.display = 'block';
             }
         }
     } catch (err) {
         document.getElementById('connectionTroubleshoot').style.display = 'block';
         if (loginError) {
-            loginError.textContent = 'Connection error. Please ensure server is running.';
+            loginError.textContent = currentLang === 'ha' ? 'Kuskuren haɗi. Tabbatar cewa uwar garken tana aiki.' : 'Connection error. Please ensure server is running.';
             loginError.style.display = 'block';
         }
     }
@@ -287,9 +533,10 @@ function showDashboard() {
     portalLogoutBtn.style.display = 'block';
     
     document.getElementById('dashBusinessName').textContent = currentPayer.businessName;
-    document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || 'Business Owner';
-    document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || 'Pending Ref';
-    document.getElementById('dashLga').textContent = `${currentPayer.lga} LGA`;
+    document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || (currentLang === 'ha' ? 'Wakili' : 'Business Owner');
+    document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || (currentLang === 'ha' ? 'Hujja tana nan tafe' : 'Pending Ref');
+    const lgaText = currentLang === 'ha' ? `Karamar Hukumar ${currentPayer.lga}` : `${currentPayer.lga} LGA`;
+    document.getElementById('dashLga').textContent = lgaText;
     
     renderPayerTaxes();
 }
@@ -305,9 +552,10 @@ async function syncPayerProfile() {
                 localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
                 // Update display values dynamically
                 document.getElementById('dashBusinessName').textContent = currentPayer.businessName;
-                document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || 'Business Owner';
-                document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || 'Pending Ref';
-                document.getElementById('dashLga').textContent = `${currentPayer.lga} LGA`;
+                document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || (currentLang === 'ha' ? 'Wakili' : 'Business Owner');
+                document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || (currentLang === 'ha' ? 'Hujja tana nan tafe' : 'Pending Ref');
+                const lgaText = currentLang === 'ha' ? `Karamar Hukumar ${currentPayer.lga}` : `${currentPayer.lga} LGA`;
+                document.getElementById('dashLga').textContent = lgaText;
                 renderPayerTaxes();
             }
         }
@@ -318,6 +566,7 @@ async function syncPayerProfile() {
 
 function renderPayerTaxes() {
     const list = document.getElementById('dashTaxList');
+    if (!list) return;
     list.innerHTML = '';
     
     let unpaid = 0;
@@ -328,19 +577,29 @@ function renderPayerTaxes() {
         else unpaid += tax.amount;
         
         const isVariable = tax.rateType === 'Variable' && tax.amount === 0;
-        const amountDisplay = isVariable ? 'Variable' : `₦${tax.amount.toLocaleString()}`;
+        const amountDisplay = isVariable ? (currentLang === 'ha' ? 'Ya bambanta' : 'Variable') : `₦${tax.amount.toLocaleString()}`;
+
+        const cycleLabel = currentLang === 'ha' ? 'Zango' : 'Cycle';
+        const statusLabel = currentLang === 'ha' ? 'Matsayi' : 'Status';
+        let statusText = tax.status;
+        if (currentLang === 'ha') {
+            if (tax.status === 'Paid') statusText = 'An Biya';
+            else if (tax.status === 'Pending') statusText = 'Ana Jira';
+        }
+
+        const payOnlineLabel = currentLang === 'ha' ? 'Biya a Kan Layi' : 'Pay Online';
 
         const item = document.createElement('div');
         item.className = 'tax-portal-item';
         item.innerHTML = `
             <div class="tax-info-group">
                 <h4>${tax.name}</h4>
-                <p>Cycle: ${tax.duration} | Status: <span class="status-badge status-${tax.status.toLowerCase()}">${tax.status}</span></p>
+                <p>${cycleLabel}: ${tax.duration} | ${statusLabel}: <span class="status-badge status-${tax.status.toLowerCase()}">${statusText}</span></p>
             </div>
             <div class="tax-actions">
                 <span class="tax-amount">${amountDisplay}</span>
                 ${tax.status !== 'Paid' ? 
-                    `<button class="btn btn-primary btn-sm" onclick="payTax('${tax.id}')">Pay Online</button>` : 
+                    `<button class="btn btn-primary btn-sm" onclick="payTax('${tax.id}')">${payOnlineLabel}</button>` : 
                     `<button class="btn btn-outline btn-sm" onclick="downloadReceipt('${tax.id}')"><i data-feather="download"></i></button>`
                 }
             </div>
@@ -412,7 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const depositor = document.getElementById('transferDepositor').value.trim();
             
             if (!ref || !depositor) {
-                alert('Please fill out all fields.');
+                const msg = currentLang === 'ha' ? 'Da fatan za a cika duk gurare.' : 'Please fill out all fields.';
+                alert(msg);
                 return;
             }
 
@@ -432,14 +692,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
                 if (data.success) {
-                    alert('Manual payment transfer reference submitted successfully! Our auditors will confirm this shortly.');
+                    const successMsg = currentLang === 'ha' ? 'An yi nasarar tura bayanan canja wurin banki! Masu bincikenmu za su tabbatar da wannan ba da jimawa ba.' : 'Manual payment transfer reference submitted successfully! Our auditors will confirm this shortly.';
+                    alert(successMsg);
                     location.reload();
                 } else {
-                    alert(`Error submitting details: ${data.message}`);
+                    const errorMsg = currentLang === 'ha' ? 'Kuskure yayin tura bayanan: ' : 'Error submitting details: ';
+                    alert(`${errorMsg}${data.message}`);
                 }
             } catch (err) {
                 console.error(err);
-                alert('Could not communicate with the server. Is the server running?');
+                const serverErr = currentLang === 'ha' ? 'Uwar garke ba ta amsa ba. Shin uwar garken tana aiki?' : 'Could not communicate with the server. Is the server running?';
+                alert(serverErr);
             }
         });
 
@@ -451,7 +714,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const depositor = document.getElementById('tellerDepositor').value.trim();
             
             if (!ref || !depositor) {
-                alert('Please fill out all fields.');
+                const msg = currentLang === 'ha' ? 'Da fatan za a cika duk gurare.' : 'Please fill out all fields.';
+                alert(msg);
                 return;
             }
 
@@ -471,14 +735,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const data = await response.json();
                 if (data.success) {
-                    alert('Bank Teller serial details submitted successfully! Verification is in progress.');
+                    const successMsg = currentLang === 'ha' ? 'An tura lambobin takardar banki cikin nasara! Tabbatarwa na nan tafe.' : 'Bank Teller serial details submitted successfully! Verification is in progress.';
+                    alert(successMsg);
                     location.reload();
                 } else {
-                    alert(`Error submitting teller: ${data.message}`);
+                    const errorMsg = currentLang === 'ha' ? 'Kuskure yayin tura takardar banki: ' : 'Error submitting teller: ';
+                    alert(`${errorMsg}${data.message}`);
                 }
             } catch (err) {
                 console.error(err);
-                alert('Communication error. Please check your network.');
+                const serverErr = currentLang === 'ha' ? 'Kuskuren sadarwa. Da fatan za a duba hanyar sadarwar ku.' : 'Communication error. Please check your network.';
+                alert(serverErr);
             }
         });
     }
@@ -492,11 +759,13 @@ window.payTax = function(taxId) {
 
     // Handle variable amounts or zero amounts with a prompt (Self-Assessment)
     if (amountToPay <= 0) {
-        const userInput = prompt(`Enter the amount to pay for ${tax.name} (in Naira):`, "1000");
+        const promptText = currentLang === 'ha' ? `Shigar da adadin da za a biya don ${tax.name} (a Naira):` : `Enter the amount to pay for ${tax.name} (in Naira):`;
+        const userInput = prompt(promptText, "1000");
         if (userInput === null) return; // Cancelled
         amountToPay = parseFloat(userInput);
         if (isNaN(amountToPay) || amountToPay <= 0) {
-            alert("Please enter a valid amount.");
+            const errorMsg = currentLang === 'ha' ? 'Da fatan za a shigar da adadin da ya dace.' : 'Please enter a valid amount.';
+            alert(errorMsg);
             return;
         }
     }
@@ -511,9 +780,15 @@ window.payTax = function(taxId) {
     const tellerAccName = document.getElementById('tellerAccName');
     const cashLgaOffice = document.getElementById('cashLgaOffice');
 
-    if (transferAccName) transferAccName.textContent = `${lgaName} LGA Revenue Account`;
-    if (tellerAccName) tellerAccName.textContent = `${lgaName} LGA Revenue Account`;
-    if (cashLgaOffice) cashLgaOffice.textContent = `${lgaName} LGA Secretariat, Revenue Department Desk`;
+    if (transferAccName) {
+        transferAccName.textContent = currentLang === 'ha' ? `Asusun Haraji Karamar Hukumar ${lgaName}` : `${lgaName} LGA Revenue Account`;
+    }
+    if (tellerAccName) {
+        tellerAccName.textContent = currentLang === 'ha' ? `Asusun Haraji Karamar Hukumar ${lgaName}` : `${lgaName} LGA Revenue Account`;
+    }
+    if (cashLgaOffice) {
+        cashLgaOffice.textContent = currentLang === 'ha' ? `Sakatariyar Karamar Hukumar ${lgaName}, Sashen Karɓar Haraji` : `${lgaName} LGA Secretariat, Revenue Department Desk`;
+    }
 
     // Reset checkout forms to default (Online Paystack active)
     const checkoutModal = document.getElementById('checkoutModal');
@@ -547,7 +822,8 @@ async function verifyPayment(ref, taxId, amount) {
     const res = await LgaConnection.apiFetch(`/api/payments/verify/${ref}?id=${currentPayer.id}&taxId=${taxId}&amount=${amount}`, { method: 'POST' });
     const data = await res.json();
     if (data.success) {
-        alert('Payment Successful!');
+        const successMsg = currentLang === 'ha' ? 'An biya kuɗi cikin nasara!' : 'Payment Successful!';
+        alert(successMsg);
         location.reload(); // Refresh to update dashboard
     }
 }
@@ -583,17 +859,47 @@ function generateReceiptHTML(payer, tax) {
     const verificationUrl = `${window.location.origin}/verify.html?ref=${encodeURIComponent(tax.paymentReference || tax.id)}`;
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
 
+    // Localized Strings
+    const stateGov = currentLang === 'ha' ? 'GWAMNATIN JIHAR ZAMFARA' : 'ZAMFARA STATE GOVERNMENT';
+    const revService = currentLang === 'ha' ? 'HUKUMAR KARƁAR HARAJI TA ƘARAMAR HUKUMA' : 'LOCAL GOVERNMENT REVENUE SERVICE';
+    const adminHeader = currentLang === 'ha' ? `SHUGABANCI KARAMAR HUKUMAR ${lgaHeader}` : `${lgaHeader} ADMINISTRATION`;
+    const officialReceipt = currentLang === 'ha' ? 'TAKARDAR BIYAN KUDI TA HUKUMA' : 'OFFICIAL RECEIPT';
+    const paymentConfirmed = currentLang === 'ha' ? 'AN TABBATAR DA BIYA' : 'PAYMENT CONFIRMED';
+    const payerNameLabel = currentLang === 'ha' ? 'SUNAN MAI BIYA' : 'PAYER NAME';
+    const businessNameLabel = currentLang === 'ha' ? 'SUNAN KASUWANCI' : 'BUSINESS NAME';
+    const payerRefLabel = currentLang === 'ha' ? 'LAMBAR HUJJA TA MAI BIYA' : 'PAYER REFERENCE';
+    const phoneLabel = currentLang === 'ha' ? 'LAMBAR WAYA' : 'PHONE NUMBER';
+    
+    const taxDescHeader = currentLang === 'ha' ? 'BAYANIN HARAJI' : 'TAX DESCRIPTION';
+    const cycleHeader = currentLang === 'ha' ? 'ZANGO' : 'CYCLE';
+    const amtPaidHeader = currentLang === 'ha' ? 'ADADIN DA AKA BIYA' : 'AMOUNT PAID';
+    const revenueItemSub = currentLang === 'ha' ? 'Kuɗin Haraji' : 'Revenue Item';
+    const totalPaidLabel = currentLang === 'ha' ? 'JIMILLAR DA AKA BIYA' : 'TOTAL PAID';
+    
+    const datePaidLabel = currentLang === 'ha' ? 'RANAR BIYA' : 'DATE PAID';
+    const timeLabel = currentLang === 'ha' ? 'LOKACI' : 'TIME';
+    const methodLabel = currentLang === 'ha' ? 'HANYAR BIYA' : 'METHOD';
+    const digitalMethod = currentLang === 'ha' ? 'Dijital (Paystack)' : 'Digital (Paystack)';
+    
+    const computerGeneratedNotice = currentLang === 'ha' 
+        ? 'Wannan takardar biyan kuɗi ce da na\'ura ta ƙirƙira kuma ba ta buƙatar sa hannu.' 
+        : 'This is a computer-generated receipt and requires no signature.';
+    const thankYouNotice = currentLang === 'ha'
+        ? `Mun gode da kuke goyon bayan ci gaban Karamar Hukumar ${payer.lga}.`
+        : `Thank you for supporting the development of ${payer.lga} LGA.`;
+    const verifiableLabel = currentLang === 'ha' ? 'ZA A IYA TABBATARWA' : 'VERIFIABLE';
+
     return `
         <div class="receipt-container" id="receiptContent">
             <div class="receipt-header">
                 <div class="header-main">
                     <img src="logo.png" alt="Logo" class="receipt-logo">
                     <div class="government-info">
-                        <h2>ZAMFARA STATE GOVERNMENT</h2>
-                        <h3>LOCAL GOVERNMENT REVENUE SERVICE</h3>
-                        <p>${lgaHeader} ADMINISTRATION</p>
+                        <h2>${stateGov}</h2>
+                        <h3>${revService}</h3>
+                        <p>${adminHeader}</p>
                     </div>
-                    <div class="receipt-badge">OFFICIAL RECEIPT</div>
+                    <div class="receipt-badge">${officialReceipt}</div>
                 </div>
             </div>
 
@@ -601,26 +907,26 @@ function generateReceiptHTML(payer, tax) {
                 <div class="success-banner">
                     <div class="check-icon">✓</div>
                     <div class="payment-confirmed">
-                        <h4>PAYMENT CONFIRMED</h4>
+                        <h4>${paymentConfirmed}</h4>
                         <p>Ref: ${tax.paymentReference || 'N/A'}</p>
                     </div>
                 </div>
 
                 <div class="info-grid">
                     <div class="info-item">
-                        <label>PAYER NAME</label>
+                        <label>${payerNameLabel}</label>
                         <p>${payer.contactPerson}</p>
                     </div>
                     <div class="info-item">
-                        <label>BUSINESS NAME</label>
+                        <label>${businessNameLabel}</label>
                         <p>${payer.businessName}</p>
                     </div>
                     <div class="info-item">
-                        <label>PAYER REFERENCE</label>
+                        <label>${payerRefLabel}</label>
                         <p>${payer.invoiceRef}</p>
                     </div>
                     <div class="info-item">
-                        <label>PHONE NUMBER</label>
+                        <label>${phoneLabel}</label>
                         <p>${payer.phoneNumber}</p>
                     </div>
                 </div>
@@ -629,16 +935,16 @@ function generateReceiptHTML(payer, tax) {
                     <table>
                         <thead>
                             <tr>
-                                <th>TAX DESCRIPTION</th>
-                                <th>CYCLE</th>
-                                <th class="text-right">AMOUNT PAID</th>
+                                <th>${taxDescHeader}</th>
+                                <th>${cycleHeader}</th>
+                                <th class="text-right">${amtPaidHeader}</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td>
                                     <span class="tax-name">${tax.name}</span>
-                                    <span class="tax-desc">Revenue Item</span>
+                                    <span class="tax-desc">${revenueItemSub}</span>
                                 </td>
                                 <td>${tax.duration}</td>
                                 <td class="text-right amount">₦${amount.toLocaleString()}</td>
@@ -646,7 +952,7 @@ function generateReceiptHTML(payer, tax) {
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2">TOTAL PAID</td>
+                                <td colspan="2">${totalPaidLabel}</td>
                                 <td class="text-right total">₦${amount.toLocaleString()}</td>
                             </tr>
                         </tfoot>
@@ -655,28 +961,28 @@ function generateReceiptHTML(payer, tax) {
 
                 <div class="payment-meta">
                     <div class="meta-item">
-                        <label>DATE PAID</label>
+                        <label>${datePaidLabel}</label>
                         <p>${dateStr}</p>
                     </div>
                     <div class="meta-item">
-                        <label>TIME</label>
+                        <label>${timeLabel}</label>
                         <p>${timeStr}</p>
                     </div>
                     <div class="meta-item">
-                        <label>METHOD</label>
-                        <p>Digital (Paystack)</p>
+                        <label>${methodLabel}</label>
+                        <p>${digitalMethod}</p>
                     </div>
                 </div>
             </div>
 
             <div class="receipt-footer">
                 <div class="footer-notice">
-                    <p>This is a computer-generated receipt and requires no signature.</p>
-                    <p>Thank you for supporting the development of ${payer.lga} LGA.</p>
+                    <p>${computerGeneratedNotice}</p>
+                    <p>${thankYouNotice}</p>
                 </div>
                 <div class="qr-placeholder" style="border: none; background: transparent; text-align: center;">
                     <img src="${qrUrl}" alt="Verification QR Code" style="width: 70px; height: 70px; display: block; margin: 0 auto 4px auto; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                    <span style="font-size: 8px; font-weight: 800; color: #10b981; letter-spacing: 1px;">VERIFIABLE</span>
+                    <span style="font-size: 8px; font-weight: 800; color: #10b981; letter-spacing: 1px;">${verifiableLabel}</span>
                 </div>
             </div>
         </div>

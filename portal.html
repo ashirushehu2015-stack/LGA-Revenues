@@ -22,67 +22,74 @@
                 <span class="logo-text">LGA RevMax</span>
             </div>
             <div class="nav-actions" id="navActions">
+                <div class="language-switcher" style="margin-right: 1.5rem; display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); padding: 4px 8px; border-radius: 8px;">
+                    <i data-feather="globe" style="width: 16px; height: 16px; color: #a5b4fc;"></i>
+                    <select id="langSelect" style="background: transparent; border: none; color: white; font-size: 0.8rem; font-weight: 700; cursor: pointer; outline: none; padding-right: 4px;">
+                        <option value="en" style="background: #1e1b4b; color: white;">English</option>
+                        <option value="ha" style="background: #1e1b4b; color: white;">Hausa</option>
+                    </select>
+                </div>
                 <div id="serverStatusPill" class="connection-pill unknown" style="margin-right: 1rem;">
                     <div class="status-dot"></div>
-                    <span>Checking...</span>
+                    <span data-i18n="nav_checking">Checking...</span>
                 </div>
-                <button class="btn btn-outline" id="portalLogoutBtn" style="display: none;">Log Out</button>
-                <button class="btn btn-primary" onclick="window.location.href='landing.html'">Home</button>
+                <button class="btn btn-outline" id="portalLogoutBtn" data-i18n="nav_logout" style="display: none;">Log Out</button>
+                <button class="btn btn-primary" onclick="window.location.href='landing.html'" data-i18n="nav_home">Home</button>
             </div>
         </nav>
 
         <!-- Auth Section (Login/Register) -->
         <main id="authSection" class="auth-section">
             <div class="auth-tabs">
-                <button class="tab-btn active" data-tab="login">Login</button>
-                <button class="tab-btn" data-tab="register">Register Business</button>
+                <button class="tab-btn active" data-tab="login" data-i18n="tab_login">Login</button>
+                <button class="tab-btn" data-tab="register" data-i18n="tab_register">Register Business</button>
             </div>
 
             <!-- Login View -->
             <div id="loginView" class="tab-view active">
                 <div class="view-header">
-                    <h1>Welcome Back</h1>
-                    <p>Enter your Phone Number or Invoice Reference to access your portal.</p>
+                    <h1 data-i18n="login_welcome">Welcome Back</h1>
+                    <p data-i18n="login_desc">Enter your Phone Number or Invoice Reference to access your portal.</p>
                 </div>
                 <form id="payerLoginForm">
                     <div class="form-group">
-                        <label for="loginIdentifier">Phone Number or Invoice Ref</label>
-                        <input type="text" id="loginIdentifier" required placeholder="e.g. 08012345678 or LGA/REV/..." style="padding: 1rem;">
+                        <label for="loginIdentifier" data-i18n="login_id_label">Phone Number or Invoice Ref</label>
+                        <input type="text" id="loginIdentifier" required placeholder="e.g. 08012345678 or LGA/REV/..." data-i18n-placeholder="login_id_placeholder" style="padding: 1rem;">
                     </div>
                     <div class="form-group">
-                        <label for="loginPassword">Access Password</label>
-                        <input type="password" id="loginPassword" required placeholder="Enter your portal password" style="padding: 1rem;">
-                        <small style="color: #64748b; margin-top: 5px; display: block;">First time? Your initial password is your Phone Number.</small>
+                        <label for="loginPassword" data-i18n="login_pass_label">Access Password</label>
+                        <input type="password" id="loginPassword" required placeholder="Enter your portal password" data-i18n-placeholder="login_pass_placeholder" style="padding: 1rem;">
+                        <small style="color: #64748b; margin-top: 5px; display: block;" data-i18n="login_pass_hint">First time? Your initial password is your Phone Number.</small>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block btn-lg">Access Portal</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="login_btn">Access Portal</button>
                 </form>
                 <div id="loginError" class="error-text" style="display: none;"></div>
                 <div id="connectionTroubleshoot" class="troubleshoot-hint" style="display: none;">
-                    <h4><i data-feather="alert-circle"></i> Connection Issue</h4>
-                    <p>The system backend is unreachable. Please ensure the server is running or contact support.</p>
+                    <h4><i data-feather="alert-circle"></i> <span data-i18n="connection_issue_title">Connection Issue</span></h4>
+                    <p data-i18n="connection_issue_desc">The system backend is unreachable. Please ensure the server is running or contact support.</p>
                 </div>
             </div>
 
             <!-- Register View -->
             <div id="registerView" class="tab-view">
                 <div class="view-header">
-                    <h1>Business Registration</h1>
-                    <p>Register your business with the Local Government Area for revenue assessment.</p>
+                    <h1 data-i18n="reg_title">Business Registration</h1>
+                    <p data-i18n="reg_desc">Register your business with the Local Government Area for revenue assessment.</p>
                 </div>
                 <form id="payerRegisterForm">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="regBusinessName">Business Name</label>
-                            <input type="text" id="regBusinessName" required placeholder="Enter your business name">
+                            <label for="regBusinessName" data-i18n="reg_business_name">Business Name</label>
+                            <input type="text" id="regBusinessName" required placeholder="Enter your business name" data-i18n-placeholder="reg_business_name_placeholder">
                         </div>
                         <div class="form-group">
-                            <label for="regBusinessAddress">Business Address</label>
-                            <input type="text" id="regBusinessAddress" required placeholder="Enter business location">
+                            <label for="regBusinessAddress" data-i18n="reg_business_address">Business Address</label>
+                            <input type="text" id="regBusinessAddress" required placeholder="Enter business location" data-i18n-placeholder="reg_business_address_placeholder">
                         </div>
                         <div class="form-group">
-                            <label for="regLga">LGA</label>
+                            <label for="regLga" data-i18n="reg_lga">LGA</label>
                             <select id="regLga" required>
-                                <option value="">Select LGA</option>
+                                <option value="" data-i18n="reg_lga_select">Select LGA</option>
                                 <option value="Anka">Anka</option>
                                 <option value="Bakura">Bakura</option>
                                 <option value="Birnin Magaji">Birnin Magaji</option>
@@ -100,46 +107,46 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="regLineOfBusiness">Line of Business</label>
-                            <input type="text" id="regLineOfBusiness" required placeholder="e.g. Retail, Construction">
+                            <label for="regLineOfBusiness" data-i18n="reg_line_of_business">Line of Business</label>
+                            <input type="text" id="regLineOfBusiness" required placeholder="e.g. Retail, Construction" data-i18n-placeholder="reg_line_of_business_placeholder">
                         </div>
                         <div class="form-group">
-                            <label for="regContactPerson">Contact Person Name</label>
-                            <input type="text" id="regContactPerson" required placeholder="Full name">
+                            <label for="regContactPerson" data-i18n="reg_contact_person">Contact Person Name</label>
+                            <input type="text" id="regContactPerson" required placeholder="Full name" data-i18n-placeholder="reg_contact_person_placeholder">
                         </div>
                         <div class="form-group">
-                            <label for="regPhoneNumber">Phone Number</label>
-                            <input type="tel" id="regPhoneNumber" required placeholder="Phone number">
+                            <label for="regPhoneNumber" data-i18n="reg_phone_number">Phone Number</label>
+                            <input type="tel" id="regPhoneNumber" required placeholder="Phone number" data-i18n-placeholder="reg_phone_number_placeholder">
                         </div>
                         <div class="form-group">
-                            <label for="regPassword">Create Portal Password</label>
-                            <input type="password" id="regPassword" required placeholder="Min 6 characters">
+                            <label for="regPassword" data-i18n="reg_password">Create Portal Password</label>
+                            <input type="password" id="regPassword" required placeholder="Min 6 characters" data-i18n-placeholder="reg_password_placeholder">
                         </div>
                         <div class="form-group full-width" id="valuationGroup" style="display: none; background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px dashed #cbd5e1; margin-bottom: 1rem;">
-                            <label for="regAssessmentValue">Estimated Property / Asset Value (₦)</label>
-                            <input type="number" id="regAssessmentValue" placeholder="Enter estimated value for percentage-based taxes (e.g. Tenement Rates)">
-                            <small style="color: #64748b; display: block; margin-top: 8px;">For businesses subject to percentage-based rates (like Tenement Rates), please provide an estimated value for faster assessment.</small>
+                            <label for="regAssessmentValue" data-i18n="reg_assessment_value">Estimated Property / Asset Value (₦)</label>
+                            <input type="number" id="regAssessmentValue" placeholder="Enter estimated value for percentage-based taxes (e.g. Tenement Rates)" data-i18n-placeholder="reg_assessment_value_placeholder">
+                            <small style="color: #64748b; display: block; margin-top: 8px;" data-i18n="reg_valuation_hint">For businesses subject to percentage-based rates (like Tenement Rates), please provide an estimated value for faster assessment.</small>
                         </div>
                         <div class="form-group full-width">
-                            <label for="regAddressCp">Personal Address (Contact Person)</label>
-                            <input type="text" id="regAddressCp" required placeholder="Enter your home/office address">
+                            <label for="regAddressCp" data-i18n="reg_personal_address">Personal Address (Contact Person)</label>
+                            <input type="text" id="regAddressCp" required placeholder="Enter your home/office address" data-i18n-placeholder="reg_personal_address_placeholder">
                         </div>
                         <div class="form-group full-width">
-                            <label>Assigned Tax Categories</label>
+                            <label data-i18n="reg_tax_categories">Assigned Tax Categories</label>
                             <div class="tax-search-container">
-                                <input type="text" id="taxSearchInput" placeholder="Search taxes (e.g. Tenement, Shop, License)..." class="search-input">
+                                <input type="text" id="taxSearchInput" placeholder="Search taxes (e.g. Tenement, Shop, License)..." data-i18n-placeholder="reg_tax_search_placeholder" class="search-input">
                                 <i data-feather="search" class="search-icon"></i>
                             </div>
                             <div class="tax-selector-grid" id="portalTaxSelector">
                                 <!-- Populated via JS -->
                             </div>
                             <div class="selected-taxes-summary" id="selectedTaxesSummary">
-                                <span>No taxes selected</span>
+                                <span data-i18n="reg_no_taxes">No taxes selected</span>
                             </div>
                         </div>
                     </div>
                     <div class="registration-actions">
-                        <button type="submit" class="btn btn-primary btn-lg">Create Payer Account</button>
+                        <button type="submit" class="btn btn-primary btn-lg" data-i18n="reg_submit_btn">Create Payer Account</button>
                     </div>
                 </form>
             </div>
@@ -150,7 +157,7 @@
             <div class="dashboard-header">
                 <div class="payer-info-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
                     <div>
-                        <p class="payer-welcome">Welcome back,</p>
+                        <p class="payer-welcome" data-i18n="dash_welcome">Welcome back,</p>
                         <h1 id="dashBusinessName">Business Name</h1>
                         <div class="owner-info">
                             <i data-feather="user"></i>
@@ -164,14 +171,14 @@
                     <div class="card-quick-actions" style="background: rgba(255, 255, 255, 0.1); padding: 1.5rem; border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.2); max-width: 320px; backdrop-filter: blur(10px);">
                         <h3 style="color: white; margin-top: 0; margin-bottom: 0.5rem; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
                             <i data-feather="help-circle" style="width: 18px; height: 18px; color: #fbbf24;"></i>
-                            Need Assistance?
+                            <span data-i18n="dash_need_assistance">Need Assistance?</span>
                         </h3>
-                        <p style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;">
+                        <p style="color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.4;" data-i18n="dash_assistance_desc">
                             Disputed assessments, payment issues, or general complaints can be filed directly through our official redressing system.
                         </p>
                         <button class="btn" onclick="openGrievancesPortal()" style="background: #ef4444; color: white; border: none; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 600; padding: 0.75rem 1rem; border-radius: 0.75rem; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">
                             <i data-feather="alert-circle" style="width:16px; height:16px;"></i>
-                            <span>Dispute Tax / File Grievance</span>
+                            <span data-i18n="dash_dispute_btn">Dispute Tax / File Grievance</span>
                         </button>
                     </div>
                 </div>
@@ -185,7 +192,7 @@
                             <i data-feather="clock"></i>
                         </div>
                         <div class="summary-details">
-                            <label>Unpaid Balance</label>
+                            <label data-i18n="dash_unpaid_label">Unpaid Balance</label>
                             <h3 id="dashUnpaidBalance">₦0</h3>
                         </div>
                     </div>
@@ -194,7 +201,7 @@
                             <i data-feather="check-circle"></i>
                         </div>
                         <div class="summary-details">
-                            <label>Total Paid</label>
+                            <label data-i18n="dash_total_paid_label">Total Paid</label>
                             <h3 id="dashTotalPaid">₦0</h3>
                         </div>
                     </div>
@@ -204,8 +211,8 @@
                 <div class="main-col">
                     <div class="card-section">
                         <div class="section-header">
-                            <h2>Assigned Taxes & Assessments</h2>
-                            <p>Select an item to pay online or download the assessment notice.</p>
+                            <h2 data-i18n="dash_assigned_taxes">Assigned Taxes & Assessments</h2>
+                            <p data-i18n="dash_assigned_desc">Select an item to pay online or download the assessment notice.</p>
                         </div>
                         <div class="tax-list" id="dashTaxList">
                             <!-- Injected via JS -->
@@ -214,7 +221,7 @@
 
                     <div class="card-section">
                         <div class="section-header">
-                            <h2>Recent Activity</h2>
+                            <h2 data-i18n="dash_recent_activity">Recent Activity</h2>
                         </div>
                         <div class="activity-list" id="dashActivityList">
                             <!-- Injected via JS -->
@@ -229,7 +236,7 @@
     <div class="modal-overlay" id="checkoutModal">
         <div class="modal" style="max-width: 650px;">
             <div class="modal-header">
-                <h2>Choose Payment Method</h2>
+                <h2 data-i18n="checkout_title">Choose Payment Method</h2>
                 <button class="icon-btn close-modal" id="closeCheckoutBtn">
                     <i data-feather="x"></i>
                 </button>
@@ -239,105 +246,105 @@
                 <div class="checkout-grid">
                     <div class="checkout-card active" data-method="paystack">
                         <i data-feather="credit-card"></i>
-                        <h4>Pay Online</h4>
-                        <p>Instant verification via Card/USSD/Bank</p>
+                        <h4 data-i18n="pay_online_title">Pay Online</h4>
+                        <p data-i18n="pay_online_desc">Instant verification via Card/USSD/Bank</p>
                     </div>
                     <div class="checkout-card" data-method="transfer">
                         <i data-feather="repeat"></i>
-                        <h4>Bank Transfer</h4>
-                        <p>Direct manual mobile transfer</p>
+                        <h4 data-i18n="bank_transfer_title">Bank Transfer</h4>
+                        <p data-i18n="bank_transfer_desc">Direct manual mobile transfer</p>
                     </div>
                     <div class="checkout-card" data-method="teller">
                         <i data-feather="file-text"></i>
-                        <h4>Bank Teller</h4>
-                        <p>Branch cash deposit upload</p>
+                        <h4 data-i18n="bank_teller_title">Bank Teller</h4>
+                        <p data-i18n="bank_teller_desc">Branch cash deposit upload</p>
                     </div>
                     <div class="checkout-card" data-method="cash">
                         <i data-feather="user"></i>
-                        <h4>LGA Cash Counter</h4>
-                        <p>Cash payment at LGA Office</p>
+                        <h4 data-i18n="cash_counter_title">LGA Cash Counter</h4>
+                        <p data-i18n="cash_counter_desc">Cash payment at LGA Office</p>
                     </div>
                 </div>
 
                 <!-- Paystack Info Panel -->
                 <div class="checkout-form-panel active" id="panel-paystack">
-                    <h3><i data-feather="credit-card"></i> Paystack Secure Payment</h3>
-                    <p class="instruction-text">You will be redirected to the secure Paystack gateway to make your payment instantly. Once paid, your digital receipt will be automatically generated.</p>
-                    <button class="btn btn-primary btn-block btn-lg" id="confirmPaystackBtn">Proceed to Pay Online</button>
+                    <h3><i data-feather="credit-card"></i> <span data-i18n="panel_paystack_title">Paystack Secure Payment</span></h3>
+                    <p class="instruction-text" data-i18n="panel_paystack_desc">You will be redirected to the secure Paystack gateway to make your payment instantly. Once paid, your digital receipt will be automatically generated.</p>
+                    <button class="btn btn-primary btn-block btn-lg" id="confirmPaystackBtn" data-i18n="panel_paystack_btn">Proceed to Pay Online</button>
                 </div>
 
                 <!-- Bank Transfer Form Panel -->
                 <div class="checkout-form-panel" id="panel-transfer">
-                    <h3><i data-feather="repeat"></i> Direct Bank Transfer</h3>
+                    <h3><i data-feather="repeat"></i> <span data-i18n="panel_transfer_title">Direct Bank Transfer</span></h3>
                     <div class="bank-details-box">
                         <div class="bank-detail-row">
-                            <span class="label">Bank Name</span>
+                            <span class="label" data-i18n="bank_name_label">Bank Name</span>
                             <span class="value">Zenith Bank Plc</span>
                         </div>
                         <div class="bank-detail-row">
-                            <span class="label">Account Name</span>
+                            <span class="label" data-i18n="bank_acc_name_label">Account Name</span>
                             <span class="value" id="transferAccName">Zamfara LGA Revenues</span>
                         </div>
                         <div class="bank-detail-row">
-                            <span class="label">Account Number</span>
+                            <span class="label" data-i18n="bank_acc_num_label">Account Number</span>
                             <span class="value">1012938483</span>
                         </div>
                     </div>
-                    <p class="instruction-text">Perform a bank transfer of the exact tax amount to the details above. Then, input your transfer details below for confirmation.</p>
+                    <p class="instruction-text" data-i18n="panel_transfer_desc">Perform a bank transfer of the exact tax amount to the details above. Then, input your transfer details below for confirmation.</p>
                     <form id="manualTransferForm">
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="transferRef">Transfer Ref / Transaction Session ID</label>
-                            <input type="text" id="transferRef" required placeholder="e.g. TX-12938473849929" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                            <label for="transferRef" data-i18n="transfer_ref_label">Transfer Ref / Transaction Session ID</label>
+                            <input type="text" id="transferRef" required placeholder="e.g. TX-12938473849929" data-i18n-placeholder="transfer_ref_placeholder" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="transferDepositor">Sender Account Name</label>
-                            <input type="text" id="transferDepositor" required placeholder="e.g. Bashir Sani" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                            <label for="transferDepositor" data-i18n="transfer_depositor_label">Sender Account Name</label>
+                            <input type="text" id="transferDepositor" required placeholder="e.g. Bashir Sani" data-i18n-placeholder="transfer_depositor_placeholder" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">Submit Transfer for Audit</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="transfer_submit_btn">Submit Transfer for Audit</button>
                     </form>
                 </div>
 
                 <!-- Bank Teller Form Panel -->
                 <div class="checkout-form-panel" id="panel-teller">
-                    <h3><i data-feather="file-text"></i> Branch Cash Deposit</h3>
+                    <h3><i data-feather="file-text"></i> <span data-i18n="panel_teller_title">Branch Cash Deposit</span></h3>
                     <div class="bank-details-box">
                         <div class="bank-detail-row">
-                            <span class="label">Bank Name</span>
+                            <span class="label" data-i18n="bank_name_label">Bank Name</span>
                             <span class="value">Zenith Bank Plc</span>
                         </div>
                         <div class="bank-detail-row">
-                            <span class="label">Account Name</span>
+                            <span class="label" data-i18n="bank_acc_name_label">Account Name</span>
                             <span class="value" id="tellerAccName">Zamfara LGA Revenues</span>
                         </div>
                         <div class="bank-detail-row">
-                            <span class="label">Account Number</span>
+                            <span class="label" data-i18n="bank_acc_num_label">Account Number</span>
                             <span class="value">1012938483</span>
                         </div>
                     </div>
-                    <p class="instruction-text">Deposit cash into the official bank account above, and submit your paper teller details below.</p>
+                    <p class="instruction-text" data-i18n="panel_teller_desc">Deposit cash into the official bank account above, and submit your paper teller details below.</p>
                     <form id="manualTellerForm">
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="tellerNumber">Teller Stamp / Serial Number</label>
-                            <input type="text" id="tellerNumber" required placeholder="e.g. TL-8839201" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                            <label for="tellerNumber" data-i18n="teller_num_label">Teller Stamp / Serial Number</label>
+                            <input type="text" id="tellerNumber" required placeholder="e.g. TL-8839201" data-i18n-placeholder="teller_num_placeholder" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
                         </div>
                         <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="tellerDepositor">Depositor Name</label>
-                            <input type="text" id="tellerDepositor" required placeholder="e.g. Sani & Sons Ltd" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                            <label for="tellerDepositor" data-i18n="teller_depositor_label">Depositor Name</label>
+                            <input type="text" id="tellerDepositor" required placeholder="e.g. Sani & Sons Ltd" data-i18n-placeholder="teller_depositor_placeholder" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
                         </div>
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">Submit Teller for Audit</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="teller_submit_btn">Submit Teller for Audit</button>
                     </form>
                 </div>
 
                 <!-- Cash Counter Panel -->
                 <div class="checkout-form-panel" id="panel-cash">
-                    <h3><i data-feather="user"></i> Cash at Counter</h3>
-                    <p class="instruction-text">Please visit your Local Government Secretariat's Revenue Office. Mention your unique **Invoice Reference / Business Name** at the counter to pay cash directly.</p>
+                    <h3><i data-feather="user"></i> <span data-i18n="panel_cash_title">Cash at Counter</span></h3>
+                    <p class="instruction-text" data-i18n="panel_cash_desc">Please visit your Local Government Secretariat's Revenue Office. Mention your unique **Invoice Reference / Business Name** at the counter to pay cash directly.</p>
                     <div class="bank-details-box" style="padding: 1.25rem;">
-                        <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; font-weight:700;">Nearest Collection Center</h4>
-                        <p style="margin:0 0 0.25rem 0; font-size:0.875rem;" id="cashLgaOffice">Gusau LGA Secretariat, Revenue Department</p>
-                        <p style="margin:0; font-size:0.75rem; color:var(--slate-500);">Hours: Mon – Fri, 8:00 AM – 4:00 PM WAT</p>
+                        <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; font-weight:700;" data-i18n="nearest_center_label">Nearest Collection Center</h4>
+                        <p style="margin:0 0 0.25rem 0; font-size:0.875rem;" id="cashLgaOffice">Gusau LGA Secretariat, Revenue Department Desk</p>
+                        <p style="margin:0; font-size:0.75rem; color:var(--slate-500);" data-i18n="cash_hours_label">Hours: Mon – Fri, 8:00 AM – 4:00 PM WAT</p>
                     </div>
-                    <button type="button" class="btn btn-outline btn-block btn-lg close-modal" id="confirmCashBtn">Got it, close checkout</button>
+                    <button type="button" class="btn btn-outline btn-block btn-lg close-modal" id="confirmCashBtn" data-i18n="cash_close_btn">Got it, close checkout</button>
                 </div>
             </div>
         </div>
@@ -347,13 +354,13 @@
     <div class="modal-overlay" id="reportModal">
         <div class="modal report-modal">
             <div class="modal-header no-print">
-                <h2>Tax Document</h2>
+                <h2 data-i18n="receipt_title">Tax Document</h2>
                 <div class="modal-header-actions">
                     <button class="btn btn-outline" id="printReportBtn">
-                        <i data-feather="printer"></i> Print
+                        <i data-feather="printer"></i> <span data-i18n="receipt_print_btn">Print</span>
                     </button>
                     <button class="btn btn-primary" id="downloadPdfBtn">
-                        <i data-feather="download"></i> PDF
+                        <i data-feather="download"></i> <span data-i18n="receipt_pdf_btn">PDF</span>
                     </button>
                     <button class="icon-btn close-modal">
                         <i data-feather="x"></i>
