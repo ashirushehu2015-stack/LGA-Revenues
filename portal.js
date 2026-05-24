@@ -579,6 +579,9 @@ function generateReceiptHTML(payer, tax) {
 
     const lgaHeader = `${(payer.lga || 'ZAMFARA').toUpperCase()} LGA`;
     const amount = tax.amountPaid || tax.amount;
+    
+    const verificationUrl = `${window.location.origin}/verify.html?ref=${encodeURIComponent(tax.paymentReference || tax.id)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
 
     return `
         <div class="receipt-container" id="receiptContent">
@@ -671,9 +674,9 @@ function generateReceiptHTML(payer, tax) {
                     <p>This is a computer-generated receipt and requires no signature.</p>
                     <p>Thank you for supporting the development of ${payer.lga} LGA.</p>
                 </div>
-                <div class="qr-placeholder">
-                    <div class="qr-code"></div>
-                    <span>VERIFIED</span>
+                <div class="qr-placeholder" style="border: none; background: transparent; text-align: center;">
+                    <img src="${qrUrl}" alt="Verification QR Code" style="width: 70px; height: 70px; display: block; margin: 0 auto 4px auto; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <span style="font-size: 8px; font-weight: 800; color: #10b981; letter-spacing: 1px;">VERIFIABLE</span>
                 </div>
             </div>
         </div>

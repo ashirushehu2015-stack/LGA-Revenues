@@ -695,7 +695,63 @@ app.get('/api/payer/profile', authenticateToken, async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
+});// --- Public Verification API ---
+app.get('/api/verify', async (req, res) => {
+    try {
+        const ref = req.query.ref;
+        if (!ref) {
+            return res.status(400).json({ success: false, message: 'Missing reference code' });
+        }
+
+        console.log(`[Public API] Verification request for reference: ${ref}`);
+
+        // Search by invoiceRef or within taxes JSON string
+        const matchedPayer = await dbQuery.get(
+            `SELECT * FROM revenues WHERE invoiceRef = ? OR taxes LIKE ?`,
+            [ref, `%${ref}%`]
+        );
+
+        if (matchedPayer) {
+            const taxes = matchedPayer.taxes ? JSON.parse(matchedPayer.taxes) : [];
+            
+            // Check if we matched a specific tax item's paymentReference or manualReference
+            let matchedTax = taxes.find(t => t.paymentReference === ref || t.manualReference === ref || t.id === ref);
+            
+            // If we didn't match a specific tax item (e.g. overall invoiceRef), return all taxes
+            if (!matchedTax && matchedPayer.invoiceRef === ref) {
+                const payerSafe = { ...matchedPayer };
+                delete payerSafe.password;
+                payerSafe.taxes = taxes;
+                return res.json({
+                    success: true,
+                    type: 'Invoice',
+                    status: matchedPayer.status,
+                    payer: payerSafe
+                });
+            }
+
+            if (matchedTax) {
+                const payerSafe = { ...matchedPayer };
+                delete payerSafe.password;
+                delete payerSafe.taxes;
+                
+                return res.json({
+                    success: true,
+                    type: 'Receipt',
+                    status: matchedTax.status,
+                    tax: matchedTax,
+                    payer: payerSafe
+                });
+            }
+        }
+
+        res.status(404).json({ success: false, message: 'Invalid reference number. Record not found.' });
+    } catch (err) {
+        console.error('[Verification API Error]', err);
+        res.status(500).json({ success: false, message: 'Server error during verification lookup' });
+    }
 });
+
 
 // --- Request Logger ---
 app.use((req, res, next) => {

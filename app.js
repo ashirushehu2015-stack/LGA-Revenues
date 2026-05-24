@@ -755,6 +755,9 @@ function generateReceiptHTML(payer, taxId) {
     const refStr = tax.paymentReference || 'N/A';
     const lgaHeader = `${(payer.lga || 'ZAMFARA').toUpperCase()} LGA`;
 
+    const verificationUrl = `${window.location.origin}/verify.html?ref=${encodeURIComponent(tax.paymentReference || tax.id)}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+
     return `
         <div class="printable-report receipt-mode">
             <div class="report-header">
@@ -812,16 +815,20 @@ function generateReceiptHTML(payer, taxId) {
                 <h2 style="font-size: 22px; font-weight: 900; color: #166534; margin: 5px 0;">₦${(tax.amountPaid || tax.amount).toLocaleString()}</h2>
             </div>
 
-            <div class="report-footer">
-                <div class="footer-note" style="background: #fff; border: 1px solid #eee; padding: 8px; border-radius: 4px;">
+            <div class="report-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                <div class="footer-note" style="background: #fff; border: 1px solid #eee; padding: 8px; border-radius: 4px; flex: 1; margin-right: 15px;">
                     <p>This is a digitally generated official receipt. <br> <strong>Security Code: ${Math.random().toString(36).substring(2, 10).toUpperCase()}</strong></p>
                 </div>
-                <div class="signature-area">
-                    <div class="signature-box">
-                        <div class="sig-line"></div>
-                        <p>Revenue Authority</p>
+                <div class="signature-area" style="display: flex; align-items: center; gap: 15px;">
+                    <div class="signature-box" style="text-align: center;">
+                        <div class="sig-line" style="border-top: 1px solid #cbd5e1; width: 80px; margin-bottom: 4px;"></div>
+                        <p style="font-size: 8px; margin: 0; color: #64748b;">Revenue Authority</p>
                     </div>
-                    <div class="stamp-box" style="color: #059669; border-color: #059669; opacity: 0.6;">PAID</div>
+                    <div class="stamp-box" style="color: #059669; border: 2px solid #059669; border-radius: 4px; padding: 4px 8px; font-weight: 800; font-size: 12px; transform: rotate(-5deg); opacity: 0.7;">PAID</div>
+                    <div class="qr-placeholder" style="text-align: center;">
+                        <img src="${qrUrl}" alt="Verification QR Code" style="width: 50px; height: 50px; display: block; margin: 0 auto 2px auto; border-radius: 3px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <span style="font-size: 7px; font-weight: 800; color: #10b981; letter-spacing: 0.5px;">VERIFY</span>
+                    </div>
                 </div>
             </div>
         </div>
