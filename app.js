@@ -337,11 +337,99 @@ async function fetchRevenues() {
         filteredTransactions = [...transactions]; // Sync filtered list
         updateDashboard();
         renderTable();
+        renderReconciliationWidget();
     } catch (error) {
         console.error('Error fetching revenues:', error);
         showToast('Server connection failed. Is the server running on port 3000?', 'error');
     }
 }
+
+function renderReconciliationWidget() {
+    const widget = document.getElementById('reconciliationWidget');
+    const tbody = document.getElementById('reconciliationWidgetBody');
+    if (!widget || !tbody) return;
+
+    // Aggregate all tax items that have status = 'Pending Verification'
+    const pendingItems = [];
+    transactions.forEach(payer => {
+        if (payer.taxes && Array.isArray(payer.taxes)) {
+            payer.taxes.forEach(tax => {
+                if (tax.status === 'Pending Verification') {
+                    pendingItems.push({
+                        payerId: payer.id,
+                        businessName: payer.businessName,
+                        taxId: tax.id,
+                        taxName: tax.name,
+                        amount: tax.manualAmount || tax.amount,
+                        reference: tax.manualReference || 'N/A',
+                        depositor: tax.manualDepositor || 'N/A',
+                        method: tax.manualMethod || 'Manual',
+                        date: tax.manualSubmissionDate ? new Date(tax.manualSubmissionDate).toLocaleDateString('en-GB') : 'N/A'
+                    });
+                }
+            });
+        }
+    });
+
+    if (pendingItems.length === 0) {
+        widget.style.display = 'none';
+        tbody.innerHTML = '';
+        return;
+    }
+
+    widget.style.display = 'block';
+    tbody.innerHTML = '';
+
+    pendingItems.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="fw-600">${item.businessName}</td>
+            <td>${item.taxName}</td>
+            <td class="fw-600">₦${item.amount.toLocaleString()}</td>
+            <td style="font-family: monospace; color: var(--primary); font-weight: 700;">${item.reference}</td>
+            <td>${item.depositor}</td>
+            <td><span class="status-badge" style="background: rgba(99,102,241,0.1); color:#4f46e5; border:1px solid rgba(99,102,241,0.2); padding:2px 8px; border-radius:4px; font-size:11px;">${item.method}</span></td>
+            <td>${item.date}</td>
+            <td style="text-align: center;">
+                <div style="display: inline-flex; gap: 0.5rem; justify-content: center;">
+                    <button class="btn btn-primary btn-sm btn-approve-manual" onclick="verifyManualPayment('${item.payerId}', '${item.taxId}', 'approve')" style="background-color: #10b981; border: none; padding: 6px 10px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;" title="Approve Payment">
+                        <i data-feather="check" style="width: 14px; height: 14px; color: white;"></i>
+                    </button>
+                    <button class="btn btn-outline btn-sm btn-reject-manual" onclick="verifyManualPayment('${item.payerId}', '${item.taxId}', 'reject')" style="border-color: #ef4444; color: #ef4444; background: transparent; padding: 6px 10px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer;" title="Reject Payment">
+                        <i data-feather="x" style="width: 14px; height: 14px;"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    feather.replace();
+}
+
+window.verifyManualPayment = async function(payerId, taxId, action) {
+    const confirmation = confirm(`Are you sure you want to ${action} this payment submission?`);
+    if (!confirmation) return;
+
+    try {
+        const response = await LgaConnection.apiFetch('/api/payments/verify-manual', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: payerId, taxId: taxId, action: action })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showToast(`Payment successfully ${action}d!`, action === 'approve' ? 'success' : 'info');
+            fetchRevenues(); // Refresh everything
+        } else {
+            showToast(`Verification failed: ${data.message}`, 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Server communication failed.', 'error');
+    }
+};
 
 // Removed old population logic (now handled by fetchTaxRates)
 
@@ -538,11 +626,11 @@ function updateDashboard() {
 
         let pctText = '';
         if (isPositive) {
-            pctText = `+${pct.toFixed(1)}%`;
+            pctText = `+${pct.toFixed(1)}`;
         } else if (isNegative) {
-            pctText = `${pct.toFixed(1)}%`;
+            pctText = `${pct.toFixed(1)}`;
         } else {
-            pctText = '0.0%';
+            pctText = '0.0';
         }
 
         let iconName = 'minus';

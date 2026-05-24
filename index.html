@@ -243,6 +243,42 @@
                     </div>
                 </div>
 
+                <!-- Manual Payments Reconciliation Widget -->
+                <div class="table-container" id="reconciliationWidget" style="margin-bottom: 1.5rem; display: none;">
+                    <div class="table-header">
+                        <div style="display:flex;align-items:center;gap:0.75rem;">
+                            <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#4f46e5);display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(99,102,241,0.3);">
+                                <i data-feather="repeat" style="width:20px;height:20px;"></i>
+                            </div>
+                            <div>
+                                <h2 style="font-size:1rem;">Manual Payment Approvals</h2>
+                                <p style="font-size: 0.75rem; color: var(--slate-400); margin-top: 2px;">
+                                    Verify bank transfers and branch cash teller deposits uploaded by taxpayers.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="reconciliationTable">
+                            <thead>
+                                <tr>
+                                    <th>Business Name</th>
+                                    <th>Tax Description</th>
+                                    <th>Amount</th>
+                                    <th>Reference ID</th>
+                                    <th>Depositor Name</th>
+                                    <th>Payment Channel</th>
+                                    <th>Submitted Date</th>
+                                    <th style="text-align: center;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reconciliationWidgetBody">
+                                <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--slate-400);font-size:0.875rem;">Loading reconciliations...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <!-- Recent Transactions Table -->
                 <div class="table-container">
                     <div class="table-header">

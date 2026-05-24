@@ -331,6 +331,139 @@ app.post('/api/payments/verify/:reference', (req, res) => {
     });
 });
 
+// --- Manual Payments API ---
+app.post('/api/payments/submit-manual', (req, res) => {
+    try {
+        const { id, taxId, paymentMethod, reference, depositorName, amount } = req.body;
+        if (!id || !taxId || !paymentMethod || !reference) {
+            return res.status(400).json({ success: false, message: 'Missing required parameters' });
+        }
+
+        const revenues = readJsonFile(revenuesFile);
+        const payerIndex = revenues.findIndex(r => r.id === id);
+
+        if (payerIndex !== -1) {
+            const payer = revenues[payerIndex];
+            if (!payer.taxes) payer.taxes = [];
+            const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+
+            if (taxIndex !== -1) {
+                // Update specific tax item
+                payer.taxes[taxIndex].status = 'Pending Verification';
+                payer.taxes[taxIndex].manualMethod = paymentMethod;
+                payer.taxes[taxIndex].manualReference = reference;
+                payer.taxes[taxIndex].manualDepositor = depositorName || '';
+                payer.taxes[taxIndex].manualAmount = parseFloat(amount) || payer.taxes[taxIndex].amount;
+                payer.taxes[taxIndex].manualSubmissionDate = new Date().toISOString();
+
+                // Overall taxpayer status update
+                const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                if (allPaid) {
+                    payer.status = 'Paid';
+                } else {
+                    const hasPendingVerification = payer.taxes.some(tx => tx.status === 'Pending Verification');
+                    payer.status = hasPendingVerification ? 'Pending Verification' : 'Partial';
+                }
+
+                writeJsonFile(revenuesFile, revenues);
+
+                // Simulated SMS
+                if (payer.phoneNumber) {
+                    const msg = `LGA RevMax: Payment details uploaded for ${payer.taxes[taxIndex].name}. Method: ${paymentMethod}. Reference: ${reference}. Undergoing audit verification.`;
+                    smsHelper.send(payer.phoneNumber, msg, 'Payment Upload');
+                }
+
+                return res.json({ success: true, message: 'Manual payment submitted for audit', payer });
+            } else {
+                return res.status(404).json({ success: false, message: 'Tax item not found in payer profile' });
+            }
+        } else {
+            return res.status(404).json({ success: false, message: 'Payer profile not found' });
+        }
+    } catch (error) {
+        console.error('Error submitting manual payment:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.post('/api/payments/verify-manual', (req, res) => {
+    try {
+        const { id, taxId, action } = req.body;
+        if (!id || !taxId || !action) {
+            return res.status(400).json({ success: false, message: 'Missing parameters' });
+        }
+
+        const revenues = readJsonFile(revenuesFile);
+        const payerIndex = revenues.findIndex(r => r.id === id);
+
+        if (payerIndex !== -1) {
+            const payer = revenues[payerIndex];
+            if (!payer.taxes) payer.taxes = [];
+            const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+
+            if (taxIndex !== -1) {
+                const taxItem = payer.taxes[taxIndex];
+
+                if (action === 'approve') {
+                    // Confirm payment
+                    taxItem.status = 'Paid';
+                    taxItem.paymentReference = taxItem.manualReference || `MANUAL-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+                    taxItem.paymentDate = new Date().toISOString();
+                    taxItem.amountPaid = taxItem.manualAmount || taxItem.amount;
+
+                    // Trigger official confirmation SMS
+                    if (payer.phoneNumber) {
+                        const msg = `LGA RevMax: Payment confirmed! ₦${taxItem.amountPaid.toLocaleString()} verified for ${taxItem.name} via ${taxItem.manualMethod || 'Manual'}. Receipt Ref: ${taxItem.paymentReference}. Thank you!`;
+                        smsHelper.send(payer.phoneNumber, msg, 'Payment');
+                    }
+                } else if (action === 'reject') {
+                    // Reject payment and reset back to Pending
+                    taxItem.status = 'Pending';
+                    const rejectedRef = taxItem.manualReference;
+                    
+                    // Clear manual verification tags
+                    delete taxItem.manualMethod;
+                    delete taxItem.manualReference;
+                    delete taxItem.manualDepositor;
+                    delete taxItem.manualAmount;
+                    delete taxItem.manualSubmissionDate;
+
+                    if (payer.phoneNumber) {
+                        const msg = `LGA RevMax: Payment audit failed for ${taxItem.name}. Reference ${rejectedRef} could not be verified in our records. Please contact support.`;
+                        smsHelper.send(payer.phoneNumber, msg, 'Payment Rejection');
+                    }
+                }
+
+                // Recalculate global status
+                const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                if (allPaid) {
+                    payer.status = 'Paid';
+                } else {
+                    const hasPendingVerification = payer.taxes.some(tx => tx.status === 'Pending Verification');
+                    const hasPaid = payer.taxes.some(tx => tx.status === 'Paid');
+                    if (hasPendingVerification) {
+                        payer.status = 'Pending Verification';
+                    } else if (hasPaid) {
+                        payer.status = 'Partial';
+                    } else {
+                        payer.status = 'Pending';
+                    }
+                }
+
+                writeJsonFile(revenuesFile, revenues);
+                return res.json({ success: true, message: `Payment audit ${action}d successfully`, payer });
+            } else {
+                return res.status(404).json({ success: false, message: 'Tax item not found in profile' });
+            }
+        } else {
+            return res.status(404).json({ success: false, message: 'Payer profile not found' });
+        }
+    } catch (error) {
+        console.error('Error verifying manual payment:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // --- Settings API ---
 app.post('/api/settings/paystack', (req, res) => {
     const { secretKey, publicKey, mode } = req.body;

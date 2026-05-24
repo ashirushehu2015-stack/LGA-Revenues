@@ -225,6 +225,124 @@
         </main>
     </div>
 
+    <!-- Checkout Modal (Multi-Method Selector) -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal" style="max-width: 650px;">
+            <div class="modal-header">
+                <h2>Choose Payment Method</h2>
+                <button class="icon-btn close-modal" id="closeCheckoutBtn">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <div class="modal-body checkout-modal-body">
+                <!-- Payment Methods Grid -->
+                <div class="checkout-grid">
+                    <div class="checkout-card active" data-method="paystack">
+                        <i data-feather="credit-card"></i>
+                        <h4>Pay Online</h4>
+                        <p>Instant verification via Card/USSD/Bank</p>
+                    </div>
+                    <div class="checkout-card" data-method="transfer">
+                        <i data-feather="repeat"></i>
+                        <h4>Bank Transfer</h4>
+                        <p>Direct manual mobile transfer</p>
+                    </div>
+                    <div class="checkout-card" data-method="teller">
+                        <i data-feather="file-text"></i>
+                        <h4>Bank Teller</h4>
+                        <p>Branch cash deposit upload</p>
+                    </div>
+                    <div class="checkout-card" data-method="cash">
+                        <i data-feather="user"></i>
+                        <h4>LGA Cash Counter</h4>
+                        <p>Cash payment at LGA Office</p>
+                    </div>
+                </div>
+
+                <!-- Paystack Info Panel -->
+                <div class="checkout-form-panel active" id="panel-paystack">
+                    <h3><i data-feather="credit-card"></i> Paystack Secure Payment</h3>
+                    <p class="instruction-text">You will be redirected to the secure Paystack gateway to make your payment instantly. Once paid, your digital receipt will be automatically generated.</p>
+                    <button class="btn btn-primary btn-block btn-lg" id="confirmPaystackBtn">Proceed to Pay Online</button>
+                </div>
+
+                <!-- Bank Transfer Form Panel -->
+                <div class="checkout-form-panel" id="panel-transfer">
+                    <h3><i data-feather="repeat"></i> Direct Bank Transfer</h3>
+                    <div class="bank-details-box">
+                        <div class="bank-detail-row">
+                            <span class="label">Bank Name</span>
+                            <span class="value">Zenith Bank Plc</span>
+                        </div>
+                        <div class="bank-detail-row">
+                            <span class="label">Account Name</span>
+                            <span class="value" id="transferAccName">Zamfara LGA Revenues</span>
+                        </div>
+                        <div class="bank-detail-row">
+                            <span class="label">Account Number</span>
+                            <span class="value">1012938483</span>
+                        </div>
+                    </div>
+                    <p class="instruction-text">Perform a bank transfer of the exact tax amount to the details above. Then, input your transfer details below for confirmation.</p>
+                    <form id="manualTransferForm">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="transferRef">Transfer Ref / Transaction Session ID</label>
+                            <input type="text" id="transferRef" required placeholder="e.g. TX-12938473849929" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="transferDepositor">Sender Account Name</label>
+                            <input type="text" id="transferDepositor" required placeholder="e.g. Bashir Sani" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Submit Transfer for Audit</button>
+                    </form>
+                </div>
+
+                <!-- Bank Teller Form Panel -->
+                <div class="checkout-form-panel" id="panel-teller">
+                    <h3><i data-feather="file-text"></i> Branch Cash Deposit</h3>
+                    <div class="bank-details-box">
+                        <div class="bank-detail-row">
+                            <span class="label">Bank Name</span>
+                            <span class="value">Zenith Bank Plc</span>
+                        </div>
+                        <div class="bank-detail-row">
+                            <span class="label">Account Name</span>
+                            <span class="value" id="tellerAccName">Zamfara LGA Revenues</span>
+                        </div>
+                        <div class="bank-detail-row">
+                            <span class="label">Account Number</span>
+                            <span class="value">1012938483</span>
+                        </div>
+                    </div>
+                    <p class="instruction-text">Deposit cash into the official bank account above, and submit your paper teller details below.</p>
+                    <form id="manualTellerForm">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="tellerNumber">Teller Stamp / Serial Number</label>
+                            <input type="text" id="tellerNumber" required placeholder="e.g. TL-8839201" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label for="tellerDepositor">Depositor Name</label>
+                            <input type="text" id="tellerDepositor" required placeholder="e.g. Sani & Sons Ltd" style="width:100%; padding:0.75rem; border-radius:0.5rem; border:1px solid var(--slate-200); font-family:inherit;">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Submit Teller for Audit</button>
+                    </form>
+                </div>
+
+                <!-- Cash Counter Panel -->
+                <div class="checkout-form-panel" id="panel-cash">
+                    <h3><i data-feather="user"></i> Cash at Counter</h3>
+                    <p class="instruction-text">Please visit your Local Government Secretariat's Revenue Office. Mention your unique **Invoice Reference / Business Name** at the counter to pay cash directly.</p>
+                    <div class="bank-details-box" style="padding: 1.25rem;">
+                        <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem; font-weight:700;">Nearest Collection Center</h4>
+                        <p style="margin:0 0 0.25rem 0; font-size:0.875rem;" id="cashLgaOffice">Gusau LGA Secretariat, Revenue Department</p>
+                        <p style="margin:0; font-size:0.75rem; color:var(--slate-500);">Hours: Mon – Fri, 8:00 AM – 4:00 PM WAT</p>
+                    </div>
+                    <button type="button" class="btn btn-outline btn-block btn-lg close-modal" id="confirmCashBtn">Got it, close checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Report Modal (For Receipts/Invoices) -->
     <div class="modal-overlay" id="reportModal">
         <div class="modal report-modal">

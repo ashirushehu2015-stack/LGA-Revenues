@@ -252,7 +252,7 @@
     "contactPerson": "Aliyu Digital",
     "addressCp": "No 1 Digital Way",
     "phoneNumber": "08012345678",
-    "status": "Active",
+    "status": "Paid",
     "origin": "Portal",
     "taxes": [
       {
@@ -261,7 +261,15 @@
         "amount": 10000,
         "rateType": "Flat",
         "duration": "Yearly",
-        "status": "Pending"
+        "status": "Paid",
+        "manualMethod": "Bank Transfer",
+        "manualReference": "TX-ZENITH-998822",
+        "manualDepositor": "Aliyu Tech",
+        "manualAmount": 10000,
+        "manualSubmissionDate": "2026-05-24T10:27:05.303Z",
+        "paymentReference": "TX-ZENITH-998822",
+        "paymentDate": "2026-05-24T10:27:21.534Z",
+        "amountPaid": 10000
       }
     ],
     "invoiceRef": "LGA/REV/2026/GRBV"
@@ -416,5 +424,30 @@
       }
     ],
     "invoiceRef": "LGA/REV/2026/TVP8"
+  },
+  {
+    "id": "1779617290761",
+    "businessName": "Computer Center ",
+    "businessAddress": "danbako area",
+    "lga": "Gummi",
+    "lineOfBusiness": "services",
+    "contactPerson": "Mubarak Anka",
+    "addressCp": "admin",
+    "phoneNumber": "091777777777",
+    "password": "0000000",
+    "status": "Active",
+    "origin": "Portal",
+    "taxes": [
+      {
+        "id": "tax-7c8obud",
+        "name": "Tenement Rates - Private",
+        "amount": 91358,
+        "rateType": "Percentage",
+        "assessmentValue": 456789000,
+        "duration": "Yearly",
+        "status": "Pending"
+      }
+    ],
+    "invoiceRef": "LGA/REV/2026/ZA0S"
   }
 ]

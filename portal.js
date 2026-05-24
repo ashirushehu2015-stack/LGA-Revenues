@@ -326,6 +326,137 @@ function renderPayerTaxes() {
     feather.replace();
 }
 
+let activeTaxId = null;
+let activeAmountToPay = 0;
+
+// Initialize Checkout Selector Observers
+document.addEventListener('DOMContentLoaded', () => {
+    const checkoutModal = document.getElementById('checkoutModal');
+    const closeCheckoutBtn = document.getElementById('closeCheckoutBtn');
+    
+    if (checkoutModal) {
+        // Tab / Card Switching logic
+        const checkoutCards = checkoutModal.querySelectorAll('.checkout-card');
+        checkoutCards.forEach(card => {
+            card.addEventListener('click', () => {
+                checkoutCards.forEach(c => c.classList.remove('active'));
+                checkoutModal.querySelectorAll('.checkout-form-panel').forEach(p => p.classList.remove('active'));
+                
+                card.classList.add('active');
+                const method = card.dataset.method;
+                const panel = document.getElementById(`panel-${method}`);
+                if (panel) panel.classList.add('active');
+            });
+        });
+
+        // Close Modal events
+        const closeAllCheckouts = () => {
+            checkoutModal.classList.remove('active');
+            activeTaxId = null;
+            activeAmountToPay = 0;
+            // Clear forms
+            document.getElementById('manualTransferForm')?.reset();
+            document.getElementById('manualTellerForm')?.reset();
+        };
+
+        closeCheckoutBtn?.addEventListener('click', closeAllCheckouts);
+        checkoutModal.addEventListener('click', (e) => {
+            if (e.target === checkoutModal) closeAllCheckouts();
+        });
+
+        // Close modal selectors inside panels
+        checkoutModal.querySelectorAll('.close-modal').forEach(btn => {
+            btn.addEventListener('click', closeAllCheckouts);
+        });
+
+        // Paystack Trigger inside checkout modal
+        const confirmPaystackBtn = document.getElementById('confirmPaystackBtn');
+        confirmPaystackBtn?.addEventListener('click', () => {
+            if (!activeTaxId || activeAmountToPay <= 0) return;
+            checkoutModal.classList.remove('active');
+            triggerPaystackCheckout(activeTaxId, activeAmountToPay);
+        });
+
+        // Manual Bank Transfer Submit
+        const transferForm = document.getElementById('manualTransferForm');
+        transferForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ref = document.getElementById('transferRef').value.trim();
+            const depositor = document.getElementById('transferDepositor').value.trim();
+            
+            if (!ref || !depositor) {
+                alert('Please fill out all fields.');
+                return;
+            }
+
+            try {
+                const response = await LgaConnection.apiFetch('/api/payments/submit-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: currentPayer.id,
+                        taxId: activeTaxId,
+                        paymentMethod: 'Bank Transfer',
+                        reference: ref,
+                        depositorName: depositor,
+                        amount: activeAmountToPay
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Manual payment transfer reference submitted successfully! Our auditors will confirm this shortly.');
+                    location.reload();
+                } else {
+                    alert(`Error submitting details: ${data.message}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Could not communicate with the server. Is the server running?');
+            }
+        });
+
+        // Manual Bank Teller Submit
+        const tellerForm = document.getElementById('manualTellerForm');
+        tellerForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ref = document.getElementById('tellerNumber').value.trim();
+            const depositor = document.getElementById('tellerDepositor').value.trim();
+            
+            if (!ref || !depositor) {
+                alert('Please fill out all fields.');
+                return;
+            }
+
+            try {
+                const response = await LgaConnection.apiFetch('/api/payments/submit-manual', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: currentPayer.id,
+                        taxId: activeTaxId,
+                        paymentMethod: 'Bank Teller',
+                        reference: ref,
+                        depositorName: depositor,
+                        amount: activeAmountToPay
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Bank Teller serial details submitted successfully! Verification is in progress.');
+                    location.reload();
+                } else {
+                    alert(`Error submitting teller: ${data.message}`);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Communication error. Please check your network.');
+            }
+        });
+    }
+});
+
 window.payTax = function(taxId) {
     const tax = currentPayer.taxes.find(t => t.id === taxId);
     if (!tax) return;
@@ -343,6 +474,34 @@ window.payTax = function(taxId) {
         }
     }
 
+    // Set globally for checkout forms
+    activeTaxId = taxId;
+    activeAmountToPay = amountToPay;
+
+    // Populate Context Names in checkout details dynamically
+    const lgaName = currentPayer.lga || 'Zamfara';
+    const transferAccName = document.getElementById('transferAccName');
+    const tellerAccName = document.getElementById('tellerAccName');
+    const cashLgaOffice = document.getElementById('cashLgaOffice');
+
+    if (transferAccName) transferAccName.textContent = `${lgaName} LGA Revenue Account`;
+    if (tellerAccName) tellerAccName.textContent = `${lgaName} LGA Revenue Account`;
+    if (cashLgaOffice) cashLgaOffice.textContent = `${lgaName} LGA Secretariat, Revenue Department Desk`;
+
+    // Reset checkout forms to default (Online Paystack active)
+    const checkoutModal = document.getElementById('checkoutModal');
+    if (checkoutModal) {
+        checkoutModal.querySelectorAll('.checkout-card').forEach(c => c.classList.remove('active'));
+        checkoutModal.querySelectorAll('.checkout-form-panel').forEach(p => p.classList.remove('active'));
+        
+        checkoutModal.querySelector('.checkout-card[data-method="paystack"]')?.classList.add('active');
+        document.getElementById('panel-paystack')?.classList.add('active');
+        
+        checkoutModal.classList.add('active');
+    }
+};
+
+function triggerPaystackCheckout(taxId, amountToPay) {
     const amountKobo = amountToPay * 100;
 
     const handler = PaystackPop.setup({
@@ -355,7 +514,7 @@ window.payTax = function(taxId) {
         }
     });
     handler.openIframe();
-};
+}
 
 async function verifyPayment(ref, taxId, amount) {
     const res = await LgaConnection.apiFetch(`/api/payments/verify/${ref}?id=${currentPayer.id}&taxId=${taxId}&amount=${amount}`, { method: 'POST' });
