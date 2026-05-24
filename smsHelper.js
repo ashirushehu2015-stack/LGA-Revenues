@@ -1,25 +1,13 @@
 /**
  * LGA RevMax SMS Helper Module
- * Handles automated notifications for taxpayers and admins.
- * Supports simulation mode and external API integration (Termii/Twilio).
+ * Handles automated notifications for taxpayers and admins using SQLite for unified storage.
  */
 
-const fs = require('fs');
-const path = require('path');
-
-const SMS_LOG_FILE = path.join(__dirname, 'data', 'sms_notifications.json');
-
-// Ensure data directory and log file exist
-if (!fs.existsSync(path.join(__dirname, 'data'))) {
-    fs.mkdirSync(path.join(__dirname, 'data'));
-}
-if (!fs.existsSync(SMS_LOG_FILE)) {
-    fs.writeFileSync(SMS_LOG_FILE, JSON.stringify([], null, 2));
-}
+const { dbQuery } = require('./db');
 
 const smsHelper = {
     /**
-     * Send an SMS notification
+     * Send an SMS notification and save it to SQLite.
      * @param {string} to - Recipient phone number
      * @param {string} message - Message content
      * @param {string} type - Notification type (Registration, Payment, Reminder)
@@ -27,24 +15,15 @@ const smsHelper = {
     send: async (to, message, type = 'Notification') => {
         console.log(`[SMS] Sending to ${to}: ${message}`);
 
-        const notification = {
-            id: Date.now(),
-            to,
-            message,
-            type,
-            timestamp: new Date().toISOString(),
-            status: 'Delivered' // Simulated
-        };
+        const timestamp = new Date().toISOString();
+        const status = 'Delivered'; // Simulated
 
         try {
-            const logs = JSON.parse(fs.readFileSync(SMS_LOG_FILE));
-            logs.unshift(notification); // Newest first
-            fs.writeFileSync(SMS_LOG_FILE, JSON.stringify(logs.slice(0, 500), null, 2)); // Keep last 500
-            
-            // Here you would normally integrate with an API like Termii:
-            // await axios.post('https://api.ng.termii.com/api/sms/send', { ... });
-            
-            return { success: true, ref: notification.id };
+            await dbQuery.run(
+                `INSERT INTO sms_notifications (to_phone, message, type, timestamp, status) VALUES (?, ?, ?, ?, ?)`,
+                [to, message, type, timestamp, status]
+            );
+            return { success: true };
         } catch (err) {
             console.error('[SMS Error]', err);
             return { success: false, error: err.message };
@@ -52,12 +31,19 @@ const smsHelper = {
     },
 
     /**
-     * Get recent notifications
+     * Get recent notifications from SQLite (Newest first, capped at 500)
      */
-    getLogs: () => {
+    getLogs: async () => {
         try {
-            return JSON.parse(fs.readFileSync(SMS_LOG_FILE));
+            const rows = await dbQuery.all(`
+                SELECT to_phone as "to", message, type, timestamp, status 
+                FROM sms_notifications 
+                ORDER BY id DESC 
+                LIMIT 500
+            `);
+            return rows;
         } catch (err) {
+            console.error('[SMS Get Logs Error]', err);
             return [];
         }
     }

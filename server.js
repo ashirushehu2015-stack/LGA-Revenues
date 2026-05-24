@@ -6,6 +6,7 @@ const axios = require('axios');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const smsHelper = require('./smsHelper');
+const { dbQuery } = require('./db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'lga_revmax_secure_secret_key_2026_zamfara';
 
@@ -46,30 +47,9 @@ app.use((err, req, res, next) => {
     next();
 });
 
-// Data file paths
 const dataDir = path.join(__dirname, 'data');
-const revenuesFile = path.join(dataDir, 'revenues.json');
-const usersFile = path.join(dataDir, 'users.json');
 
-// Ensure data directory and files exist
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-if (!fs.existsSync(revenuesFile)) fs.writeFileSync(revenuesFile, JSON.stringify([]));
-if (!fs.existsSync(usersFile)) {
-    fs.writeFileSync(usersFile, JSON.stringify([
-        {
-            id: '1',
-            name: 'Super Admin',
-            username: 'admin',
-            password: 'password123',
-            email: 'admin@zamfara.gov.ng',
-            role: 'Super Admin',
-            lga: 'System-wide',
-            status: 'Active'
-        }
-    ], null, 2));
-}
-
-// Helpers
+// Helpers for remaining JSON operations (e.g. read-only tax rates)
 function readJsonFile(filePath) {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
@@ -78,47 +58,6 @@ function readJsonFile(filePath) {
         return [];
     }
 }
-
-function writeJsonFile(filePath, data) {
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-}
-
-// Auto-migrate any plain-text passwords in users.json and revenues.json to Bcrypt hashes
-function securePlaintextPasswords() {
-    try {
-        let updated = false;
-
-        // 1. Migrate users
-        const users = readJsonFile(usersFile);
-        users.forEach(u => {
-            if (u.password && !u.password.startsWith('$2b$')) {
-                u.password = bcrypt.hashSync(u.password, 10);
-                updated = true;
-                console.log(`[Security] Migrated admin password for user: ${u.username}`);
-            }
-        });
-        if (updated) {
-            writeJsonFile(usersFile, users);
-            updated = false;
-        }
-
-        // 2. Migrate taxpayers/payers
-        const revenues = readJsonFile(revenuesFile);
-        revenues.forEach(r => {
-            if (r.password && !r.password.startsWith('$2b$')) {
-                r.password = bcrypt.hashSync(r.password, 10);
-                updated = true;
-                console.log(`[Security] Migrated portal password for business: ${r.businessName}`);
-            }
-        });
-        if (updated) {
-            writeJsonFile(revenuesFile, revenues);
-        }
-    } catch (err) {
-        console.error('[Security Error] Failed to auto-migrate passwords:', err);
-    }
-}
-securePlaintextPasswords();
 
 // --- Security Middleware: JWT Auth ---
 function authenticateToken(req, res, next) {
@@ -146,31 +85,38 @@ app.get('/api/tax-rates', (req, res) => {
 });
 
 // --- Revenues API ---
-app.get('/api/revenues', authenticateToken, (req, res) => {
-    let revenues = readJsonFile(revenuesFile);
-    console.log(`[API] Fetching revenues. Query LGA: ${req.query.lga}`);
-    
-    // Optional LGA filter for role-based access
-    if (req.query.lga && req.query.lga !== 'System-wide') {
-        const filterLga = req.query.lga.toLowerCase().trim();
-        revenues = revenues.filter(r => {
-            const recordLga = (r.lga || r.city || '').toLowerCase().trim();
-            return recordLga === filterLga;
+app.get('/api/revenues', authenticateToken, async (req, res) => {
+    try {
+        console.log(`[API] Fetching revenues from SQLite. Query LGA: ${req.query.lga}`);
+        let query = 'SELECT * FROM revenues WHERE 1=1';
+        const params = [];
+
+        if (req.query.lga && req.query.lga !== 'System-wide') {
+            query += ' AND LOWER(TRIM(lga)) = LOWER(TRIM(?))';
+            params.push(req.query.lga);
+        }
+        if (req.query.capturedBy) {
+            query += ' AND capturedBy = ?';
+            params.push(req.query.capturedBy);
+        }
+
+        const rows = await dbQuery.all(query, params);
+        const revenues = rows.map(r => {
+            return {
+                ...r,
+                taxes: r.taxes ? JSON.parse(r.taxes) : []
+            };
         });
-        console.log(`[API] Filtered to ${revenues.length} records for LGA: ${filterLga}`);
+        res.json(revenues);
+    } catch (error) {
+        console.error('Error fetching revenues:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
-    // Individual capture filter
-    if (req.query.capturedBy) {
-        revenues = revenues.filter(r => String(r.capturedBy) === String(req.query.capturedBy));
-        console.log(`[API] Further filtered by capturedBy: ${req.query.capturedBy}. Result: ${revenues.length}`);
-    }
-    res.json(revenues);
 });
 
-app.post('/api/revenues', (req, res) => {
+app.post('/api/revenues', async (req, res) => {
     try {
         const newRevenues = Array.isArray(req.body) ? req.body : [req.body];
-        const revenues = readJsonFile(revenuesFile);
         
         // Add unique Invoice Reference to each new record if it doesn't have one
         const processedRevenues = newRevenues.map(r => {
@@ -183,103 +129,200 @@ app.post('/api/revenues', (req, res) => {
         });
 
         if (req.query.overwrite === 'true') {
-            writeJsonFile(revenuesFile, processedRevenues);
-            res.json({ success: true, message: 'Revenues overwritten', count: processedRevenues.length });
-        } else {
-            revenues.push(...processedRevenues);
-            writeJsonFile(revenuesFile, revenues);
-            
-            // Trigger Registration SMS for each new record
-            processedRevenues.forEach(r => {
-                if (r.phoneNumber) {
-                    const hostUrl = req.protocol + '://' + req.get('host');
-                    const msg = `LGA RevMax: Welcome ${r.businessName}! Your Invoice Ref is ${r.invoiceRef}. Total taxes assigned: ${r.taxes ? r.taxes.length : 0}. Access portal at: ${hostUrl}/portal.html`;
-                    smsHelper.send(r.phoneNumber, msg, 'Registration');
-                }
-            });
-
-            res.json({ success: true, message: 'Revenues added', added: processedRevenues.length, added_ref: processedRevenues[0]?.invoiceRef });
+            await dbQuery.run('DELETE FROM revenues');
         }
+
+        for (const r of processedRevenues) {
+            const taxesStr = r.taxes ? JSON.stringify(r.taxes) : JSON.stringify([]);
+            
+            // Generate standard passwords if none specified
+            let pwd = r.password;
+            if (!pwd) pwd = r.phoneNumber || '0000000';
+            
+            // Hash password if plain text
+            if (pwd && !pwd.startsWith('$2b$')) {
+                pwd = bcrypt.hashSync(pwd, 10);
+            }
+
+            await dbQuery.run(
+                `INSERT OR REPLACE INTO revenues (id, businessName, businessAddress, lga, areaClass, lineOfBusiness, contactPerson, addressCp, phoneNumber, status, assignedTax, chargeRate, origin, invoiceRef, password, capturedBy, capturedByName, taxes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    r.id || Date.now().toString() + Math.random().toString(36).substring(2, 5),
+                    r.businessName || '',
+                    r.businessAddress || '',
+                    r.lga || '',
+                    r.areaClass || '',
+                    r.lineOfBusiness || '',
+                    r.contactPerson || '',
+                    r.addressCp || '',
+                    r.phoneNumber || '',
+                    r.status || 'Pending',
+                    r.assignedTax || '',
+                    r.chargeRate || '',
+                    r.origin || 'Admin',
+                    r.invoiceRef,
+                    pwd,
+                    r.capturedBy || null,
+                    r.capturedByName || null,
+                    taxesStr
+                ]
+            );
+
+            // Trigger Registration SMS for each new record
+            if (r.phoneNumber) {
+                const hostUrl = req.protocol + '://' + req.get('host');
+                const msg = `LGA RevMax: Welcome ${r.businessName}! Your Invoice Ref is ${r.invoiceRef}. Total taxes assigned: ${r.taxes ? r.taxes.length : 0}. Access portal at: ${hostUrl}/portal.html`;
+                smsHelper.send(r.phoneNumber, msg, 'Registration');
+            }
+        }
+
+        res.json({ success: true, message: 'Revenues added', added: processedRevenues.length, added_ref: processedRevenues[0]?.invoiceRef });
     } catch (error) {
         console.error('Error saving revenues:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-app.put('/api/revenues/:id', authenticateToken, (req, res) => {
+app.put('/api/revenues/:id', authenticateToken, async (req, res) => {
     try {
         const id = req.params.id;
         const updatedRecord = req.body;
-        const revenues = readJsonFile(revenuesFile);
-        const index = revenues.findIndex(r => r.id === id);
         
-        if (index !== -1) {
-            // Ensure we don't accidentally lose who captured the record if the update is partial
-            revenues[index] = { 
-                ...revenues[index], 
-                ...updatedRecord,
-                capturedBy: updatedRecord.capturedBy || revenues[index].capturedBy,
-                capturedByName: updatedRecord.capturedByName || revenues[index].capturedByName
-            };
-            writeJsonFile(revenuesFile, revenues);
-            res.json({ success: true, message: 'Revenue record updated', record: revenues[index] });
-        } else {
-            res.status(404).json({ success: false, message: 'Record not found' });
+        // Fetch existing record first
+        const existing = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [id]);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Record not found' });
         }
+
+        const taxesStr = updatedRecord.taxes ? JSON.stringify(updatedRecord.taxes) : existing.taxes;
+        
+        let pwd = updatedRecord.password;
+        if (pwd && !pwd.startsWith('$2b$')) {
+            pwd = bcrypt.hashSync(pwd, 10);
+        } else if (pwd === undefined) {
+            pwd = existing.password;
+        }
+
+        // Update in SQLite
+        await dbQuery.run(
+            `UPDATE revenues SET 
+                businessName = ?, 
+                businessAddress = ?, 
+                lga = ?, 
+                areaClass = ?, 
+                lineOfBusiness = ?, 
+                contactPerson = ?, 
+                addressCp = ?, 
+                phoneNumber = ?, 
+                status = ?, 
+                assignedTax = ?, 
+                chargeRate = ?, 
+                origin = ?, 
+                invoiceRef = ?, 
+                password = ?, 
+                capturedBy = ?, 
+                capturedByName = ?, 
+                taxes = ? 
+            WHERE id = ?`,
+            [
+                updatedRecord.businessName !== undefined ? updatedRecord.businessName : existing.businessName,
+                updatedRecord.businessAddress !== undefined ? updatedRecord.businessAddress : existing.businessAddress,
+                updatedRecord.lga !== undefined ? updatedRecord.lga : existing.lga,
+                updatedRecord.areaClass !== undefined ? updatedRecord.areaClass : existing.areaClass,
+                updatedRecord.lineOfBusiness !== undefined ? updatedRecord.lineOfBusiness : existing.lineOfBusiness,
+                updatedRecord.contactPerson !== undefined ? updatedRecord.contactPerson : existing.contactPerson,
+                updatedRecord.addressCp !== undefined ? updatedRecord.addressCp : existing.addressCp,
+                updatedRecord.phoneNumber !== undefined ? updatedRecord.phoneNumber : existing.phoneNumber,
+                updatedRecord.status !== undefined ? updatedRecord.status : existing.status,
+                updatedRecord.assignedTax !== undefined ? updatedRecord.assignedTax : existing.assignedTax,
+                updatedRecord.chargeRate !== undefined ? updatedRecord.chargeRate : existing.chargeRate,
+                updatedRecord.origin !== undefined ? updatedRecord.origin : existing.origin,
+                updatedRecord.invoiceRef !== undefined ? updatedRecord.invoiceRef : existing.invoiceRef,
+                pwd,
+                updatedRecord.capturedBy || existing.capturedBy,
+                updatedRecord.capturedByName || existing.capturedByName,
+                taxesStr,
+                id
+            ]
+        );
+
+        const record = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [id]);
+        if (record) {
+            record.taxes = JSON.parse(record.taxes);
+        }
+        res.json({ success: true, message: 'Revenue record updated', record });
     } catch (error) {
+        console.error('Error updating revenue:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
-app.delete('/api/revenues/:id', authenticateToken, (req, res) => {
+app.delete('/api/revenues/:id', authenticateToken, async (req, res) => {
     try {
         const id = req.params.id;
-        const revenues = readJsonFile(revenuesFile);
-        const newRevenues = revenues.filter(r => r.id !== id);
-        
-        if (newRevenues.length < revenues.length) {
-            writeJsonFile(revenuesFile, newRevenues);
+        const result = await dbQuery.run('DELETE FROM revenues WHERE id = ?', [id]);
+        if (result.changes > 0) {
             res.json({ success: true, message: 'Revenue record deleted' });
         } else {
             res.status(404).json({ success: false, message: 'Record not found' });
         }
     } catch (error) {
+        console.error('Error deleting revenue:', error);
         res.status(500).json({ success: false, message: error.message });
     }
 });
 
 // --- Users API ---
-app.get('/api/users', authenticateToken, (req, res) => {
-    const users = readJsonFile(usersFile);
-    res.json(users);
-});
-
-app.post('/api/users', authenticateToken, (req, res) => {
-    const newUser = req.body;
-    const users = readJsonFile(usersFile);
-    users.push(newUser);
-    writeJsonFile(usersFile, users);
-    res.json({ message: 'User added', user: newUser });
-});
-
-app.delete('/api/users/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    if (id === '1') {
-        return res.status(403).json({ message: 'Cannot delete Super Admin' });
+app.get('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const users = await dbQuery.all('SELECT * FROM users');
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-    let users = readJsonFile(usersFile);
-    const initialLength = users.length;
-    users = users.filter(u => u.id !== id);
-    if (users.length < initialLength) {
-        writeJsonFile(usersFile, users);
-        res.json({ message: 'User deleted' });
-    } else {
-        res.status(404).json({ message: 'User not found' });
+});
+
+app.post('/api/users', authenticateToken, async (req, res) => {
+    try {
+        const u = req.body;
+        if (!u.id) u.id = Date.now().toString();
+        
+        let pwd = u.password || 'password123';
+        if (pwd && !pwd.startsWith('$2b$')) {
+            pwd = bcrypt.hashSync(pwd, 10);
+        }
+
+        await dbQuery.run(
+            `INSERT INTO users (id, name, username, email, password, role, lga, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [u.id, u.name || '', u.username || '', u.email || '', pwd, u.role || 'Revenue Officer', u.lga || '', u.status || 'Active']
+        );
+        res.json({ message: 'User added', user: { ...u, password: pwd } });
+    } catch (error) {
+        console.error('Error adding user:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (id === '1') {
+            return res.status(403).json({ message: 'Cannot delete Super Admin' });
+        }
+        const result = await dbQuery.run('DELETE FROM users WHERE id = ?', [id]);
+        if (result.changes > 0) {
+            res.json({ message: 'User deleted' });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
 // --- Payments API (Paystack Integration) ---
-app.post('/api/payments/verify/:reference', (req, res) => {
+app.post('/api/payments/verify/:reference', async (req, res) => {
     const reference = req.params.reference;
     const payerId = req.query.id;
     const taxId = req.query.taxId;
@@ -287,89 +330,93 @@ app.post('/api/payments/verify/:reference', (req, res) => {
     // Use runtime config if set, otherwise fall back to env/placeholder
     const PAYSTACK_SECRET_KEY = runtimeConfig.paystackSecretKey || 'sk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
     
-    // --- Simulation Mode Bypass ---
-    if (reference.startsWith('SIM-')) {
-        console.log('Simulating successful payment for:', reference);
-        const revenues = readJsonFile(revenuesFile);
-        const payerIndex = revenues.findIndex(r => r.id === payerId);
-        
-        if (payerIndex !== -1) {
-            const payer = revenues[payerIndex];
-            if (!payer.taxes) payer.taxes = [];
-            const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+    try {
+        // --- Simulation Mode Bypass ---
+        if (reference.startsWith('SIM-')) {
+            console.log('Simulating successful payment for:', reference);
+            const payer = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [payerId]);
             
-            if (taxIndex !== -1) {
-                const paidAmount = parseFloat(req.query.amount) || payer.taxes[taxIndex].amount;
-                payer.taxes[taxIndex].status = 'Paid';
-                payer.taxes[taxIndex].paymentReference = reference;
-                payer.taxes[taxIndex].paymentDate = new Date().toISOString();
-                payer.taxes[taxIndex].amountPaid = paidAmount;
-                // Update assessed amount if it was variable
-                if (payer.taxes[taxIndex].amount <= 0) {
-                    payer.taxes[taxIndex].amount = paidAmount;
-                }
-                
-                const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
-                if (allPaid) payer.status = 'Paid';
-                else payer.status = 'Partial';
-                
-                writeJsonFile(revenuesFile, revenues);
-                
-                // Trigger Payment SMS (Simulation)
-                if (payer.phoneNumber) {
-                    const tax = payer.taxes[taxIndex];
-                    const msg = `LGA RevMax: Payment confirmed! ₦${tax.amountPaid.toLocaleString()} for ${tax.name}. Ref: ${reference}. Thank you for your contribution to ${payer.lga} LGA.`;
-                    smsHelper.send(payer.phoneNumber, msg, 'Payment');
-                }
-
-                return res.json({ success: true, message: 'SIMULATION: Tax payment verified', payer: payer });
-            }
-        }
-        return res.status(404).json({ success: false, message: 'Simulation target not found' });
-    }
-
-    axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
-        headers: {
-            Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
-        }
-    })
-    .then(response => {
-        const data = response.data.data;
-        
-        if (data.status === 'success') {
-            const revenues = readJsonFile(revenuesFile);
-            const payerIndex = revenues.findIndex(r => r.id === payerId);
-            
-            if (payerIndex !== -1) {
-                const payer = revenues[payerIndex];
-                
-                // Initialize taxes array if it doesn't exist (legacy support)
-                if (!payer.taxes) payer.taxes = [];
-                
-                const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+            if (payer) {
+                const taxes = payer.taxes ? JSON.parse(payer.taxes) : [];
+                const taxIndex = taxes.findIndex(tx => tx.id === taxId);
                 
                 if (taxIndex !== -1) {
-                    // Update specific tax status
-                    payer.taxes[taxIndex].status = 'Paid';
-                    payer.taxes[taxIndex].paymentReference = reference;
-                    payer.taxes[taxIndex].paymentDate = new Date().toISOString();
-                    payer.taxes[taxIndex].amountPaid = data.amount / 100;
+                    const paidAmount = parseFloat(req.query.amount) || taxes[taxIndex].amount;
+                    taxes[taxIndex].status = 'Paid';
+                    taxes[taxIndex].paymentReference = reference;
+                    taxes[taxIndex].paymentDate = new Date().toISOString();
+                    taxes[taxIndex].amountPaid = paidAmount;
                     
-                    // Update overall status if all taxes are paid
-                    const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
-                    if (allPaid) payer.status = 'Paid';
-                    else payer.status = 'Partial';
+                    if (taxes[taxIndex].amount <= 0) {
+                        taxes[taxIndex].amount = paidAmount;
+                    }
                     
-                    writeJsonFile(revenuesFile, revenues);
+                    const allPaid = taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                    const globalStatus = allPaid ? 'Paid' : 'Partial';
+                    
+                    const taxesStr = JSON.stringify(taxes);
+                    await dbQuery.run(
+                        'UPDATE revenues SET status = ?, taxes = ? WHERE id = ?',
+                        [globalStatus, taxesStr, payerId]
+                    );
+                    
+                    const updatedPayer = { ...payer, status: globalStatus, taxes };
+                    delete updatedPayer.password;
 
-                    // Trigger Payment SMS (Live)
+                    // Trigger Payment SMS (Simulation)
                     if (payer.phoneNumber) {
-                        const tax = payer.taxes[taxIndex];
+                        const tax = taxes[taxIndex];
                         const msg = `LGA RevMax: Payment confirmed! ₦${tax.amountPaid.toLocaleString()} for ${tax.name}. Ref: ${reference}. Thank you for your contribution to ${payer.lga} LGA.`;
                         smsHelper.send(payer.phoneNumber, msg, 'Payment');
                     }
 
-                    res.json({ success: true, message: 'Tax payment verified', payer: payer });
+                    return res.json({ success: true, message: 'SIMULATION: Tax payment verified', payer: updatedPayer });
+                }
+            }
+            return res.status(404).json({ success: false, message: 'Simulation target not found' });
+        }
+
+        // Live Paystack Verification
+        const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+            headers: {
+                Authorization: `Bearer ${PAYSTACK_SECRET_KEY}`
+            }
+        });
+        const data = response.data.data;
+        
+        if (data.status === 'success') {
+            const payer = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [payerId]);
+            
+            if (payer) {
+                const taxes = payer.taxes ? JSON.parse(payer.taxes) : [];
+                const taxIndex = taxes.findIndex(tx => tx.id === taxId);
+                
+                if (taxIndex !== -1) {
+                    taxes[taxIndex].status = 'Paid';
+                    taxes[taxIndex].paymentReference = reference;
+                    taxes[taxIndex].paymentDate = new Date().toISOString();
+                    taxes[taxIndex].amountPaid = data.amount / 100;
+                    
+                    const allPaid = taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                    const globalStatus = allPaid ? 'Paid' : 'Partial';
+                    
+                    const taxesStr = JSON.stringify(taxes);
+                    await dbQuery.run(
+                        'UPDATE revenues SET status = ?, taxes = ? WHERE id = ?',
+                        [globalStatus, taxesStr, payerId]
+                    );
+                    
+                    const updatedPayer = { ...payer, status: globalStatus, taxes };
+                    delete updatedPayer.password;
+
+                    // Trigger Payment SMS (Live)
+                    if (payer.phoneNumber) {
+                        const tax = taxes[taxIndex];
+                        const msg = `LGA RevMax: Payment confirmed! ₦${tax.amountPaid.toLocaleString()} for ${tax.name}. Ref: ${reference}. Thank you for your contribution to ${payer.lga} LGA.`;
+                        smsHelper.send(payer.phoneNumber, msg, 'Payment');
+                    }
+
+                    res.json({ success: true, message: 'Tax payment verified', payer: updatedPayer });
                 } else {
                     res.status(404).json({ success: false, message: 'Tax item not found in payer profile' });
                 }
@@ -379,60 +426,65 @@ app.post('/api/payments/verify/:reference', (req, res) => {
         } else {
             res.status(400).json({ success: false, message: `Payment failed: ${data.gateway_response}` });
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Paystack verification error:', error.response ? error.response.data : error.message);
         res.status(500).json({ 
             success: false, 
             message: 'Error communicating with Paystack API',
             error: error.response ? error.response.data.message : error.message 
         });
-    });
+    }
 });
 
 // --- Manual Payments API ---
-app.post('/api/payments/submit-manual', (req, res) => {
+app.post('/api/payments/submit-manual', async (req, res) => {
     try {
         const { id, taxId, paymentMethod, reference, depositorName, amount } = req.body;
         if (!id || !taxId || !paymentMethod || !reference) {
             return res.status(400).json({ success: false, message: 'Missing required parameters' });
         }
 
-        const revenues = readJsonFile(revenuesFile);
-        const payerIndex = revenues.findIndex(r => r.id === id);
+        const payer = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [id]);
 
-        if (payerIndex !== -1) {
-            const payer = revenues[payerIndex];
-            if (!payer.taxes) payer.taxes = [];
-            const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+        if (payer) {
+            const taxes = payer.taxes ? JSON.parse(payer.taxes) : [];
+            const taxIndex = taxes.findIndex(tx => tx.id === taxId);
 
             if (taxIndex !== -1) {
                 // Update specific tax item
-                payer.taxes[taxIndex].status = 'Pending Verification';
-                payer.taxes[taxIndex].manualMethod = paymentMethod;
-                payer.taxes[taxIndex].manualReference = reference;
-                payer.taxes[taxIndex].manualDepositor = depositorName || '';
-                payer.taxes[taxIndex].manualAmount = parseFloat(amount) || payer.taxes[taxIndex].amount;
-                payer.taxes[taxIndex].manualSubmissionDate = new Date().toISOString();
+                taxes[taxIndex].status = 'Pending Verification';
+                taxes[taxIndex].manualMethod = paymentMethod;
+                taxes[taxIndex].manualReference = reference;
+                taxes[taxIndex].manualDepositor = depositorName || '';
+                taxes[taxIndex].manualAmount = parseFloat(amount) || taxes[taxIndex].amount;
+                taxes[taxIndex].manualSubmissionDate = new Date().toISOString();
 
                 // Overall taxpayer status update
-                const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                const allPaid = taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                let globalStatus = 'Partial';
                 if (allPaid) {
-                    payer.status = 'Paid';
+                    globalStatus = 'Paid';
                 } else {
-                    const hasPendingVerification = payer.taxes.some(tx => tx.status === 'Pending Verification');
-                    payer.status = hasPendingVerification ? 'Pending Verification' : 'Partial';
+                    const hasPendingVerification = taxes.some(tx => tx.status === 'Pending Verification');
+                    globalStatus = hasPendingVerification ? 'Pending Verification' : 'Partial';
                 }
 
-                writeJsonFile(revenuesFile, revenues);
+                const taxesStr = JSON.stringify(taxes);
+                await dbQuery.run(
+                    'UPDATE revenues SET status = ?, taxes = ? WHERE id = ?',
+                    [globalStatus, taxesStr, id]
+                );
+
+                const updatedPayer = { ...payer, status: globalStatus, taxes };
+                delete updatedPayer.password;
 
                 // Simulated SMS
                 if (payer.phoneNumber) {
-                    const msg = `LGA RevMax: Payment details uploaded for ${payer.taxes[taxIndex].name}. Method: ${paymentMethod}. Reference: ${reference}. Undergoing audit verification.`;
+                    const msg = `LGA RevMax: Payment details uploaded for ${taxes[taxIndex].name}. Method: ${paymentMethod}. Reference: ${reference}. Undergoing audit verification.`;
                     smsHelper.send(payer.phoneNumber, msg, 'Payment Upload');
                 }
 
-                return res.json({ success: true, message: 'Manual payment submitted for audit', payer });
+                return res.json({ success: true, message: 'Manual payment submitted for audit', payer: updatedPayer });
             } else {
                 return res.status(404).json({ success: false, message: 'Tax item not found in payer profile' });
             }
@@ -445,23 +497,21 @@ app.post('/api/payments/submit-manual', (req, res) => {
     }
 });
 
-app.post('/api/payments/verify-manual', (req, res) => {
+app.post('/api/payments/verify-manual', async (req, res) => {
     try {
         const { id, taxId, action } = req.body;
         if (!id || !taxId || !action) {
             return res.status(400).json({ success: false, message: 'Missing parameters' });
         }
 
-        const revenues = readJsonFile(revenuesFile);
-        const payerIndex = revenues.findIndex(r => r.id === id);
+        const payer = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [id]);
 
-        if (payerIndex !== -1) {
-            const payer = revenues[payerIndex];
-            if (!payer.taxes) payer.taxes = [];
-            const taxIndex = payer.taxes.findIndex(tx => tx.id === taxId);
+        if (payer) {
+            const taxes = payer.taxes ? JSON.parse(payer.taxes) : [];
+            const taxIndex = taxes.findIndex(tx => tx.id === taxId);
 
             if (taxIndex !== -1) {
-                const taxItem = payer.taxes[taxIndex];
+                const taxItem = taxes[taxIndex];
 
                 if (action === 'approve') {
                     // Confirm payment
@@ -494,23 +544,32 @@ app.post('/api/payments/verify-manual', (req, res) => {
                 }
 
                 // Recalculate global status
-                const allPaid = payer.taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                const allPaid = taxes.every(tx => tx.status === 'Paid' || tx.amount <= 0);
+                let globalStatus = 'Pending';
                 if (allPaid) {
-                    payer.status = 'Paid';
+                    globalStatus = 'Paid';
                 } else {
-                    const hasPendingVerification = payer.taxes.some(tx => tx.status === 'Pending Verification');
-                    const hasPaid = payer.taxes.some(tx => tx.status === 'Paid');
+                    const hasPendingVerification = taxes.some(tx => tx.status === 'Pending Verification');
+                    const hasPaid = taxes.some(tx => tx.status === 'Paid');
                     if (hasPendingVerification) {
-                        payer.status = 'Pending Verification';
+                        globalStatus = 'Pending Verification';
                     } else if (hasPaid) {
-                        payer.status = 'Partial';
+                        globalStatus = 'Partial';
                     } else {
-                        payer.status = 'Pending';
+                        globalStatus = 'Pending';
                     }
                 }
 
-                writeJsonFile(revenuesFile, revenues);
-                return res.json({ success: true, message: `Payment audit ${action}d successfully`, payer });
+                const taxesStr = JSON.stringify(taxes);
+                await dbQuery.run(
+                    'UPDATE revenues SET status = ?, taxes = ? WHERE id = ?',
+                    [globalStatus, taxesStr, id]
+                );
+
+                const updatedPayer = { ...payer, status: globalStatus, taxes };
+                delete updatedPayer.password;
+
+                return res.json({ success: true, message: `Payment audit ${action}d successfully`, payer: updatedPayer });
             } else {
                 return res.status(404).json({ success: false, message: 'Tax item not found in profile' });
             }
@@ -543,87 +602,98 @@ app.get('/api/settings', (req, res) => {
 });
 
 // --- Auth API ---
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-    const users = readJsonFile(usersFile);
-    const user = users.find(u => u.username === username);
-    
-    if (user && bcrypt.compareSync(password, user.password)) {
-        // Generate secure JWT
-        const token = jwt.sign(
-            { id: user.id, username: user.username, role: user.role, lga: user.lga },
-            JWT_SECRET,
-            { expiresIn: '8h' }
-        );
-        res.json({ success: true, user, token });
-    } else {
-        res.status(401).json({ success: false, message: 'Invalid username or password' });
+app.post('/api/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const user = await dbQuery.get('SELECT * FROM users WHERE username = ?', [username]);
+        
+        if (user && bcrypt.compareSync(password, user.password)) {
+            // Generate secure JWT
+            const token = jwt.sign(
+                { id: user.id, username: user.username, role: user.role, lga: user.lga },
+                JWT_SECRET,
+                { expiresIn: '8h' }
+            );
+            res.json({ success: true, user, token });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid username or password' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
-app.post('/api/payer/login', (req, res) => {
-    const { identifier, password } = req.body;
-    if (!identifier || !password) {
-        return res.status(400).json({ success: false, message: 'Missing parameters' });
-    }
+app.post('/api/payer/login', async (req, res) => {
+    try {
+        const { identifier, password } = req.body;
+        if (!identifier || !password) {
+            return res.status(400).json({ success: false, message: 'Missing parameters' });
+        }
 
-    const revenues = readJsonFile(revenuesFile);
-    const payer = revenues.find(p => p.phoneNumber === identifier || p.invoiceRef === identifier);
+        const payer = await dbQuery.get('SELECT * FROM revenues WHERE phoneNumber = ? OR invoiceRef = ?', [identifier, identifier]);
 
-    if (payer) {
-        // Check password. Legacy fallback: if no password field, use phoneNumber.
-        const storedPasswordHash = payer.password;
-        let isMatch = false;
+        if (payer) {
+            // Check password. Legacy fallback: if no password field, use phoneNumber.
+            const storedPasswordHash = payer.password;
+            let isMatch = false;
 
-        if (storedPasswordHash) {
-            if (storedPasswordHash.startsWith('$2b$')) {
-                isMatch = bcrypt.compareSync(password, storedPasswordHash);
+            if (storedPasswordHash) {
+                if (storedPasswordHash.startsWith('$2b$')) {
+                    isMatch = bcrypt.compareSync(password, storedPasswordHash);
+                } else {
+                    isMatch = (password === storedPasswordHash);
+                }
             } else {
-                isMatch = (password === storedPasswordHash);
+                isMatch = (password === payer.phoneNumber);
+            }
+
+            if (isMatch) {
+                // Generate Payer JWT
+                const token = jwt.sign(
+                    { id: payer.id, phone: payer.phoneNumber, role: 'Payer' },
+                    JWT_SECRET,
+                    { expiresIn: '24h' }
+                );
+
+                // Strip password and parse taxes
+                const payerSafe = { ...payer };
+                delete payerSafe.password;
+                payerSafe.taxes = payerSafe.taxes ? JSON.parse(payerSafe.taxes) : [];
+
+                res.json({ success: true, payer: payerSafe, token });
+            } else {
+                res.status(401).json({ success: false, message: 'Invalid identifier or password' });
             }
         } else {
-            isMatch = (password === payer.phoneNumber);
+            res.status(404).json({ success: false, message: 'Taxpayer profile not found. Please register.' });
         }
-
-        if (isMatch) {
-            // Generate Payer JWT
-            const token = jwt.sign(
-                { id: payer.id, phone: payer.phoneNumber, role: 'Payer' },
-                JWT_SECRET,
-                { expiresIn: '24h' }
-            );
-
-            // Strip password before returning payer profile for maximum security
-            const payerSafe = { ...payer };
-            delete payerSafe.password;
-
-            res.json({ success: true, payer: payerSafe, token });
-        } else {
-            res.status(401).json({ success: false, message: 'Invalid identifier or password' });
-        }
-    } else {
-        res.status(404).json({ success: false, message: 'Taxpayer profile not found. Please register.' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
-app.get('/api/payer/profile', authenticateToken, (req, res) => {
-    const payerId = req.query.id;
-    if (!payerId) return res.status(400).json({ success: false, message: 'Missing payer ID' });
+app.get('/api/payer/profile', authenticateToken, async (req, res) => {
+    try {
+        const payerId = req.query.id;
+        if (!payerId) return res.status(400).json({ success: false, message: 'Missing payer ID' });
 
-    // RBAC: Payer can only request their own profile. Admins can request any.
-    if (req.user.role === 'Payer' && req.user.id !== payerId) {
-        return res.status(403).json({ success: false, message: 'Access Denied: Forbidden Request' });
-    }
+        // RBAC: Payer can only request their own profile. Admins can request any.
+        if (req.user.role === 'Payer' && req.user.id !== payerId) {
+            return res.status(403).json({ success: false, message: 'Access Denied: Forbidden Request' });
+        }
 
-    const revenues = readJsonFile(revenuesFile);
-    const payer = revenues.find(p => p.id === payerId);
+        const payer = await dbQuery.get('SELECT * FROM revenues WHERE id = ?', [payerId]);
 
-    if (payer) {
-        const payerSafe = { ...payer };
-        delete payerSafe.password;
-        res.json({ success: true, payer: payerSafe });
-    } else {
-        res.status(404).json({ success: false, message: 'Profile not found' });
+        if (payer) {
+            const payerSafe = { ...payer };
+            delete payerSafe.password;
+            payerSafe.taxes = payerSafe.taxes ? JSON.parse(payerSafe.taxes) : [];
+            res.json({ success: true, payer: payerSafe });
+        } else {
+            res.status(404).json({ success: false, message: 'Profile not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
@@ -638,104 +708,64 @@ app.use((req, res, next) => {
 });
 
 // --- Health Check ---
-app.get('/api/health', (req, res) => {
-    const dataDir = path.join(__dirname, 'data');
-    const revenuesFile = path.join(dataDir, 'revenues.json');
-    const usersFile = path.join(dataDir, 'users.json');
-    
-    res.json({ 
-        status: 'online', 
-        timestamp: new Date().toISOString(),
-        uptime: process.uptime(),
-        memory: process.memoryUsage().rss,
-        storage: {
-            revenues: fs.existsSync(revenuesFile),
-            users: fs.existsSync(usersFile)
-        }
-    });
+app.get('/api/health', async (req, res) => {
+    try {
+        const dbOnline = await dbQuery.get('SELECT 1 as checkOk');
+        res.json({ 
+            status: 'online', 
+            timestamp: new Date().toISOString(),
+            uptime: process.uptime(),
+            memory: process.memoryUsage().rss,
+            database: {
+                engine: 'SQLite3',
+                connected: dbOnline.checkOk === 1
+            }
+        });
+    } catch (err) {
+        res.json({
+            status: 'degraded',
+            timestamp: new Date().toISOString(),
+            error: err.message
+        });
+    }
 });
 
 // --- Notifications API ---
-app.get('/api/notifications', (req, res) => {
-    res.json(smsHelper.getLogs());
+app.get('/api/notifications', async (req, res) => {
+    try {
+        const logs = await smsHelper.getLogs();
+        res.json(logs);
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
 });
 
 // --- Grievances API ---
-const grievancesFile = path.join(dataDir, 'grievances.json');
-if (!fs.existsSync(grievancesFile)) fs.writeFileSync(grievancesFile, JSON.stringify([]));
-
 // GET all grievances (with optional LGA filter)
-app.get('/api/grievances', (req, res) => {
-    let grievances = readJsonFile(grievancesFile);
-    if (req.query.lga && req.query.lga !== 'System-wide') {
-        grievances = grievances.filter(g => g.lga === req.query.lga);
-    }
-    // Sort newest first
-    grievances.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-    res.json(grievances);
-});
-
-// GET single grievance by reference code (for public tracker)
-app.get('/api/grievances/:ref', (req, res) => {
-    const grievances = readJsonFile(grievancesFile);
-    const ref = decodeURIComponent(req.params.ref);
-    // Try matching by ref code first, then by id
-    const found = grievances.find(g => g.ref === ref || g.id === ref);
-    if (found) {
-        res.json(found);
-    } else {
-        res.status(404).json({ success: false, message: 'Grievance not found' });
-    }
-});
-
-// POST new grievance (public submission)
-app.post('/api/grievances', (req, res) => {
+app.get('/api/grievances', async (req, res) => {
     try {
-        const grievance = req.body;
-        if (!grievance.name || !grievance.lga || !grievance.subject || !grievance.description) {
-            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        let query = 'SELECT * FROM grievances';
+        const params = [];
+        if (req.query.lga && req.query.lga !== 'System-wide') {
+            query += ' WHERE lga = ?';
+            params.push(req.query.lga);
         }
-        const grievances = readJsonFile(grievancesFile);
-        // Ensure unique ref
-        grievance.id = grievance.id || Date.now().toString();
-        grievance.submittedAt = grievance.submittedAt || new Date().toISOString();
-        grievance.status = 'Pending';
-        grievances.push(grievance);
-        writeJsonFile(grievancesFile, grievances);
-        console.log(`[Grievances] New submission: ${grievance.ref} from ${grievance.name} (${grievance.lga})`);
-        res.json({ success: true, message: 'Grievance submitted', ref: grievance.ref });
-    } catch (err) {
-        console.error('Error saving grievance:', err);
-        res.status(500).json({ success: false, message: err.message });
-    }
-});
-
-// PUT update grievance status / response (admin)
-app.put('/api/grievances/:id', (req, res) => {
-    try {
-        const id = req.params.id;
-        const update = req.body;
-        const grievances = readJsonFile(grievancesFile);
-        const idx = grievances.findIndex(g => g.id === id);
-        if (idx === -1) return res.status(404).json({ success: false, message: 'Grievance not found' });
-        grievances[idx] = { ...grievances[idx], ...update };
-        writeJsonFile(grievancesFile, grievances);
-        res.json({ success: true, message: 'Grievance updated', grievance: grievances[idx] });
+        query += ' ORDER BY datetime(submittedAt) DESC';
+        
+        const grievances = await dbQuery.all(query, params);
+        res.json(grievances);
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// DELETE grievance (admin only, hard delete)
-app.delete('/api/grievances/:id', (req, res) => {
+// GET single grievance by reference code
+app.get('/api/grievances/:ref', async (req, res) => {
     try {
-        const id = req.params.id;
-        let grievances = readJsonFile(grievancesFile);
-        const initial = grievances.length;
-        grievances = grievances.filter(g => g.id !== id);
-        if (grievances.length < initial) {
-            writeJsonFile(grievancesFile, grievances);
-            res.json({ success: true, message: 'Grievance deleted' });
+        const ref = decodeURIComponent(req.params.ref);
+        const found = await dbQuery.get('SELECT * FROM grievances WHERE ref = ? OR id = ?', [ref, ref]);
+        if (found) {
+            res.json(found);
         } else {
             res.status(404).json({ success: false, message: 'Grievance not found' });
         }
@@ -744,6 +774,74 @@ app.delete('/api/grievances/:id', (req, res) => {
     }
 });
 
+// POST new grievance
+app.post('/api/grievances', async (req, res) => {
+    try {
+        const g = req.body;
+        if (!g.name || !g.lga || !g.subject || !g.description) {
+            return res.status(400).json({ success: false, message: 'Missing required fields' });
+        }
+        g.id = g.id || Date.now().toString();
+        g.submittedAt = g.submittedAt || new Date().toISOString();
+        g.status = 'Pending';
+        
+        await dbQuery.run(
+            `INSERT INTO grievances (id, ref, name, lga, subject, description, submittedAt, status, officialResponse, responderName, responseDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [g.id, g.ref, g.name, g.lga, g.subject, g.description, g.submittedAt, g.status, g.officialResponse || '', g.responderName || '', g.responseDate || '']
+        );
+        console.log(`[Grievances] New submission: ${g.ref} from ${g.name} (${g.lga})`);
+        res.json({ success: true, message: 'Grievance submitted', ref: g.ref });
+    } catch (err) {
+        console.error('Error saving grievance:', err);
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// PUT update grievance status / response (admin)
+app.put('/api/grievances/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const update = req.body;
+        const existing = await dbQuery.get('SELECT * FROM grievances WHERE id = ?', [id]);
+        if (!existing) return res.status(404).json({ success: false, message: 'Grievance not found' });
+        
+        await dbQuery.run(
+            `UPDATE grievances SET 
+                status = ?, 
+                officialResponse = ?, 
+                responderName = ?, 
+                responseDate = ? 
+            WHERE id = ?`,
+            [
+                update.status !== undefined ? update.status : existing.status,
+                update.officialResponse !== undefined ? update.officialResponse : existing.officialResponse,
+                update.responderName !== undefined ? update.responderName : existing.responderName,
+                update.responseDate !== undefined ? update.responseDate : existing.responseDate,
+                id
+            ]
+        );
+        
+        const updated = await dbQuery.get('SELECT * FROM grievances WHERE id = ?', [id]);
+        res.json({ success: true, message: 'Grievance updated', grievance: updated });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// DELETE grievance (admin only, hard delete)
+app.delete('/api/grievances/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await dbQuery.run('DELETE FROM grievances WHERE id = ?', [id]);
+        if (result.changes > 0) {
+            res.json({ success: true, message: 'Grievance deleted' });
+        } else {
+            res.status(404).json({ success: false, message: 'Grievance not found' });
+        }
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`LGA Revenues server running on port ${PORT}`);
