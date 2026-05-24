@@ -188,6 +188,10 @@ function setLanguage(lang) {
     const langSelect = document.getElementById('langSelect');
     if (langSelect) langSelect.value = lang;
 
+    // Update switcher label text
+    const langLabel = document.getElementById('langLabel');
+    if (langLabel) langLabel.textContent = lang === 'ha' ? 'Hausa' : 'English';
+
     // Translate all standard text nodes
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
