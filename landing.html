@@ -1059,6 +1059,7 @@
 
                     sessionUser.loginLga = lga;
                     localStorage.setItem('lga_user', JSON.stringify(sessionUser));
+                    localStorage.setItem('lga_jwt_token', data.token);
                     window.location.href = 'index.html';
                 } else {
                     loginError.textContent = data.message || 'Invalid username or password.';

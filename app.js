@@ -46,6 +46,7 @@ updateTitle();
 document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
     e.preventDefault();
     localStorage.removeItem('lga_user');
+    localStorage.removeItem('lga_jwt_token');
     window.location.href = 'landing.html';
 });
 

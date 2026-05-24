@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (currentPayer) {
         showDashboard();
+        syncPayerProfile();
         return;
     }
 
@@ -243,35 +244,39 @@ registerForm.addEventListener('submit', async (e) => {
 const loginForm = document.getElementById('payerLoginForm');
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const identifier = document.getElementById('loginIdentifier').value;
+    const identifier = document.getElementById('loginIdentifier').value.trim();
     const password = document.getElementById('loginPassword').value;
+    const loginError = document.getElementById('loginError');
     
+    if (loginError) loginError.style.display = 'none';
+
     try {
-        const res = await LgaConnection.apiFetch('/api/revenues'); 
-        const allPayers = await res.json();
+        const res = await LgaConnection.apiFetch('/api/payer/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier, password })
+        });
         
-        const payer = allPayers.find(p => p.phoneNumber === identifier || p.invoiceRef === identifier);
+        const data = await res.json();
         
-        if (payer) {
-            // Verification logic:
-            // 1. If record has a 'password' field, it must match.
-            // 2. If it doesn't have a 'password' field (legacy), fallback to 'phoneNumber' as password.
-            const storedPassword = payer.password || payer.phoneNumber;
-            
-            if (password === storedPassword) {
-                currentPayer = payer;
-                localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
-                showDashboard();
-            } else {
-                document.getElementById('loginError').textContent = 'Invalid password. Please try again or contact support.';
-                document.getElementById('loginError').style.display = 'block';
-            }
+        if (data.success) {
+            currentPayer = data.payer;
+            localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
+            localStorage.setItem('lga_jwt_token', data.token);
+            showDashboard();
+            syncPayerProfile(); // Trigger immediate sync
         } else {
-            document.getElementById('loginError').textContent = 'Payer record not found. Please register your business.';
-            document.getElementById('loginError').style.display = 'block';
+            if (loginError) {
+                loginError.textContent = data.message || 'Invalid credentials. Please try again.';
+                loginError.style.display = 'block';
+            }
         }
     } catch (err) {
         document.getElementById('connectionTroubleshoot').style.display = 'block';
+        if (loginError) {
+            loginError.textContent = 'Connection error. Please ensure server is running.';
+            loginError.style.display = 'block';
+        }
     }
 });
 
@@ -287,6 +292,28 @@ function showDashboard() {
     document.getElementById('dashLga').textContent = `${currentPayer.lga} LGA`;
     
     renderPayerTaxes();
+}
+
+async function syncPayerProfile() {
+    if (!currentPayer || !currentPayer.id) return;
+    try {
+        const res = await LgaConnection.apiFetch(`/api/payer/profile?id=${currentPayer.id}`);
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success) {
+                currentPayer = data.payer;
+                localStorage.setItem('lga_portal_payer', JSON.stringify(currentPayer));
+                // Update display values dynamically
+                document.getElementById('dashBusinessName').textContent = currentPayer.businessName;
+                document.getElementById('dashOwnerName').textContent = currentPayer.contactPerson || 'Business Owner';
+                document.getElementById('dashPayerRef').textContent = currentPayer.invoiceRef || 'Pending Ref';
+                document.getElementById('dashLga').textContent = `${currentPayer.lga} LGA`;
+                renderPayerTaxes();
+            }
+        }
+    } catch (e) {
+        console.warn('Portal: Profile sync failed', e);
+    }
 }
 
 function renderPayerTaxes() {
@@ -682,6 +709,7 @@ reportModal.addEventListener('click', (e) => {
 
 portalLogoutBtn.addEventListener('click', () => {
     localStorage.removeItem('lga_portal_payer');
+    localStorage.removeItem('lga_jwt_token');
     location.reload();
 });
 

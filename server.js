@@ -3,7 +3,11 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const smsHelper = require('./smsHelper');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'lga_revmax_secure_secret_key_2026_zamfara';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -79,6 +83,61 @@ function writeJsonFile(filePath, data) {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
 }
 
+// Auto-migrate any plain-text passwords in users.json and revenues.json to Bcrypt hashes
+function securePlaintextPasswords() {
+    try {
+        let updated = false;
+
+        // 1. Migrate users
+        const users = readJsonFile(usersFile);
+        users.forEach(u => {
+            if (u.password && !u.password.startsWith('$2b$')) {
+                u.password = bcrypt.hashSync(u.password, 10);
+                updated = true;
+                console.log(`[Security] Migrated admin password for user: ${u.username}`);
+            }
+        });
+        if (updated) {
+            writeJsonFile(usersFile, users);
+            updated = false;
+        }
+
+        // 2. Migrate taxpayers/payers
+        const revenues = readJsonFile(revenuesFile);
+        revenues.forEach(r => {
+            if (r.password && !r.password.startsWith('$2b$')) {
+                r.password = bcrypt.hashSync(r.password, 10);
+                updated = true;
+                console.log(`[Security] Migrated portal password for business: ${r.businessName}`);
+            }
+        });
+        if (updated) {
+            writeJsonFile(revenuesFile, revenues);
+        }
+    } catch (err) {
+        console.error('[Security Error] Failed to auto-migrate passwords:', err);
+    }
+}
+securePlaintextPasswords();
+
+// --- Security Middleware: JWT Auth ---
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+
+    if (!token) {
+        return res.status(401).json({ success: false, message: 'Access Denied: No Token Provided' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) {
+            return res.status(403).json({ success: false, message: 'Invalid or Expired Session Token' });
+        }
+        req.user = user;
+        next();
+    });
+}
+
 // --- Tax Rates API ---
 const taxRatesFile = path.join(dataDir, 'tax_rates.json');
 app.get('/api/tax-rates', (req, res) => {
@@ -87,7 +146,7 @@ app.get('/api/tax-rates', (req, res) => {
 });
 
 // --- Revenues API ---
-app.get('/api/revenues', (req, res) => {
+app.get('/api/revenues', authenticateToken, (req, res) => {
     let revenues = readJsonFile(revenuesFile);
     console.log(`[API] Fetching revenues. Query LGA: ${req.query.lga}`);
     
@@ -147,7 +206,7 @@ app.post('/api/revenues', (req, res) => {
     }
 });
 
-app.put('/api/revenues/:id', (req, res) => {
+app.put('/api/revenues/:id', authenticateToken, (req, res) => {
     try {
         const id = req.params.id;
         const updatedRecord = req.body;
@@ -172,7 +231,7 @@ app.put('/api/revenues/:id', (req, res) => {
     }
 });
 
-app.delete('/api/revenues/:id', (req, res) => {
+app.delete('/api/revenues/:id', authenticateToken, (req, res) => {
     try {
         const id = req.params.id;
         const revenues = readJsonFile(revenuesFile);
@@ -190,12 +249,12 @@ app.delete('/api/revenues/:id', (req, res) => {
 });
 
 // --- Users API ---
-app.get('/api/users', (req, res) => {
+app.get('/api/users', authenticateToken, (req, res) => {
     const users = readJsonFile(usersFile);
     res.json(users);
 });
 
-app.post('/api/users', (req, res) => {
+app.post('/api/users', authenticateToken, (req, res) => {
     const newUser = req.body;
     const users = readJsonFile(usersFile);
     users.push(newUser);
@@ -203,7 +262,7 @@ app.post('/api/users', (req, res) => {
     res.json({ message: 'User added', user: newUser });
 });
 
-app.delete('/api/users/:id', (req, res) => {
+app.delete('/api/users/:id', authenticateToken, (req, res) => {
     const id = req.params.id;
     if (id === '1') {
         return res.status(403).json({ message: 'Cannot delete Super Admin' });
@@ -487,12 +546,84 @@ app.get('/api/settings', (req, res) => {
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
     const users = readJsonFile(usersFile);
-    const user = users.find(u => u.username === username && u.password === password);
+    const user = users.find(u => u.username === username);
     
-    if (user) {
-        res.json({ success: true, user });
+    if (user && bcrypt.compareSync(password, user.password)) {
+        // Generate secure JWT
+        const token = jwt.sign(
+            { id: user.id, username: user.username, role: user.role, lga: user.lga },
+            JWT_SECRET,
+            { expiresIn: '8h' }
+        );
+        res.json({ success: true, user, token });
     } else {
         res.status(401).json({ success: false, message: 'Invalid username or password' });
+    }
+});
+
+app.post('/api/payer/login', (req, res) => {
+    const { identifier, password } = req.body;
+    if (!identifier || !password) {
+        return res.status(400).json({ success: false, message: 'Missing parameters' });
+    }
+
+    const revenues = readJsonFile(revenuesFile);
+    const payer = revenues.find(p => p.phoneNumber === identifier || p.invoiceRef === identifier);
+
+    if (payer) {
+        // Check password. Legacy fallback: if no password field, use phoneNumber.
+        const storedPasswordHash = payer.password;
+        let isMatch = false;
+
+        if (storedPasswordHash) {
+            if (storedPasswordHash.startsWith('$2b$')) {
+                isMatch = bcrypt.compareSync(password, storedPasswordHash);
+            } else {
+                isMatch = (password === storedPasswordHash);
+            }
+        } else {
+            isMatch = (password === payer.phoneNumber);
+        }
+
+        if (isMatch) {
+            // Generate Payer JWT
+            const token = jwt.sign(
+                { id: payer.id, phone: payer.phoneNumber, role: 'Payer' },
+                JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            // Strip password before returning payer profile for maximum security
+            const payerSafe = { ...payer };
+            delete payerSafe.password;
+
+            res.json({ success: true, payer: payerSafe, token });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid identifier or password' });
+        }
+    } else {
+        res.status(404).json({ success: false, message: 'Taxpayer profile not found. Please register.' });
+    }
+});
+
+app.get('/api/payer/profile', authenticateToken, (req, res) => {
+    const payerId = req.query.id;
+    if (!payerId) return res.status(400).json({ success: false, message: 'Missing payer ID' });
+
+    // RBAC: Payer can only request their own profile. Admins can request any.
+    if (req.user.role === 'Payer' && req.user.id !== payerId) {
+        return res.status(403).json({ success: false, message: 'Access Denied: Forbidden Request' });
+    }
+
+    const revenues = readJsonFile(revenuesFile);
+    const payer = revenues.find(p => p.id === payerId);
+
+    if (payer) {
+        const payerSafe = { ...payer };
+        delete payerSafe.password;
+        res.json({ success: true, payer: payerSafe });
+    } else {
+        res.status(404).json({ success: false, message: 'Profile not found' });
     }
 });
 

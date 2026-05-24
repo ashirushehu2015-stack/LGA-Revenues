@@ -434,7 +434,7 @@
     "contactPerson": "Mubarak Anka",
     "addressCp": "admin",
     "phoneNumber": "091777777777",
-    "password": "0000000",
+    "password": "$2b$10$RN7a0x3Hr8pMzlPQkIVIIOQl1NTYQf74bPRPtEvqmvm9LiXgJARfe",
     "status": "Active",
     "origin": "Portal",
     "taxes": [

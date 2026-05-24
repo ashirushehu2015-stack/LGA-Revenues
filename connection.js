@@ -59,12 +59,36 @@ class ConnectionManager {
      */
     async apiFetch(path, options = {}) {
         const url = `${this.apiBaseUrl}${path}`;
+        
+        // Inject secure JWT authorization header if available
+        const token = localStorage.getItem('lga_jwt_token');
+        if (token) {
+            if (!options.headers) {
+                options.headers = {};
+            }
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+        }
+
         try {
             const response = await fetch(url, options);
-            if (response.status === 401 && !window.location.href.includes('landing.html')) {
+            if ((response.status === 401 || response.status === 403) && 
+                !window.location.href.includes('landing.html') &&
+                !path.includes('/api/login') && 
+                !path.includes('/api/payer/login')) {
+                
                 // Auto logout on session expiry
                 localStorage.removeItem('lga_user');
-                window.location.href = 'landing.html';
+                localStorage.removeItem('lga_portal_payer');
+                localStorage.removeItem('lga_jwt_token');
+                
+                if (window.location.href.includes('portal.html')) {
+                    window.location.reload();
+                } else {
+                    window.location.href = 'landing.html';
+                }
             }
             return response;
         } catch (e) {
