@@ -5,6 +5,7 @@ const LGAS = [
     "Tsafe", "Zurmi"
 ];
 let currentContextLga = 'System-wide';
+let currentRevenuesData = [];
 
 // Auth & Session
 feather.replace();
@@ -138,6 +139,7 @@ async function loadAnalytics() {
 
         const res = await fetch(url);
         revenues = await res.json();
+        currentRevenuesData = revenues;
     } catch (e) {
         console.error('Analytics: failed to fetch revenues', e);
     }
@@ -575,6 +577,7 @@ async function loadAnalytics() {
         }
     });
 
+    updateLgaLeaderboard(revenues);
     feather.replace();
 }
 
@@ -638,5 +641,269 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
     });
 });
 
+// --- LGA Leaderboard Rendering & Reporting Exporter ---
+function updateLgaLeaderboard(revenues) {
+    const leaderboardRow = document.getElementById('leaderboardRow');
+    const leaderboardBody = document.getElementById('leaderboardBody');
+    if (!leaderboardRow || !leaderboardBody) return;
+
+    if (currentContextLga !== 'System-wide') {
+        leaderboardRow.style.display = 'none';
+        return;
+    }
+
+    leaderboardRow.style.display = 'block';
+
+    // Map of LGAs
+    const lgaStats = {};
+    LGAS.forEach(lga => {
+        lgaStats[lga] = {
+            name: lga,
+            taxpayers: 0,
+            assessed: 0,
+            collected: 0,
+            pending: 0
+        };
+    });
+
+    // Populate stats
+    revenues.forEach(r => {
+        const lga = r.lga || r.city || 'Unknown';
+        if (!lgaStats[lga]) {
+            lgaStats[lga] = { name: lga, taxpayers: 0, assessed: 0, collected: 0, pending: 0 };
+        }
+        
+        lgaStats[lga].taxpayers++;
+
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => {
+                const amt = tx.amount || 0;
+                lgaStats[lga].assessed += amt;
+                if (tx.status === 'Paid') {
+                    lgaStats[lga].collected += (tx.amountPaid || amt);
+                } else {
+                    lgaStats[lga].pending += amt;
+                }
+            });
+        } else if (r.chargeRate) {
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amt = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            lgaStats[lga].assessed += amt;
+            if (r.status === 'Paid') {
+                lgaStats[lga].collected += amt;
+            } else {
+                lgaStats[lga].pending += amt;
+            }
+        }
+    });
+
+    // Convert to sorted array
+    const sortedLgas = Object.values(lgaStats)
+        .filter(l => l.name !== 'Unknown')
+        .sort((a, b) => b.collected - a.collected);
+
+    // Render body
+    leaderboardBody.innerHTML = sortedLgas.map((l, index) => {
+        const rank = index + 1;
+        const rate = l.assessed > 0 ? Math.round((l.collected / l.assessed) * 100) : 0;
+        
+        const rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
+        const rateClass = rate >= 70 ? 'high' : rate >= 30 ? 'mid' : 'low';
+
+        return `
+            <tr>
+                <td style="padding: 12px; text-align: center;">
+                    <span class="leaderboard-rank ${rankClass}">${rank}</span>
+                </td>
+                <td style="padding: 12px; font-weight: 700; color: var(--slate-900);">${l.name}</td>
+                <td style="padding: 12px; text-align: center; font-weight: 600;">${l.taxpayers}</td>
+                <td style="padding: 12px; text-align: right; font-weight: 600;">₦${l.assessed.toLocaleString()}</td>
+                <td style="padding: 12px; text-align: right; font-weight: 700; color: #10b981;">₦${l.collected.toLocaleString()}</td>
+                <td style="padding: 12px; text-align: right; font-weight: 600; color: #f59e0b;">₦${l.pending.toLocaleString()}</td>
+                <td style="padding: 12px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                        <span style="font-weight: 700; min-width: 30px;">${rate}%</span>
+                        <div class="leaderboard-rate-bar" style="flex: 1;">
+                            <div class="leaderboard-rate-fill ${rateClass}" style="width: ${rate}%;"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+    
+    feather.replace();
+}
+
+function exportStateReport(revenues) {
+    // Map of LGAs
+    const lgaStats = {};
+    LGAS.forEach(lga => {
+        lgaStats[lga] = { name: lga, taxpayers: 0, assessed: 0, collected: 0, pending: 0 };
+    });
+
+    let stateTaxpayers = 0;
+    let stateAssessed = 0;
+    let stateCollected = 0;
+    let statePending = 0;
+
+    revenues.forEach(r => {
+        const lga = r.lga || r.city || 'Unknown';
+        if (!lgaStats[lga]) {
+            lgaStats[lga] = { name: lga, taxpayers: 0, assessed: 0, collected: 0, pending: 0 };
+        }
+        
+        lgaStats[lga].taxpayers++;
+        stateTaxpayers++;
+
+        if (r.taxes && Array.isArray(r.taxes)) {
+            r.taxes.forEach(tx => {
+                const amt = tx.amount || 0;
+                lgaStats[lga].assessed += amt;
+                stateAssessed += amt;
+                if (tx.status === 'Paid') {
+                    lgaStats[lga].collected += (tx.amountPaid || amt);
+                    stateCollected += (tx.amountPaid || amt);
+                } else {
+                    lgaStats[lga].pending += amt;
+                    statePending += amt;
+                }
+            });
+        } else if (r.chargeRate) {
+            const amountMatch = (r.chargeRate || '').match(/₦?([0-9,]+)/);
+            const amt = amountMatch ? parseFloat(amountMatch[1].replace(/,/g, '')) : 0;
+            lgaStats[lga].assessed += amt;
+            stateAssessed += amt;
+            if (r.status === 'Paid') {
+                lgaStats[lga].collected += amt;
+                stateCollected += amt;
+            } else {
+                lgaStats[lga].pending += amt;
+                statePending += amt;
+            }
+        }
+    });
+
+    const sortedLgas = Object.values(lgaStats)
+        .filter(l => l.name !== 'Unknown')
+        .sort((a, b) => b.collected - a.collected);
+
+    const dateStr = new Date().toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>State Executive Summary Report</title>
+            <style>
+                body { font-family: 'Outfit', 'Segoe UI', Arial, sans-serif; padding: 2.5rem; color: #1e293b; background: #fff; }
+                .header { text-align: center; margin-bottom: 2rem; border-bottom: 3px double #e2e8f0; padding-bottom: 1.5rem; }
+                .header h1 { font-size: 1.75rem; margin: 0.5rem 0 0.25rem 0; color: #0f172a; font-weight: 800; }
+                .header h2 { font-size: 1.1rem; margin: 0; color: #475569; letter-spacing: 1px; font-weight: 700; }
+                .header p { font-size: 0.75rem; color: #94a3b8; margin: 4px 0 0 0; font-weight: 600; }
+                
+                .kpi-row { display: flex; gap: 15px; margin-bottom: 2rem; justify-content: space-between; }
+                .kpi-box { flex: 1; border: 1px solid #e2e8f0; padding: 1rem; border-radius: 12px; background: #f8fafc; text-align: center; }
+                .kpi-box label { font-size: 0.7rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+                .kpi-box p { font-size: 1.5rem; font-weight: 900; margin: 6px 0 0 0; color: #0f172a; }
+                .kpi-box p.collected { color: #10b981; }
+                
+                .table-title { font-size: 1.15rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; border-left: 4px solid #6366f1; padding-left: 8px; }
+                table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.85rem; }
+                th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+                th { background: #f8fafc; font-weight: 700; color: #475569; }
+                
+                .footer { text-align: center; margin-top: 3rem; font-size: 0.75rem; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 1rem; }
+                @media print {
+                    body { padding: 0; }
+                    .no-print { display: none; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>ZAMFARA STATE GOVERNMENT</h1>
+                <h2>MINISTRY FOR LOCAL GOVERNMENT AFFAIRS</h2>
+                <p>STATE REVENUE LEDGER EXECUTIVE SUMMARY • GENERATED ON ${dateStr}</p>
+            </div>
+
+            <div class="kpi-row">
+                <div class="kpi-box">
+                    <label>Total State Taxpayers</label>
+                    <p>${stateTaxpayers.toLocaleString()}</p>
+                </div>
+                <div class="kpi-box">
+                    <label>Total Assessed Value</label>
+                    <p>₦${stateAssessed.toLocaleString()}</p>
+                </div>
+                <div class="kpi-box">
+                    <label>Actually Collected</label>
+                    <p class="collected">₦${stateCollected.toLocaleString()}</p>
+                </div>
+                <div class="kpi-box">
+                    <label>Pending State Balance</label>
+                    <p style="color: #f59e0b;">₦${statePending.toLocaleString()}</p>
+                </div>
+                <div class="kpi-box">
+                    <label>Collection Rate</label>
+                    <p style="color: #6366f1;">${stateAssessed > 0 ? Math.round((stateCollected / stateAssessed) * 100) : 0}%</p>
+                </div>
+            </div>
+
+            <div class="table-title">Comparative LGA Generation Rankings</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="text-align: center; width: 60px;">RANK</th>
+                        <th>LGA REGION</th>
+                        <th style="text-align: center;">TAXPAYERS</th>
+                        <th style="text-align: right;">TOTAL ASSESSED</th>
+                        <th style="text-align: right;">REVENUE COLLECTED</th>
+                        <th style="text-align: right;">PENDING BALANCE</th>
+                        <th style="text-align: center; width: 100px;">RATE (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sortedLgas.map((l, idx) => `
+                        <tr>
+                            <td style="text-align: center; font-weight: 800;">${idx + 1}</td>
+                            <td style="font-weight: 700;">${l.name}</td>
+                            <td style="text-align: center;">${l.taxpayers}</td>
+                            <td style="text-align: right;">₦${l.assessed.toLocaleString()}</td>
+                            <td style="text-align: right; font-weight: 700; color: #10b981;">₦${l.collected.toLocaleString()}</td>
+                            <td style="text-align: right; color: #f59e0b;">₦${l.pending.toLocaleString()}</td>
+                            <td style="text-align: center; font-weight: 700;">${l.assessed > 0 ? Math.round((l.collected / l.assessed) * 100) : 0}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="footer">
+                <p>This is an official state finance report compiled from LGA RevMax active secure databases.</p>
+                <p>© 2026 Zamfara State Government. All Rights Reserved.</p>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+// Event Delegation for Export summary button
+document.addEventListener('click', (e) => {
+    if (e.target && (e.target.id === 'exportReportBtn' || e.target.closest('#exportReportBtn'))) {
+        e.preventDefault();
+        exportStateReport(currentRevenuesData);
+    }
+});
+
 // ── Boot ─────────────────────────────────────────────────────────────────────
 loadAnalytics();
+

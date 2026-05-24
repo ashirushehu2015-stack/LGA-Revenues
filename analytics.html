@@ -156,6 +156,39 @@
                     </div>
                 </div>
 
+                <!-- LGA Leaderboard Row (Only visible System-wide) -->
+                <div class="charts-row" id="leaderboardRow" style="display: none; width: 100%;">
+                    <div class="chart-card chart-full-width" style="flex: 1; width: 100%;">
+                        <div class="chart-card-header">
+                            <div>
+                                <h3>Zamfara State LGA Revenue Leaderboard</h3>
+                                <p>Comparative collection rankings and balance metrics across all 14 Local Government Areas</p>
+                            </div>
+                            <button class="btn-outline-sm" id="exportReportBtn">
+                                <i data-feather="download"></i> Export State Summary
+                            </button>
+                        </div>
+                        <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+                            <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                                <thead style="background: var(--slate-50); border-bottom: 2px solid var(--slate-100); color: var(--slate-600); font-weight: 700;">
+                                    <tr>
+                                        <th style="padding: 10px 12px; width: 60px; text-align: center;">RANK</th>
+                                        <th style="padding: 10px 12px;">LGA REGION</th>
+                                        <th style="padding: 10px 12px; text-align: center;">TAXPAYERS</th>
+                                        <th style="padding: 10px 12px; text-align: right;">TOTAL ASSESSED</th>
+                                        <th style="padding: 10px 12px; text-align: right;">REVENUE COLLECTED</th>
+                                        <th style="padding: 10px 12px; text-align: right;">PENDING BALANCE</th>
+                                        <th style="padding: 10px 12px; text-align: center; width: 150px;">COLLECTION RATE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="leaderboardBody">
+                                    <!-- Rendered dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Revenue Timeline Row -->
                 <div class="charts-row">
                     <div class="chart-card chart-full-width" style="flex: 1; width: 100%;">
