@@ -4,6 +4,8 @@ const translations = {
         nav_checking: "Checking...",
         nav_logout: "Log Out",
         nav_home: "Home",
+        nav_lang_label: "Language:",
+        lang_banner_text: "<strong>Hausa speakers:</strong> You can switch this portal to Hausa at any time using the Language selector in the top right corner of this page.",
         tab_login: "Login",
         tab_register: "Register Business",
         login_welcome: "Welcome Back",
@@ -92,6 +94,8 @@ const translations = {
         nav_checking: "Ana duba...",
         nav_logout: "Fita",
         nav_home: "Gida",
+        nav_lang_label: "Harshe:",
+        lang_banner_text: "<strong>Domin Harshen Hausa:</strong> Kuna iya sauya harshen shafin zuwa Hausa a saman shafin kowane lokaci ta amfani da zaɓin Harshe a kusurwar dama ta sama.",
         tab_login: "Shiga",
         tab_register: "Rijistar Kasuwanci",
         login_welcome: "Barka da Dawowa",
@@ -196,15 +200,19 @@ function setLanguage(lang) {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang] && translations[lang][key] !== undefined) {
+            const value = translations[lang][key];
             // Check if there are any child element nodes to preserve (like icon <i> tags)
             const icon = el.querySelector('i');
             if (icon) {
-                // If it contains a child icon, let's preserve the icon and append translated text
+                // If it contains a child icon, preserve the icon and append translated text
                 el.innerHTML = '';
                 el.appendChild(icon);
-                el.appendChild(document.createTextNode(' ' + translations[lang][key]));
+                el.appendChild(document.createTextNode(' ' + value));
+            } else if (value.includes('<')) {
+                // Contains HTML markup (e.g. <strong>), use innerHTML safely
+                el.innerHTML = value;
             } else {
-                el.textContent = translations[lang][key];
+                el.textContent = value;
             }
         }
     });
