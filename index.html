@@ -13,7 +13,7 @@
     <script src="connection.js"></script>
     <script src="https://js.paystack.co/v1/inline.js"></script>
     <!-- QR Code Scanning and Card Generator Dependencies -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script>
         // Simple Auth Check
@@ -507,31 +507,85 @@
                     <i data-feather="x"></i>
                 </button>
             </div>
-            <div class="modal-body" style="padding: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
-                <div class="scanner-container">
-                    <div id="reader" style="width: 100%; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative;"></div>
-                    <div class="scanner-laser"></div>
-                    <div class="scanner-overlay-brackets">
-                        <div class="bracket top-left"></div>
-                        <div class="bracket top-right"></div>
-                        <div class="bracket bottom-left"></div>
-                        <div class="bracket bottom-right"></div>
+            <div class="modal-body" style="padding: 1rem 1.5rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Scanner Tab Switcher -->
+                <div class="checkout-tabs" style="margin-bottom: 0.5rem; display: flex; border-bottom: 1px solid var(--slate-200); width: 100%;">
+                    <button type="button" class="checkout-tab active" id="tabScanLive" style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid var(--primary); font-weight: 700; color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i data-feather="camera" style="width: 16px; height: 16px;"></i>
+                        <span>Scan Live</span>
+                    </button>
+                    <button type="button" class="checkout-tab" id="tabScanManual" style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid transparent; font-weight: 600; color: var(--slate-500); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i data-feather="edit" style="width: 16px; height: 16px;"></i>
+                        <span>Manual & Mock</span>
+                    </button>
+                </div>
+
+                <!-- Panel 1: Live Scanning View -->
+                <div id="panelScanLive" class="scanner-panel active" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <div class="scanner-container" style="width: 100%;">
+                        <div id="reader" style="width: 100%; background: #000; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; position: relative;"></div>
+                        <div class="scanner-laser"></div>
+                        <div class="scanner-overlay-brackets">
+                            <div class="bracket top-left"></div>
+                            <div class="bracket top-right"></div>
+                            <div class="bracket bottom-left"></div>
+                            <div class="bracket bottom-right"></div>
+                        </div>
+                    </div>
+                    <div class="scanner-feedback" id="scannerFeedback" style="width: 100%;">
+                        <i data-feather="aperture" style="animation: spin 3s linear infinite;"></i>
+                        <span>Initializing camera stream...</span>
+                    </div>
+                    <div class="scanner-instructions" style="text-align: center; color: var(--slate-500); font-size: 0.8125rem;">
+                        <p>Align the taxpayer's Payer Card or printed receipt QR Code inside the bounding box to scan.</p>
+                    </div>
+                    <div class="form-group" style="width: 100%; margin-top: 0.5rem;" id="cameraSelectGroup">
+                        <label for="cameraSelect" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--slate-500); margin-bottom: 4px; text-transform: uppercase;">Select Camera</label>
+                        <select id="cameraSelect" style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--slate-200); background-color: var(--white); font-size: 0.875rem;">
+                            <option value="">Loading cameras...</option>
+                        </select>
                     </div>
                 </div>
-                <div class="scanner-feedback" id="scannerFeedback">
-                    <i data-feather="aperture" style="animation: spin 3s linear infinite;"></i>
-                    <span>Initializing camera stream...</span>
-                </div>
-                <div class="scanner-instructions" style="text-align: center; color: var(--slate-500); font-size: 0.8125rem;">
-                    <p>Align the taxpayer's Payer Card or printed receipt QR Code inside the bounding box to scan.</p>
-                </div>
-                <div class="form-group" style="width: 100%; margin-top: 0.5rem;" id="cameraSelectGroup">
-                    <label for="cameraSelect" style="display: block; font-size: 0.75rem; font-weight: 700; color: var(--slate-500); margin-bottom: 4px; text-transform: uppercase;">Select Camera</label>
-                    <select id="cameraSelect" style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--slate-200); background-color: var(--white); font-size: 0.875rem;">
-                        <option value="">Loading cameras...</option>
-                    </select>
+
+                <!-- Panel 2: Manual Input & Simulated Mock View -->
+                <div id="panelScanManual" class="scanner-panel" style="width: 100%; display: none; flex-direction: column; gap: 1.25rem;">
+                    <!-- Manual Input Group -->
+                    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <h3 style="font-size: 0.875rem; font-weight: 700; color: var(--slate-700); display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <i data-feather="hash" style="width: 16px; height: 16px; color: var(--primary);"></i>
+                            <span>Verify Reference ID Manually</span>
+                        </h3>
+                        <p style="font-size: 0.75rem; color: var(--slate-500); margin: 0;">Type in a taxpayer reference ID or invoice reference (e.g. LGA/REV/2026/XXXX) to verify.</p>
+                        <div class="form-group" style="margin: 0;">
+                            <input type="text" id="manualScanRefInput" placeholder="e.g. LGA/REV/2026/GUSAU" 
+                                style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--slate-200); font-size: 0.875rem; font-family: monospace;">
+                        </div>
+                        <button type="button" class="btn btn-primary" id="btnSubmitManualScanRef" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;">
+                            <i data-feather="check-circle"></i>
+                            <span>Verify Reference</span>
+                        </button>
+                    </div>
+
+                    <!-- Developer Simulation Group -->
+                    <div style="background: #fdf2f8; border: 1px solid #fbcfe8; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <h3 style="font-size: 0.875rem; font-weight: 700; color: #9d174d; display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <i data-feather="zap" style="width: 16px; height: 16px; color: #db2777;"></i>
+                            <span>Developer Scan Simulation</span>
+                        </h3>
+                        <p style="font-size: 0.75rem; color: #be185d; margin: 0;">No camera or printed card? Select a registered taxpayer profile in the system to simulate a successful QR scan.</p>
+                        <div class="form-group" style="margin: 0;">
+                            <select id="mockPayerSelect" style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid #fbcfe8; background-color: var(--white); font-size: 0.875rem;">
+                                <option value="">Select registered taxpayer...</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn" id="btnSimulateScan" style="width: 100%; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(219, 39, 119, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i data-feather="play"></i>
+                            <span>Simulate Successful Scan</span>
+                        </button>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 

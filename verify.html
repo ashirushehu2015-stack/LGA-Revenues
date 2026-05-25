@@ -6,8 +6,10 @@
     <title>Official Revenue Verification | LGA RevMax</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    <!-- QR Code Scanning Dependencies -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -338,6 +340,86 @@
                 </p>
             </div>
 
+            <!-- Interactive Public Verification Portal Dashboard (Landing View) -->
+            <div class="result-view" id="landingView" style="display: none; flex-direction: column; align-items: center; gap: 1.25rem; text-align: center; width: 100%;">
+                <div style="background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 50%; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 0.25rem; box-shadow: 0 8px 24px rgba(99,102,241,0.15);">
+                    <i data-feather="qr-code" style="width: 30px; height: 30px;" class="lucide-icon"></i>
+                </div>
+                <h2 style="font-size: 1.35rem; font-weight: 800; background: linear-gradient(to right, #a5b4fc, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">REVENUE AUDIT PORTAL</h2>
+                <p style="font-size: 0.8rem; color: var(--text-muted); max-width: 360px; line-height: 1.6; margin: 0 0 0.5rem 0;">
+                    Scan a printed taxpayer card, official receipt QR code, or enter the reference number manually to audit payments.
+                </p>
+
+                <!-- Tabs Switcher -->
+                <div class="checkout-tabs" style="display: flex; border-bottom: 1px solid var(--glass-border); width: 100%; margin-bottom: 0.5rem; background: transparent;">
+                    <button type="button" class="checkout-tab active" id="verifyTabScan" style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid var(--primary); font-weight: 700; color: var(--primary); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                        <i data-feather="camera" style="width: 15px; height: 15px;"></i>
+                        <span>Scan Camera</span>
+                    </button>
+                    <button type="button" class="checkout-tab" id="verifyTabManual" style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid transparent; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                        <i data-feather="keyboard" style="width: 15px; height: 15px;"></i>
+                        <span>Manual Lookup</span>
+                    </button>
+                </div>
+
+                <!-- Panel 1: Live QR Scanner View -->
+                <div id="verifyPanelScan" class="verify-panel active" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                    <div class="scanner-container" style="width: 100%; border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; background: #000; aspect-ratio: 4/3; position: relative;">
+                        <div id="verifyReader" style="width: 100%; height: 100%;"></div>
+                        <div class="scanner-laser"></div>
+                        <div class="scanner-overlay-brackets">
+                            <div class="bracket top-left"></div>
+                            <div class="bracket top-right"></div>
+                            <div class="bracket bottom-left"></div>
+                            <div class="bracket bottom-right"></div>
+                        </div>
+                    </div>
+                    <div id="verifyFeedback" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; font-weight: 600; padding: 10px 12px; border-radius: 8px; background: rgba(255, 255, 255, 0.03); color: var(--text-muted); width: 100%; border: 1px solid var(--glass-border);">
+                        <i data-feather="aperture" style="animation: spin 3s linear infinite; width: 14px; height: 14px;"></i>
+                        <span>Initializing camera view...</span>
+                    </div>
+                    <div class="form-group" style="width: 100%; text-align: left; display: none;" id="verifyCameraSelectGroup">
+                        <label for="verifyCameraSelect" style="display: block; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Select Camera</label>
+                        <select id="verifyCameraSelect" style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-main); font-size: 0.875rem; outline: none;">
+                            <option value="">Loading cameras...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Manual Reference ID Lookup & Simulations -->
+                <div id="verifyPanelManual" class="verify-panel" style="width: 100%; display: none; flex-direction: column; gap: 1.25rem; text-align: left;">
+                    <!-- Manual Input Form -->
+                    <div style="background: rgba(255, 255, 255, 0.01); border: 1px solid var(--glass-border); border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+                        <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin: 0;">Receipt / Profile Reference</label>
+                        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                            <i data-feather="hash" style="position: absolute; left: 12px; color: var(--text-muted); width: 16px; height: 16px;"></i>
+                            <input type="text" id="verifyManualRef" placeholder="e.g. LGA/REV/2026/GUSAU" 
+                                style="width: 100%; height: 44px; padding-left: 2.5rem; padding-right: 12px; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.9rem; font-family: monospace; outline: none; transition: border 0.2s;">
+                        </div>
+                        <button type="button" class="home-btn" id="btnVerifyManual" style="margin-top: 0.25rem; font-family: inherit;">
+                            <i data-feather="search"></i> Verify Reference ID
+                        </button>
+                    </div>
+
+                    <!-- Developer Auditing Simulation Panel -->
+                    <div style="background: rgba(236, 72, 153, 0.03); border: 1px solid rgba(236, 72, 153, 0.12); border-radius: 16px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; width: 100%;">
+                        <h3 style="font-size: 0.85rem; font-weight: 700; color: #f472b6; display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <i data-feather="zap" style="width: 15px; height: 15px; color: #ec4899;"></i>
+                            <span>Auditing Simulator</span>
+                        </h3>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Quickly test receipt verification on a device without a camera by selecting a live tax record profile.</p>
+                        <div class="form-group" style="margin: 0; width: 100%;">
+                            <select id="verifyMockSelect" style="width: 100%; height: 42px; padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(236, 72, 153, 0.15); background: var(--glass-bg); color: var(--text-main); font-size: 0.875rem; outline: none;">
+                                <option value="">Loading system records...</option>
+                            </select>
+                        </div>
+                        <button type="button" id="btnVerifySimulate" style="width: 100%; height: 44px; background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); border: none; border-radius: 12px; color: white; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(219, 39, 119, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit;">
+                            <i data-feather="play"></i> Simulate Successful Scan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Loader State -->
             <div class="loader-container" id="verifyLoader">
                 <div class="spinner"></div>
@@ -421,18 +503,186 @@
             return urlParams.get(name);
         }
 
+        let verifyHtml5QrCode = null;
+
+        function stopVerifyScanner() {
+            if (verifyHtml5QrCode && verifyHtml5QrCode.isScanning) {
+                try {
+                    verifyHtml5QrCode.stop().then(() => {
+                        console.log("Verify camera scanner stopped.");
+                    }).catch(err => {
+                        console.warn("Verify camera stop error:", err);
+                    });
+                } catch (e) {
+                    console.warn("Verify camera stop exception:", e);
+                }
+            }
+        }
+
+        async function startVerifyCamera() {
+            try {
+                if (typeof Html5Qrcode === 'undefined') {
+                    throw new Error("Html5Qrcode scanner library is offline or blocked.");
+                }
+                
+                if (!verifyHtml5QrCode) {
+                    verifyHtml5QrCode = new Html5Qrcode("verifyReader");
+                }
+                
+                const config = {
+                    fps: 15,
+                    qrbox: (width, height) => {
+                        const size = Math.min(width, height) * 0.7;
+                        return { width: size, height: size };
+                    },
+                    aspectRatio: 1.333333
+                };
+                
+                const onScanSuccess = (decodedText) => {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(100);
+                    }
+                    stopVerifyScanner();
+                    
+                    let ref = decodedText;
+                    try {
+                        if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
+                            const parsedUrl = new URL(decodedText);
+                            const refParam = parsedUrl.searchParams.get('ref');
+                            if (refParam) {
+                                ref = refParam;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn("Scanned text is not a URL, using raw:", decodedText);
+                    }
+                    
+                    const feedback = document.getElementById('verifyFeedback');
+                    if (feedback) {
+                        feedback.innerHTML = `
+                            <i data-feather="check-circle" style="color: #10b981; width: 14px; height: 14px;"></i>
+                            <span style="color: #10b981; font-weight: 700;">QR MATCH: ${ref}</span>
+                        `;
+                        feather.replace();
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.href = `verify.html?ref=${encodeURIComponent(ref)}`;
+                    }, 650);
+                };
+                
+                const onScanFailure = () => {
+                    // Suppress scan frame errors
+                };
+
+                // Try rear camera first, fall back to front/user webcam, then default index 0
+                try {
+                    await verifyHtml5QrCode.start(
+                        { facingMode: "environment" },
+                        config,
+                        onScanSuccess,
+                        onScanFailure
+                    );
+                } catch (envErr) {
+                    console.warn("[Verify Portal] Environmental camera failed, attempting user camera fallback...", envErr);
+                    try {
+                        await verifyHtml5QrCode.start(
+                            { facingMode: "user" },
+                            config,
+                            onScanSuccess,
+                            onScanFailure
+                        );
+                    } catch (userErr) {
+                        console.warn("[Verify Portal] User camera failed, using first available...", userErr);
+                        const devices = await Html5Qrcode.getCameras();
+                        if (devices && devices.length > 0) {
+                            await verifyHtml5QrCode.start(
+                                devices[0].id,
+                                config,
+                                onScanSuccess,
+                                onScanFailure
+                            );
+                        } else {
+                            throw new Error("No camera hardware detected.");
+                        }
+                    }
+                }
+                
+                const feedback = document.getElementById('verifyFeedback');
+                if (feedback) {
+                    feedback.innerHTML = `
+                        <i data-feather="zap" style="color: #10b981; width: 14px; height: 14px;"></i>
+                        <span style="color: #10b981;">Camera active. Scanning...</span>
+                    `;
+                    feather.replace();
+                }
+
+                // Camera switcher dropdown if multiple hardware cameras found
+                try {
+                    const devices = await Html5Qrcode.getCameras();
+                    const cameraSelectGroup = document.getElementById('verifyCameraSelectGroup');
+                    const verifyCameraSelect = document.getElementById('verifyCameraSelect');
+                    if (devices && devices.length > 1 && cameraSelectGroup && verifyCameraSelect) {
+                        cameraSelectGroup.style.display = 'block';
+                        verifyCameraSelect.innerHTML = '';
+                        devices.forEach((device, index) => {
+                            const opt = document.createElement('option');
+                            opt.value = device.id;
+                            opt.textContent = device.label || `Camera ${index + 1}`;
+                            verifyCameraSelect.appendChild(opt);
+                        });
+                        
+                        verifyCameraSelect.onchange = async (e) => {
+                            const selectedId = e.target.value;
+                            if (selectedId) {
+                                stopVerifyScanner();
+                                try {
+                                    await verifyHtml5QrCode.start(
+                                        selectedId,
+                                        config,
+                                        onScanSuccess,
+                                        onScanFailure
+                                    );
+                                } catch (switchErr) {
+                                    console.error("Camera switch failed", switchErr);
+                                }
+                            }
+                        };
+                    }
+                } catch (deviceErr) {
+                    console.warn("Could not list hardware devices:", deviceErr);
+                }
+                
+            } catch (err) {
+                console.error("[Camera Scan Error]", err);
+                const feedback = document.getElementById('verifyFeedback');
+                if (feedback) {
+                    feedback.innerHTML = `
+                        <i data-feather="alert-triangle" style="color: #ef4444; width: 14px; height: 14px;"></i>
+                        <span style="color: #ef4444;">Camera stream access blocked.</span>
+                    `;
+                    feather.replace();
+                }
+            }
+        }
+
         async function verifyReceipt() {
             const ref = getQueryParam('ref');
             const loader = document.getElementById('verifyLoader');
             const verifiedView = document.getElementById('verifiedView');
             const unverifiedView = document.getElementById('unverifiedView');
+            const landingView = document.getElementById('landingView');
 
             if (!ref) {
-                // No ref provided, render error
+                // Transition to beautiful interactive landing view instead of showing missing stamp error!
                 loader.style.display = 'none';
-                unverifiedView.style.display = 'flex';
-                document.getElementById('unverifiedRef').innerText = 'MISSING STAMP REFERENCE';
+                landingView.style.display = 'flex';
+                
+                // Initialize Feather icons in landing view
                 feather.replace();
+                
+                // Fire up camera scanner stream
+                startVerifyCamera();
                 return;
             }
 
@@ -505,11 +755,101 @@
             feather.replace();
         }
 
+        // Setup Tab switching and simulations inside verify.html
+        document.addEventListener('DOMContentLoaded', () => {
+            const verifyTabScan = document.getElementById('verifyTabScan');
+            const verifyTabManual = document.getElementById('verifyTabManual');
+            const verifyPanelScan = document.getElementById('verifyPanelScan');
+            const verifyPanelManual = document.getElementById('verifyPanelManual');
+            
+            verifyTabScan?.addEventListener('click', () => {
+                verifyTabScan.classList.add('active');
+                verifyTabManual?.classList.remove('active');
+                verifyTabScan.style.borderBottom = '2px solid var(--primary)';
+                verifyTabScan.style.color = 'var(--primary)';
+                if (verifyTabManual) {
+                    verifyTabManual.style.borderBottom = '2px solid transparent';
+                    verifyTabManual.style.color = 'var(--text-muted)';
+                }
+                
+                if (verifyPanelScan) verifyPanelScan.style.display = 'flex';
+                if (verifyPanelManual) verifyPanelManual.style.display = 'none';
+                
+                // Re-start live webcam scan
+                startVerifyCamera();
+            });
+
+            verifyTabManual?.addEventListener('click', () => {
+                verifyTabManual.classList.add('active');
+                verifyTabScan?.classList.remove('active');
+                verifyTabManual.style.borderBottom = '2px solid var(--primary)';
+                verifyTabManual.style.color = 'var(--primary)';
+                if (verifyTabScan) {
+                    verifyTabScan.style.borderBottom = '2px solid transparent';
+                    verifyTabScan.style.color = 'var(--text-muted)';
+                }
+                
+                if (verifyPanelScan) verifyPanelScan.style.display = 'none';
+                if (verifyPanelManual) verifyPanelManual.style.display = 'flex';
+                
+                // Stop camera stream to release device webcam
+                stopVerifyScanner();
+                
+                // Query system profiles to populate developer simulator list dynamically
+                const verifyMockSelect = document.getElementById('verifyMockSelect');
+                if (verifyMockSelect) {
+                    verifyMockSelect.innerHTML = '<option value="">Loading system records...</option>';
+                    // Seed standard fallback references and query local cache
+                    verifyMockSelect.innerHTML = `
+                        <option value="">Select a transaction ID to verify...</option>
+                        <option value="LGA/REV/2026/TEST">Sample: Zamfara Tech (Gusau LGA)</option>
+                    `;
+                    
+                    try {
+                        const localPayer = JSON.parse(localStorage.getItem('lga_portal_payer'));
+                        if (localPayer && localPayer.invoiceRef) {
+                            const opt = document.createElement('option');
+                            opt.value = localPayer.invoiceRef;
+                            opt.textContent = `Active Portal Profile: ${localPayer.businessName}`;
+                            verifyMockSelect.appendChild(opt);
+                        }
+                    } catch (e) {}
+                }
+            });
+
+            // Bind manual reference input audit submission
+            document.getElementById('btnVerifyManual')?.addEventListener('click', () => {
+                const input = document.getElementById('verifyManualRef');
+                const ref = input?.value.trim();
+                if (!ref) {
+                    alert("Please enter a valid reference ID.");
+                    return;
+                }
+                window.location.href = `verify.html?ref=${encodeURIComponent(ref)}`;
+            });
+
+            // Bind mock scan simulator verification trigger
+            document.getElementById('btnVerifySimulate')?.addEventListener('click', () => {
+                const select = document.getElementById('verifyMockSelect');
+                const ref = select?.value;
+                if (!ref) {
+                    alert("Please select a simulated record profile first.");
+                    return;
+                }
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+                
+                window.location.href = `verify.html?ref=${encodeURIComponent(ref)}`;
+            });
+        });
+
         // Run verification on window load
         window.addEventListener('load', () => {
             feather.replace();
             // Artificial tiny delay for smooth animation loading experience
-            setTimeout(verifyReceipt, 1200);
+            setTimeout(verifyReceipt, 800);
         });
     </script>
 </body>

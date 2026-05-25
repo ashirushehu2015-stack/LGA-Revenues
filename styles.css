@@ -2108,3 +2108,65 @@ input:focus, select:focus {
     pointer-events: none;
     z-index: 1;
 }
+
+/* ==========================================================================
+   INTERACTIVE SCANNER & VERIFICATION UPGRADES
+   ========================================================================== */
+.checkout-tabs {
+    background: transparent !important;
+}
+
+.checkout-tab {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.checkout-tab:hover {
+    color: var(--primary) !important;
+    background: rgba(99, 102, 241, 0.04) !important;
+}
+
+.checkout-tab.active {
+    border-bottom: 2px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+.verify-panel, .scanner-panel {
+    animation: panelFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.verify-panel select, .scanner-panel select {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.verify-panel select:focus, .scanner-panel select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px var(--primary-glow) !important;
+}
+
+#landingView select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+#landingView select option {
+    background-color: #1e1b4b !important;
+    color: #f8fafc !important;
+}
+

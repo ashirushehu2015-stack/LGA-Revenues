@@ -1718,13 +1718,38 @@ if (scanQrBtn) {
             
             // Start scanning directly using smartphone rear camera (facingMode environmental constraint)
             // This is extremely robust and avoids device label listing blocks before permissions are given.
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                onQrCodeSuccess,
-                onQrCodeError
-            );
-            
+            try {
+                await html5QrCode.start(
+                    { facingMode: "environment" },
+                    config,
+                    onQrCodeSuccess,
+                    onQrCodeError
+                );
+            } catch (envErr) {
+                console.warn("[Camera] Rear camera not available, attempting user camera fallback...", envErr);
+                try {
+                    await html5QrCode.start(
+                        { facingMode: "user" },
+                        config,
+                        onQrCodeSuccess,
+                        onQrCodeError
+                    );
+                } catch (userErr) {
+                    console.warn("[Camera] User camera failed, attempting first available hardware camera...", userErr);
+                    const devices = await Html5Qrcode.getCameras();
+                    if (devices && devices.length > 0) {
+                        await html5QrCode.start(
+                            devices[0].id,
+                            config,
+                            onQrCodeSuccess,
+                            onQrCodeError
+                        );
+                    } else {
+                        throw new Error("No camera hardware found or access blocked.");
+                    }
+                }
+            }
+
             scannerFeedback.className = "scanner-feedback";
             scannerFeedback.innerHTML = `
                 <i data-feather="zap" style="color: #10b981;"></i>
@@ -1885,3 +1910,97 @@ async function resolveScannedPayerProfile(reference) {
         showToast("Server connection error during QR resolve.", "error");
     }
 }
+
+// ==========================================================================
+// MOCK SCANNER / MANUAL TAB SWITCHER AND SIMULATION HANDLERS
+// ==========================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    const tabScanLive = document.getElementById('tabScanLive');
+    const tabScanManual = document.getElementById('tabScanManual');
+    const panelScanLive = document.getElementById('panelScanLive');
+    const panelScanManual = document.getElementById('panelScanManual');
+    const scanQrBtn = document.getElementById('scanQrBtn');
+    
+    tabScanLive?.addEventListener('click', () => {
+        tabScanLive.classList.add('active');
+        tabScanManual?.classList.remove('active');
+        tabScanLive.style.borderBottom = '2px solid var(--primary)';
+        tabScanLive.style.color = 'var(--primary)';
+        if (tabScanManual) {
+            tabScanManual.style.borderBottom = '2px solid transparent';
+            tabScanManual.style.color = 'var(--slate-500)';
+        }
+
+        if (panelScanLive) panelScanLive.style.display = 'flex';
+        if (panelScanManual) panelScanManual.style.display = 'none';
+        
+        // Re-initialize live camera stream
+        scanQrBtn?.click();
+    });
+
+    tabScanManual?.addEventListener('click', () => {
+        tabScanManual.classList.add('active');
+        tabScanLive?.classList.remove('active');
+        tabScanManual.style.borderBottom = '2px solid var(--primary)';
+        tabScanManual.style.color = 'var(--primary)';
+        if (tabScanLive) {
+            tabScanLive.style.borderBottom = '2px solid transparent';
+            tabScanLive.style.color = 'var(--slate-500)';
+        }
+
+        if (panelScanLive) panelScanLive.style.display = 'none';
+        if (panelScanManual) panelScanManual.style.display = 'flex';
+        
+        // Stop camera stream to free hardware resources
+        stopScanner();
+        
+        // Populate Simulation select field with active profiles in the system
+        const mockSelect = document.getElementById('mockPayerSelect');
+        if (mockSelect) {
+            mockSelect.innerHTML = '<option value="">Select registered taxpayer...</option>';
+            transactions.forEach(t => {
+                const opt = document.createElement('option');
+                opt.value = t.invoiceRef || t.id;
+                opt.textContent = `${t.businessName} (${t.invoiceRef || 'No Ref'})`;
+                mockSelect.appendChild(opt);
+            });
+        }
+    });
+
+    // Manual input submission inside scanner modal
+    document.getElementById('btnSubmitManualScanRef')?.addEventListener('click', () => {
+        const input = document.getElementById('manualScanRefInput');
+        const ref = input?.value.trim();
+        if (!ref) {
+            showToast("Please enter a reference ID.", "warning");
+            return;
+        }
+        closeModals();
+        resolveScannedPayerProfile(ref);
+        
+        // Clear input
+        if (input) input.value = '';
+    });
+
+    // Developer Mock Simulation trigger
+    document.getElementById('btnSimulateScan')?.addEventListener('click', () => {
+        const mockSelect = document.getElementById('mockPayerSelect');
+        const ref = mockSelect?.value;
+        if (!ref) {
+            showToast("Please select a taxpayer to simulate.", "warning");
+            return;
+        }
+        
+        // Custom haptic vibration feedback for successful simulated audit scan
+        if (navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+        
+        showToast("Simulating successful QR scan...", "success");
+        setTimeout(() => {
+            closeModals();
+            resolveScannedPayerProfile(ref);
+        }, 600);
+    });
+});
+
