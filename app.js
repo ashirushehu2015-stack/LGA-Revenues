@@ -9,6 +9,31 @@ const LGAS = [
 ];
 let currentContextLga = 'System-wide';
 
+// QR Scanner Globals & Lifecycle
+let html5QrCode = null;
+
+function stopScanner() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        try {
+            html5QrCode.stop().then(() => {
+                console.log("Scanner stopped successfully.");
+                const feedback = document.getElementById('scannerFeedback');
+                if (feedback) {
+                    feedback.innerHTML = `
+                        <i data-feather="aperture"></i>
+                        <span>Camera stopped.</span>
+                    `;
+                }
+                feather.replace();
+            }).catch(err => {
+                console.warn("Camera stop promise error:", err);
+            });
+        } catch (e) {
+            console.warn("Exception during camera stop:", e);
+        }
+    }
+}
+
 // Auth & Session Management
 const currentUser = JSON.parse(localStorage.getItem('lga_user') || '{}');
 
@@ -451,6 +476,9 @@ function openModal() {
 function closeModals() {
     modal.classList.remove('active');
     reportModal.classList.remove('active');
+    document.getElementById('scannerModal')?.classList.remove('active');
+    document.getElementById('payerCardModal')?.classList.remove('active');
+    stopScanner();
     editId = null;
     revenueForm.reset();
     
@@ -473,13 +501,19 @@ function closeModals() {
 addRevenueBtn.addEventListener('click', openModal);
 closeBtns.forEach(btn => btn.addEventListener('click', closeModals));
 
+// Handle close buttons inside scanner and card modals
+document.getElementById('closeScannerBtn')?.addEventListener('click', closeModals);
+document.getElementById('closePayerCardModalBtn')?.addEventListener('click', closeModals);
+
 // Close modal on click outside
-[modal, reportModal].forEach(m => {
-    m.addEventListener('click', (e) => {
-        if (e.target === m) {
-            closeModals();
-        }
-    });
+[modal, reportModal, document.getElementById('scannerModal'), document.getElementById('payerCardModal')].forEach(m => {
+    if (m) {
+        m.addEventListener('click', (e) => {
+            if (e.target === m) {
+                closeModals();
+            }
+        });
+    }
 });
 
 // Removed formatDate and formatCurrency since amount and date were removed
@@ -961,6 +995,117 @@ window.openInvoice = function(id) {
         });
     } else {
         payOnlineBtn.style.display = 'none';
+    }
+
+    // Handle Payer Card Button
+    const payerCardBtn = document.getElementById('payerCardBtn');
+    if (payerCardBtn) {
+        payerCardBtn.style.display = 'inline-flex';
+        
+        // Clone to remove old listeners
+        const newPayerCardBtn = payerCardBtn.cloneNode(true);
+        payerCardBtn.parentNode.replaceChild(newPayerCardBtn, payerCardBtn);
+        
+        newPayerCardBtn.addEventListener('click', () => {
+            // Compute Compliance percentage
+            let paid = 0;
+            let unpaid = 0;
+            (t.taxes || []).forEach(tax => {
+                const amount = tax.amount || 0;
+                if (tax.status === 'Paid') {
+                    paid += tax.amountPaid || amount;
+                } else {
+                    unpaid += amount;
+                }
+            });
+            const totalAssigned = paid + unpaid;
+            let compliancePercentage = 0;
+            if (totalAssigned > 0) {
+                compliancePercentage = Math.round((paid / totalAssigned) * 100);
+            } else {
+                const taxes = t.taxes || [];
+                if (taxes.length > 0) {
+                    const paidCount = taxes.filter(tx => tx.status === 'Paid').length;
+                    compliancePercentage = Math.round((paidCount / taxes.length) * 100);
+                } else {
+                    compliancePercentage = 100;
+                }
+            }
+            
+            // Determine compliance tier badge and rank
+            let tierClass = 'tier-bronze';
+            let rankLabel = 'Abokin Jira / Bronze Payer';
+            let iconName = 'clock';
+            
+            if (compliancePercentage === 100) {
+                tierClass = 'tier-gold';
+                rankLabel = 'Abokin Ci Gaban Jiha / Gold Payer';
+                iconName = 'award';
+            } else if (compliancePercentage >= 50) {
+                tierClass = 'tier-silver';
+                rankLabel = 'Abokin Kusa / Silver Payer';
+                iconName = 'shield';
+            } else {
+                tierClass = 'tier-bronze';
+                rankLabel = 'Abokin Jira / Bronze Payer';
+                iconName = 'clock';
+            }
+            
+            // Set dynamic card texts
+            document.getElementById('cardBusinessName').textContent = t.businessName || 'Taxpayer';
+            const refStr = t.invoiceRef || `LGA/PROFILE/${t.id.slice(-4).toUpperCase()}`;
+            document.getElementById('cardPayerId').textContent = refStr;
+            document.getElementById('cardRepName').textContent = t.contactPerson || 'N/A';
+            document.getElementById('cardLgaName').textContent = (t.lga || t.city || 'ZAMFARA') + ' LGA';
+            
+            const badgeEl = document.getElementById('cardComplianceBadge');
+            if (badgeEl) {
+                badgeEl.className = `card-compliance-tier-badge ${tierClass}`;
+                badgeEl.innerHTML = `<i data-feather="${iconName}"></i> <span id="cardComplianceRankText">${rankLabel}</span>`;
+            }
+            
+            // Generate verification QR Code URL
+            const verificationUrl = `${window.location.origin}/verify.html?ref=${encodeURIComponent(refStr)}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(verificationUrl)}`;
+            document.getElementById('cardQrCode').src = qrUrl;
+            
+            // Re-trigger feather
+            feather.replace();
+            
+            // Close the main profile modal so it doesn't overlap and look messy
+            reportModal.classList.remove('active');
+            
+            // Show Payer Card preview modal
+            document.getElementById('payerCardModal').classList.add('active');
+            
+            // Set up download listener
+            const dlBtn = document.getElementById('downloadPayerCardBtn');
+            const newDlBtn = dlBtn.cloneNode(true);
+            dlBtn.parentNode.replaceChild(newDlBtn, dlBtn);
+            
+            newDlBtn.addEventListener('click', () => {
+                showToast("Generating high-definition card...", "info");
+                
+                const cardEl = document.getElementById('payerCardToCapture');
+                html2canvas(cardEl, {
+                    scale: 3, // Higher multiplier for sharp physical print quality
+                    useCORS: true,
+                    backgroundColor: null
+                }).then(canvas => {
+                    const imgUrl = canvas.toDataURL("image/png");
+                    const a = document.createElement('a');
+                    a.href = imgUrl;
+                    a.download = `payer_card_${(t.businessName || 'taxpayer').toLowerCase().replace(/\s+/g, '_')}.png`;
+                    a.click();
+                    showToast("Payer Pocket Card downloaded successfully!", "success");
+                }).catch(err => {
+                    console.error("Card generation failed:", err);
+                    showToast("Card export failed. Please check console.", "error");
+                });
+            });
+        });
+    } else {
+        payerCardBtn.style.display = 'none';
     }
     
     feather.replace();
@@ -1524,3 +1669,193 @@ async function loadGrievancesWidget() {
 
 // Load grievances widget on page load
 loadGrievancesWidget();
+
+// ==========================================================================
+// MOBILE QR CAMERA SCANNER LOGIC
+// ==========================================================================
+const scanQrBtn = document.getElementById('scanQrBtn');
+const cameraSelect = document.getElementById('cameraSelect');
+const scannerModal = document.getElementById('scannerModal');
+const scannerFeedback = document.getElementById('scannerFeedback');
+
+if (scanQrBtn) {
+    scanQrBtn.addEventListener('click', async () => {
+        // Show the scanner modal overlay
+        scannerModal.classList.add('active');
+        
+        // Initialize feedback
+        scannerFeedback.className = "scanner-feedback";
+        scannerFeedback.innerHTML = `
+            <i data-feather="aperture" style="animation: spin 3s linear infinite;"></i>
+            <span>Requesting camera hardware access...</span>
+        `;
+        feather.replace();
+        
+        // Setup dropdown clear
+        cameraSelect.innerHTML = '<option value="">Loading cameras...</option>';
+        
+        try {
+            // Check if library is loaded
+            if (typeof Html5Qrcode === 'undefined') {
+                throw new Error("Html5Qrcode scanner library is offline or blocked.");
+            }
+            
+            // Create reader instance if it doesn't exist
+            if (!html5QrCode) {
+                html5QrCode = new Html5Qrcode("reader");
+            }
+            
+            // Request permissions & fetch devices
+            const devices = await Html5Qrcode.getCameras();
+            
+            if (!devices || devices.length === 0) {
+                throw new Error("No camera devices detected on this smartphone or computer.");
+            }
+            
+            // Populate select dropdown
+            cameraSelect.innerHTML = '';
+            devices.forEach((device, index) => {
+                const opt = document.createElement('option');
+                opt.value = device.id;
+                opt.textContent = device.label || `Camera ${index + 1}`;
+                cameraSelect.appendChild(opt);
+            });
+            
+            // Start scanning with the first device
+            const firstCameraId = devices[0].id;
+            await startCameraScanning(firstCameraId);
+            
+            // Bind camera switch change event
+            cameraSelect.onchange = async (e) => {
+                const selectedId = e.target.value;
+                if (selectedId) {
+                    showToast("Switching camera stream...", "info");
+                    if (html5QrCode && html5QrCode.isScanning) {
+                        await html5QrCode.stop();
+                    }
+                    await startCameraScanning(selectedId);
+                }
+            };
+            
+        } catch (err) {
+            console.error("[Camera Scan Error]", err);
+            scannerFeedback.className = "scanner-feedback";
+            scannerFeedback.innerHTML = `
+                <i data-feather="alert-triangle" style="color: #ef4444;"></i>
+                <span style="color: #ef4444;">${err.message || 'Camera initialize failed.'}</span>
+            `;
+            feather.replace();
+            showToast("Camera access failed. Check browser permissions.", "error");
+        }
+    });
+}
+
+async function startCameraScanning(cameraId) {
+    if (!html5QrCode) return;
+    
+    scannerFeedback.className = "scanner-feedback";
+    scannerFeedback.innerHTML = `
+        <i data-feather="aperture" style="animation: spin 3s linear infinite;"></i>
+        <span>Starting camera viewfinder...</span>
+    `;
+    feather.replace();
+    
+    const config = {
+        fps: 15,
+        qrbox: (width, height) => {
+            // Highly optimized scanning window responsive for mobile viewports
+            const size = Math.min(width, height) * 0.7;
+            return { width: size, height: size };
+        },
+        aspectRatio: 1.333333
+    };
+    
+    try {
+        await html5QrCode.start(
+            cameraId,
+            config,
+            onQrCodeSuccess,
+            onQrCodeError
+        );
+        
+        scannerFeedback.className = "scanner-feedback";
+        scannerFeedback.innerHTML = `
+            <i data-feather="zap" style="color: #10b981;"></i>
+            <span style="color: #10b981;">Camera active. Scanning...</span>
+        `;
+        feather.replace();
+    } catch (err) {
+        console.error("Failed to start camera viewport stream:", err);
+        scannerFeedback.className = "scanner-feedback";
+        scannerFeedback.innerHTML = `
+            <i data-feather="alert-triangle" style="color: #ef4444;"></i>
+            <span style="color: #ef4444;">Viewfinder start failed.</span>
+        `;
+        feather.replace();
+    }
+}
+
+function onQrCodeSuccess(decodedText, decodedResult) {
+    console.log(`[QR Scanned Success] Decoded: ${decodedText}`);
+    
+    // Attempt to extract reference from URL query param
+    let ref = decodedText;
+    try {
+        if (decodedText.startsWith('http://') || decodedText.startsWith('https://')) {
+            const parsedUrl = new URL(decodedText);
+            const refParam = parsedUrl.searchParams.get('ref');
+            if (refParam) {
+                ref = refParam;
+            }
+        }
+    } catch (e) {
+        console.warn("Could not parse scanned text as URL, using raw value:", decodedText);
+    }
+    
+    // Success feedback (vibration if supported)
+    if (navigator.vibrate) {
+        navigator.vibrate(100);
+    }
+    
+    scannerFeedback.className = "scanner-feedback";
+    scannerFeedback.innerHTML = `
+        <i data-feather="check-circle" style="color: #10b981;"></i>
+        <span style="color: #10b981; font-weight: 700;">QR MATCH: ${ref}</span>
+    `;
+    feather.replace();
+    
+    // Stop camera first
+    stopScanner();
+    
+    // Artificial small delay for visual feedback, then resolve
+    setTimeout(() => {
+        closeModals();
+        resolveScannedPayerProfile(ref);
+    }, 800);
+}
+
+function onQrCodeError(errorMessage) {
+    // We suppress console logging of scanning frame errors as they happen every millisecond
+    // when a QR code is not in front of the camera viewport.
+}
+
+async function resolveScannedPayerProfile(reference) {
+    showToast(`Verifying reference: ${reference}...`, "info");
+    
+    try {
+        const response = await fetch(`/api/verify?ref=${encodeURIComponent(reference)}`);
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            showToast(`Match found for ${data.payer.businessName}!`, "success");
+            
+            // Instantly open their dashboard invoice/compliance overlay
+            openInvoice(data.payer.id);
+        } else {
+            showToast(`Invalid QR Code: Reference "${reference}" not found.`, "error");
+        }
+    } catch (err) {
+        console.error("Resolve payer profile error:", err);
+        showToast("Server connection error during QR resolve.", "error");
+    }
+}
