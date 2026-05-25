@@ -1687,11 +1687,13 @@ if (scanQrBtn) {
         scannerFeedback.className = "scanner-feedback";
         scannerFeedback.innerHTML = `
             <i data-feather="aperture" style="animation: spin 3s linear infinite;"></i>
-            <span>Requesting camera hardware access...</span>
+            <span>Requesting camera permission...</span>
         `;
         feather.replace();
         
-        // Setup dropdown clear
+        // Ensure camera switcher container is reset and visible initially
+        const selectGroup = document.getElementById('cameraSelectGroup');
+        if (selectGroup) selectGroup.style.display = 'block';
         cameraSelect.innerHTML = '<option value="">Loading cameras...</option>';
         
         try {
@@ -1705,37 +1707,62 @@ if (scanQrBtn) {
                 html5QrCode = new Html5Qrcode("reader");
             }
             
-            // Request permissions & fetch devices
-            const devices = await Html5Qrcode.getCameras();
-            
-            if (!devices || devices.length === 0) {
-                throw new Error("No camera devices detected on this smartphone or computer.");
-            }
-            
-            // Populate select dropdown
-            cameraSelect.innerHTML = '';
-            devices.forEach((device, index) => {
-                const opt = document.createElement('option');
-                opt.value = device.id;
-                opt.textContent = device.label || `Camera ${index + 1}`;
-                cameraSelect.appendChild(opt);
-            });
-            
-            // Start scanning with the first device
-            const firstCameraId = devices[0].id;
-            await startCameraScanning(firstCameraId);
-            
-            // Bind camera switch change event
-            cameraSelect.onchange = async (e) => {
-                const selectedId = e.target.value;
-                if (selectedId) {
-                    showToast("Switching camera stream...", "info");
-                    if (html5QrCode && html5QrCode.isScanning) {
-                        await html5QrCode.stop();
-                    }
-                    await startCameraScanning(selectedId);
-                }
+            const config = {
+                fps: 15,
+                qrbox: (width, height) => {
+                    const size = Math.min(width, height) * 0.7;
+                    return { width: size, height: size };
+                },
+                aspectRatio: 1.333333
             };
+            
+            // Start scanning directly using smartphone rear camera (facingMode environmental constraint)
+            // This is extremely robust and avoids device label listing blocks before permissions are given.
+            await html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                onQrCodeSuccess,
+                onQrCodeError
+            );
+            
+            scannerFeedback.className = "scanner-feedback";
+            scannerFeedback.innerHTML = `
+                <i data-feather="zap" style="color: #10b981;"></i>
+                <span style="color: #10b981;">Camera active. Scanning...</span>
+            `;
+            feather.replace();
+            
+            // Now that camera is active and permission is secured, fetch available hardware cameras to populate switcher
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                if (devices && devices.length > 1) {
+                    cameraSelect.innerHTML = '';
+                    devices.forEach((device, index) => {
+                        const opt = document.createElement('option');
+                        opt.value = device.id;
+                        opt.textContent = device.label || `Camera ${index + 1}`;
+                        cameraSelect.appendChild(opt);
+                    });
+                    
+                    // Bind camera switcher control
+                    cameraSelect.onchange = async (e) => {
+                        const selectedId = e.target.value;
+                        if (selectedId) {
+                            showToast("Switching camera stream...", "info");
+                            if (html5QrCode && html5QrCode.isScanning) {
+                                await html5QrCode.stop();
+                            }
+                            await startCameraScanning(selectedId);
+                        }
+                    };
+                } else {
+                    // Only 1 camera available, hide the switcher to keep UI extremely clean
+                    if (selectGroup) selectGroup.style.display = 'none';
+                }
+            } catch (deviceErr) {
+                console.warn("Could not query devices list:", deviceErr);
+                if (selectGroup) selectGroup.style.display = 'none';
+            }
             
         } catch (err) {
             console.error("[Camera Scan Error]", err);
@@ -1745,7 +1772,7 @@ if (scanQrBtn) {
                 <span style="color: #ef4444;">${err.message || 'Camera initialize failed.'}</span>
             `;
             feather.replace();
-            showToast("Camera access failed. Check browser permissions.", "error");
+            showToast("Camera access failed. Check browser permissions and HTTPS.", "error");
         }
     });
 }
@@ -1763,7 +1790,6 @@ async function startCameraScanning(cameraId) {
     const config = {
         fps: 15,
         qrbox: (width, height) => {
-            // Highly optimized scanning window responsive for mobile viewports
             const size = Math.min(width, height) * 0.7;
             return { width: size, height: size };
         },
