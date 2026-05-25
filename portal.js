@@ -88,7 +88,9 @@ const translations = {
         cash_close_btn: "Got it, close checkout",
         receipt_title: "Tax Document",
         receipt_print_btn: "Print",
-        receipt_pdf_btn: "PDF"
+        receipt_pdf_btn: "PDF",
+        dash_compliance_tier: "Compliance Rating",
+        dash_compliance_feedback: "Your tax contributions fund local development projects such as schools, clean water, and roads in your LGA."
     },
     ha: {
         nav_checking: "Ana duba...",
@@ -178,7 +180,9 @@ const translations = {
         cash_close_btn: "Na gane, rufe wurin biya",
         receipt_title: "Takardar Haraji",
         receipt_print_btn: "Buga",
-        receipt_pdf_btn: "PDF"
+        receipt_pdf_btn: "PDF",
+        dash_compliance_tier: "Kiyasin Biyayya",
+        dash_compliance_feedback: "Kuɗin harajinku suna tallafawa ayyukan ci gaban yankin ku kamar makarantu, ruwan sha, da hanyoyi a Karamar Hukumar ku."
     }
 };
 
@@ -619,6 +623,73 @@ function renderPayerTaxes() {
         list.appendChild(item);
     });
     
+    // Calculate compliance percentage
+    const totalAssigned = paid + unpaid;
+    let compliancePercentage = 0;
+    
+    if (totalAssigned > 0) {
+        compliancePercentage = Math.round((paid / totalAssigned) * 100);
+    } else {
+        // If no money amount exists (e.g. all taxes are variable / zero-amount pending assessment), 
+        // calculate based on count of paid items
+        const taxes = currentPayer.taxes || [];
+        if (taxes.length > 0) {
+            const paidCount = taxes.filter(t => t.status === 'Paid').length;
+            compliancePercentage = Math.round((paidCount / taxes.length) * 100);
+        } else {
+            compliancePercentage = 100; // Perfect compliance by default if no taxes assigned yet
+        }
+    }
+
+    // Update SVG Circular Progress Ring
+    const ringProgress = document.getElementById('complianceRingProgress');
+    if (ringProgress) {
+        const circumference = 2 * Math.PI * 50; // 314.159
+        const dashoffset = circumference - (compliancePercentage / 100) * circumference;
+        ringProgress.style.strokeDashoffset = dashoffset;
+        
+        // Dynamically color ring progress border depending on compliance tier
+        if (compliancePercentage === 100) {
+            ringProgress.style.stroke = '#10b981'; // Emerald/Green for Gold
+        } else if (compliancePercentage >= 50) {
+            ringProgress.style.stroke = '#64748b'; // Slate/Silver for Silver
+        } else {
+            ringProgress.style.stroke = '#f97316'; // Orange/Bronze for Bronze
+        }
+    }
+
+    // Update Percentage Text
+    const percentText = document.getElementById('compliancePercentText');
+    if (percentText) {
+        percentText.textContent = `${compliancePercentage}%`;
+    }
+
+    // Determine Tier Badge
+    const badge = document.getElementById('complianceBadge');
+    if (badge) {
+        badge.className = 'compliance-badge'; // Reset classes
+        let tierClass = 'tier-bronze';
+        let rankLabel = '';
+        let iconName = 'clock';
+
+        if (compliancePercentage === 100) {
+            tierClass = 'tier-gold';
+            rankLabel = currentLang === 'ha' ? 'Abokin Ci Gaban Jiha' : 'Gold Payer';
+            iconName = 'award';
+        } else if (compliancePercentage >= 50) {
+            tierClass = 'tier-silver';
+            rankLabel = currentLang === 'ha' ? 'Abokin Kusa' : 'Silver Payer';
+            iconName = 'shield';
+        } else {
+            tierClass = 'tier-bronze';
+            rankLabel = currentLang === 'ha' ? 'Abokin Jira' : 'Bronze Payer';
+            iconName = 'clock';
+        }
+
+        badge.classList.add(tierClass);
+        badge.innerHTML = `<i data-feather="${iconName}"></i> <span id="complianceRankText">${rankLabel}</span>`;
+    }
+    
     document.getElementById('dashUnpaidBalance').textContent = `₦${unpaid.toLocaleString()}`;
     document.getElementById('dashTotalPaid').textContent = `₦${paid.toLocaleString()}`;
     feather.replace();
@@ -993,8 +1064,8 @@ function generateReceiptHTML(payer, tax) {
                     <p>${thankYouNotice}</p>
                 </div>
                 <div class="qr-placeholder" style="border: none; background: transparent; text-align: center;">
-                    <img src="${qrUrl}" alt="Verification QR Code" style="width: 70px; height: 70px; display: block; margin: 0 auto 4px auto; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                    <span style="font-size: 8px; font-weight: 800; color: #10b981; letter-spacing: 1px;">${verifiableLabel}</span>
+                    <img src="${qrUrl}" alt="Verification QR Code" style="width: 50px; height: 50px; display: block; margin: 0 auto 4px auto; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                    <span style="font-size: 6.5px; font-weight: 800; color: #10b981; letter-spacing: 1px;">${verifiableLabel}</span>
                 </div>
             </div>
         </div>

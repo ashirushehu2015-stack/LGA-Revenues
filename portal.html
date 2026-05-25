@@ -199,6 +199,27 @@
             <div class="dashboard-grid">
                 <!-- Summary Column -->
                 <div class="summary-col">
+                    <!-- Taxpayer Compliance Rating Card -->
+                    <div class="compliance-card">
+                        <div class="compliance-ring-container">
+                            <svg class="compliance-ring" width="120" height="120">
+                                <circle class="compliance-ring-bg" cx="60" cy="60" r="50"></circle>
+                                <circle class="compliance-ring-progress" id="complianceRingProgress" cx="60" cy="60" r="50"></circle>
+                            </svg>
+                            <div class="compliance-percentage" id="compliancePercentText">0%</div>
+                        </div>
+                        <div class="compliance-tier-wrap">
+                            <label data-i18n="dash_compliance_tier">Compliance Rating</label>
+                            <div class="compliance-badge" id="complianceBadge">
+                                <i data-feather="award"></i>
+                                <span id="complianceRankText">Checking...</span>
+                            </div>
+                        </div>
+                        <p class="compliance-feedback" id="complianceFeedbackText" data-i18n="dash_compliance_feedback">
+                            Your tax payments directly fund crucial infrastructure and public services in your local community.
+                        </p>
+                    </div>
+
                     <div class="summary-card">
                         <div class="summary-icon unpaid">
                             <i data-feather="clock"></i>

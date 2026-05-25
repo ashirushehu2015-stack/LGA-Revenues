@@ -375,48 +375,52 @@ body {
 
 /* Receipt Styling */
 .receipt-container {
-    padding: 40px;
+    padding: 24px 18px;
     background: white;
     font-family: 'Inter', sans-serif;
     color: #1e293b;
-    max-width: 800px;
+    width: 100%;
+    max-width: 420px;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .receipt-header {
     border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 20px;
-    margin-bottom: 30px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
 }
 
 .header-main {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
     position: relative;
 }
 
 .receipt-logo {
-    width: 70px;
-    height: 70px;
+    width: 36px;
+    height: 36px;
 }
 
 .government-info h2 {
-    font-size: 1.25rem;
+    font-size: 0.8rem;
     font-weight: 800;
     margin: 0;
     color: #0f172a;
+    line-height: 1.2;
 }
 
 .government-info h3 {
-    font-size: 1rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    margin: 4px 0;
+    margin: 2px 0;
     color: var(--primary);
+    line-height: 1.2;
 }
 
 .government-info p {
-    font-size: 0.875rem;
+    font-size: 0.6rem;
     color: #64748b;
     margin: 0;
 }
@@ -428,27 +432,27 @@ body {
     transform: translateY(-50%);
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
     font-weight: 700;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    font-size: 0.52rem;
+    letter-spacing: 0.5px;
 }
 
 .success-banner {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     background: #ecfdf5;
     border: 1px solid #d1fae5;
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 16px;
 }
 
 .check-icon {
-    width: 24px;
-    height: 24px;
+    width: 16px;
+    height: 16px;
     background: #10b981;
     color: white;
     border-radius: 50%;
@@ -456,45 +460,46 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 900;
+    font-size: 0.6rem;
 }
 
 .payment-confirmed h4 {
     margin: 0;
     color: #065f46;
-    font-size: 0.875rem;
+    font-size: 0.72rem;
 }
 
 .payment-confirmed p {
     margin: 0;
     color: #047857;
-    font-size: 0.75rem;
+    font-size: 0.6rem;
     font-weight: 600;
 }
 
 .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 8px 12px;
+    margin-bottom: 16px;
 }
 
 .info-item label {
     display: block;
-    font-size: 0.65rem;
+    font-size: 0.5rem;
     font-weight: 700;
     color: #94a3b8;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
     text-transform: uppercase;
 }
 
 .info-item p {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.75rem;
     margin: 0;
 }
 
 .payment-details {
-    margin-bottom: 30px;
+    margin-bottom: 16px;
 }
 
 .payment-details table {
@@ -504,14 +509,14 @@ body {
 
 .payment-details th {
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 0.58rem;
     color: #64748b;
-    padding: 12px 0;
+    padding: 6px 0;
     border-bottom: 1px solid #f1f5f9;
 }
 
 .payment-details td {
-    padding: 20px 0;
+    padding: 8px 0;
     border-bottom: 1px solid #f1f5f9;
 }
 
@@ -520,38 +525,54 @@ body {
 .tax-name {
     display: block;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.75rem;
 }
 
 .tax-desc {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.58rem;
     color: #64748b;
 }
 
 .amount {
     font-weight: 700;
-    font-size: 1.125rem;
+    font-size: 0.78rem;
 }
 
 .total {
-    font-size: 1.5rem;
+    font-size: 0.9rem;
     font-weight: 800;
     color: var(--primary);
 }
 
 .payment-details tfoot td {
-    padding-top: 30px;
+    padding-top: 16px;
     font-weight: 700;
 }
 
 .payment-meta {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px 12px;
     background: #f8fafc;
-    border-radius: 12px;
-    margin-bottom: 40px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.meta-item label {
+    display: block;
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+}
+
+.meta-item p {
+    font-weight: 600;
+    font-size: 0.75rem;
+    margin: 0;
 }
 
 .receipt-footer {
@@ -559,12 +580,16 @@ body {
     justify-content: space-between;
     align-items: flex-end;
     border-top: 1px solid #f1f5f9;
-    padding-top: 30px;
+    padding-top: 16px;
+}
+
+.footer-notice {
+    max-width: 75%;
 }
 
 .footer-notice p {
-    margin: 4px 0;
-    font-size: 0.75rem;
+    margin: 3px 0;
+    font-size: 0.58rem;
     color: #94a3b8;
 }
 
@@ -728,3 +753,138 @@ body {
     from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/* Compliance Score Card Styling */
+.compliance-card {
+    background: white;
+    padding: 2.25rem 2rem;
+    border-radius: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    border: 1px solid var(--slate-100);
+    transition: all 0.3s ease;
+}
+
+.compliance-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    border-color: rgba(139, 92, 246, 0.15);
+}
+
+.compliance-ring-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1.25rem;
+}
+
+.compliance-ring {
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
+
+.compliance-ring-bg {
+    fill: none;
+    stroke: #f1f5f9;
+    stroke-width: 10;
+}
+
+.compliance-ring-progress {
+    fill: none;
+    stroke: #8b5cf6; /* Default accent color, overridden by theme js */
+    stroke-width: 10;
+    stroke-linecap: round;
+    stroke-dasharray: 314.159; /* 2 * PI * r (2 * 3.14159 * 50) */
+    stroke-dashoffset: 314.159; /* Initially empty */
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.compliance-percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: var(--slate-900);
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.5px;
+}
+
+.compliance-tier-wrap {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.compliance-tier-wrap label {
+    font-size: 0.8125rem;
+    color: var(--slate-500);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.compliance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.compliance-badge i {
+    width: 16px;
+    height: 16px;
+}
+
+/* Tier States */
+.tier-bronze {
+    background-color: #fff7ed;
+    color: #c2410c;
+    border-color: #ffedd5;
+}
+
+.tier-silver {
+    background-color: #f8fafc;
+    color: #475569;
+    border-color: #e2e8f0;
+}
+
+.tier-gold {
+    background-color: #ecfdf5;
+    color: #047857;
+    border-color: #d1fae5;
+    box-shadow: 0 4px 18px rgba(16, 185, 129, 0.15);
+}
+
+.compliance-feedback {
+    font-size: 0.78rem;
+    color: var(--slate-500);
+    line-height: 1.5;
+    margin: 0;
+    font-style: italic;
+    border-top: 1px dashed var(--slate-100);
+    padding-top: 1rem;
+    width: 100%;
+}
+
+/* Report Modal Overrides for Compact Receipts */
+.report-modal {
+    max-width: 460px !important;
+    max-height: 96vh !important;
+}
+
+.report-modal .modal-body {
+    padding: 0.5rem !important;
+}
+
+
